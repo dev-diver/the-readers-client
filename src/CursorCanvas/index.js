@@ -4,16 +4,39 @@ import "./style.css";
 
 function CursorCanvas() {
   const canvas = useRef(null);
+  const pointers = useRef([]);
 
   useEffect(() => {
     socket.on("updatepointer", (data) => {
-      const ctx = canvas.current.getContext("2d");
-      drawOnCanvas(ctx, data.x, data.y, data.color); // 색상을 인자로 전달
+      updatePointers(data); 
+      redrawCanvas();
     });
-  });
+  },[]);
 
-  function drawOnCanvas(ctx, x, y, color) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // 캔버스 클리어
+  const updatePointers = (data) => {
+    // 새로운 포인터 데이터 추가 또는 업데이트
+    const index = pointers.current.findIndex(p => p.id === data.id);
+    if (index >= 0) {
+      pointers.current[index] = data;
+    } else {
+      pointers.current.push(data);
+    }
+  };
+
+  const clearCanvas = () => {
+    const ctx = canvas.current.getContext("2d");
+    ctx.clearRect(0, 0, canvas.current.width, canvas.current.height);
+  };
+
+  const redrawCanvas = () => {
+    clearCanvas();
+    pointers.current.forEach(p => {
+      drawOnCanvas(p.x, p.y, p.color);
+    });
+  };
+
+  function drawOnCanvas(x, y, color) {
+    const ctx = canvas.current.getContext("2d");
     ctx.fillStyle = color; // 서버로부터 받은 색상 사용
     ctx.font = "20px Arial";
     ctx.fillText("여기", x, y); // 텍스트 그리기
