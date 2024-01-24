@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef} from 'react';
 import socket, { baseURL } from 'socket.js'; 
-import Button from 'Button';
+import Button from 'components/Button';
 
 function PDFViewer(){
     const [htmlContent, setHtmlContent] = useState('');
