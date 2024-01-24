@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import socket from "../socket.js";
+import socket from "socket.js";
 import "./style.css";
 
 function CursorCanvas() {

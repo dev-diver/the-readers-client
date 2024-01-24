@@ -1,42 +1,37 @@
-import React from 'react';
-import { BrowserRouter, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link} from 'react-router-dom'
+import Room from './pages/Room';
+import CursorCanvas from './pages/CursorCanvas';
 import { Hambugerbutton } from "./icons/Hambergerbutton";
 import Main from "./pages/Main";
 import ProfilePage from './Profile';
 import JoinPage from './pages/Join';
 import HashtagPage from './HashtagPage';
 
-const App = () => {
-  <div>
-    <div><Hambugerbutton /></div>
-    <Routes>
-      <Route path="/" element = {<div> <Main /> </div>}></Route>
-      <Route path="/profile" element={<div><ProfilePage /></div>}></Route>
-      <Route path="/join" element={<div><JoinPage /></div>}></Route>
-      <Route path="/hashtag" element={<div><HashtagPage /></div>}></Route>
-    </Routes>
-
-  </div>
+function App() {
+  return (
+    <div>
+      <div><Hambugerbutton /></div>
+      <Router>
+        <div>
+          <nav>
+            <ul>
+              <li>
+                <Link to="/room">Room</Link>
+              </li>
+              <li>
+                <Link to="/">Draw(Home)</Link>
+              </li>
+            </ul>
+          </nav>
+          <Routes>
+            <Route path="/room" element={<Room />} />
+            <Route path="/" element={<CursorCanvas />} />
+          </Routes>
+        </div>
+      </Router>
+    </div>
+  );
 }
 
-// import React from 'react';
-// import { BrowserRouter as Router, Route, Switch, BrowserRouter } from 'react-router-dom';
-// import HomePage from './HomePage';
-// import ProfilePage from './Profile';
-// import JoinPage from './pages/Join';
-// import HashtagPage from './HashtagPage';
+export default App;
 
-// const App = () => {
-//   return (
-//     <Router>
-//       <BrowserRouter>
-//         <Route path="/profile" component={ProfilePage} />
-//         <Route path="/join" component={JoinPage} />
-//         <Route path="/hashtag" component={HashtagPage} />
-//         <Route path="/" component={HomePage} />
-//       </S>
-//     </Router>
-//   );
-// };
-
-// export default App;
