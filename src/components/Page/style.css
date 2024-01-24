@@ -1,0 +1,26 @@
+.page {
+  background-color: #ffffff;
+  height: 1117px;
+  width: 1728px;
+}
+
+.page .contents {
+  height: 1117px;
+  left: 364px;
+  position: relative;
+  width: 1000px;
+}
+
+.page .text-wrapper {
+  color: #000000;
+  font-family: "Inter", Helvetica;
+  font-size: 100px;
+  font-weight: 400;
+  left: 114px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  text-align: center;
+  top: 36px;
+  width: 725px;
+}

@@ -1,0 +1,59 @@
+.search-box {
+  height: 83px;
+  position: relative;
+  width: 830px;
+}
+
+.search-box .textfield {
+  background-color: #d9d9d9;
+  border-radius: 13px;
+  height: 63px;
+  left: 98px;
+  position: absolute;
+  top: 8px;
+  width: 662px;
+}
+
+.search-box .search-icon {
+  height: 48px !important;
+  left: 771px !important;
+  position: absolute !important;
+  top: 14px !important;
+  width: 48px !important;
+}
+
+.search-box .search-instance {
+  height: 40px !important;
+  left: 5px !important;
+  top: 5px !important;
+  width: 40px !important;
+}
+
+.search-box .design-component-instance-node {
+  height: 40px !important;
+  width: 40px !important;
+}
+
+.search-box .search-icon-2 {
+  border: 2.25px solid !important;
+  border-radius: 11.25px !important;
+  height: 22px !important;
+  left: 5px !important;
+  top: 5px !important;
+  width: 22px !important;
+}
+
+.search-box .search-icon-3 {
+  height: 7px !important;
+  left: 10px !important;
+  top: 10px !important;
+  width: 7px !important;
+}
+
+.search-box .vector {
+  height: 45px;
+  left: 30px;
+  position: absolute;
+  top: 16px;
+  width: 57px;
+}

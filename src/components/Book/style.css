@@ -1,0 +1,9 @@
+.book {
+  background-image: url(https://c.animaapp.com/yGFj865V/img/-book-5.png);
+  background-position: 50% 50%;
+  background-size: cover;
+  border-radius: 20px;
+  box-shadow: 0px 4px 4px #00000040;
+  height: 267px;
+  width: 244px;
+}
