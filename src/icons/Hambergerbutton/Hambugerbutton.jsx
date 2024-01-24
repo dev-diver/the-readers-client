@@ -32,8 +32,10 @@
 // };
 
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-export const Hambugerbutton = ({ className }) => {
+export const Hambugerbutton = ({className}) => {
+  const navigate = useNavigate();
   // 로그인 상태를 저장하는 상태
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   // 프로필 창이 열렸는지를 저장하는 상태
@@ -47,16 +49,18 @@ export const Hambugerbutton = ({ className }) => {
     // 로그인 상태에 따라 동작 분기
     if (isLoggedIn) {
       // 이미 로그인된 경우, 프로필 창 토글
+      navigate("/profile");
       setIsProfileOpen((prevIsProfileOpen) => !prevIsProfileOpen);
     } else {
       // 로그인되지 않은 경우, 로그인 창 열기
+      navigate("/login");
       setIsLoginOpen(true);
     }
   };
 
   return (
     <div>
-      {/* 햄버거 버튼 */}
+      {/* 햄버거 버튼
       <svg
       className={`hambugerbutton ${className}`}
       onClick={handleHamburgerClick}
@@ -78,10 +82,10 @@ export const Hambugerbutton = ({ className }) => {
           <rect className="rect" fill="white" height="48" width="48" />
         </clipPath>
       </defs>
-    </svg>
-      {/* <button className={`hamburger-button ${className}`} onClick={handleHamburgerClick}>
+    </svg> */}
+      <button className={`hamburger-button ${className}`} onClick={handleHamburgerClick}>
         Hamburger Button
-      </button> */}
+      </button>
 
       {/* 프로필 창 */}
       {isLoggedIn && isProfileOpen && (
@@ -94,8 +98,8 @@ export const Hambugerbutton = ({ className }) => {
       {/* 로그인 창 */}
       {!isLoggedIn && isLoginOpen && (
         <div className="login-container">
+          <button onClick={ handleHamburgerClick }>Go to JoinPage</button>
           {/* 로그인 내용 */}
-          <p>Login Content</p>
         </div>
       )}
     </div>

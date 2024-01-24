@@ -1,17 +1,17 @@
 import { BrowserRouter as Router, Routes, Route, Link} from 'react-router-dom'
-import Room from './pages/Room';
-import CursorCanvas from './pages/CursorCanvas';
 import { Hambugerbutton } from "./icons/Hambergerbutton";
 import Main from "./pages/Main";
-import ProfilePage from './Profile';
-import JoinPage from './pages/Join';
-import HashtagPage from './HashtagPage';
+import CursorCanvas from './pages/CursorCanvas';
+import Room from './pages/Room';
+import ProfilePage from './pages/Profile';
+import SignupPage from './pages/Signup';
+// import HashtagPage from './HashtagPage';
 
 function App() {
   return (
     <div>
-      <div><Hambugerbutton /></div>
       <Router>
+      <div><Hambugerbutton /></div>
         <div>
           <nav>
             <ul>
@@ -24,8 +24,12 @@ function App() {
             </ul>
           </nav>
           <Routes>
+            <Route path="/" element={<Main />} />
+            <Route path="/canvas" element={<CursorCanvas />} />
             <Route path="/room" element={<Room />} />
-            <Route path="/" element={<CursorCanvas />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            {/* <Route path="/hashtag" element={<HashtagPage />} /> */}
           </Routes>
         </div>
       </Router>
