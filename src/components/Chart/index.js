@@ -3,14 +3,10 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import { debounce } from 'lodash';
 
 
-const original_data = [];
-
-for (let i = 0; i <= 10; i++) {
-  original_data.push({
-    page: `${i}`,
-    time: 0
-  });
-}
+const original_data = new Array(11).fill(0).map((_, index) => ({
+  page: `${index}`,
+  time: 0
+}));
 
 let updatedData = {};
 
@@ -18,8 +14,11 @@ function Chart() {
   const [prevScroll, setPrevScroll] = useState(0);
   const [scroll, setScroll] = useState(calculateScrollY());
   const [data, setData] = useState(original_data);
+  const [count, setCount] = useState(0);
     
     const handleScroll = debounce(() => {
+      console.log("debounce" , scroll);
+      // setPrevScroll(scroll);
       setScroll(calculateScrollY());
     }, 1000);
     
@@ -28,44 +27,38 @@ function Chart() {
       
       // 스크롤 이벤트 리스너 추가
       pageContainer.addEventListener('scroll', () => handleScroll());
-      console.log("1. page", scroll);
       // 컴포넌트가 언마운트될 때 리스너 제거
       return () => pageContainer.removeEventListener('scroll', () => handleScroll());
-    }, [scroll]);
+    }, []);
     
     useEffect(() => {
       setPrevScroll(scroll);
-      console.log("2. prev page", prevScroll);
-      console.log("*********");
-      
-      
-    }, [scroll]);
-    
-    // count는 스크롤 이벤트가 한 번 발생한 이후부터 시작. 그 전엔 카운트 안 셈.
-    // data에서 prevScroll에 해당하는 값이 time 키와 같을 때 그 값을 1초에 1씩 증가시킴
-    // count가 prevScroll 값이 바뀔 때마다 0으로 초기화되는 기능 포함
-    
-    const [count, setCount] = useState(0);
-    
-    useEffect(() => {
+      console.log("[scroll] scroll: ", scroll);
+      console.log("[scroll] PrevScroll: ", prevScroll);
       // 1초마다 count 증가
       const interval = setInterval(() => {
         setCount(c => c + 1);
       }, 1000);
-      
-      console.log("count: ",count);
     
       // 컴포넌트가 언마운트될 때 인터벌 정리
       return () => clearInterval(interval);
     }, [scroll]);
 
+    useEffect(() => {
+      console.log("time(count): ",count);
+    }, [scroll]);
+
+    // count는 스크롤 이벤트가 한 번 발생한 이후부터 시작. 그 전엔 카운트 안 셈.
+    // data에서 prevScroll에 해당하는 값이 time 키와 같을 때 그 값을 1초에 1씩 증가시킴
+    // count가 prevScroll 값이 바뀔 때마다 0으로 초기화되는 기능 포함
+  
+
   useEffect(() => {
-      console.log("*** 구현중 ***");
-      console.log("prevScroll: ",prevScroll);
       updatedData = data.map(item => {
       if (item.page && parseInt(item.page) === prevScroll) {
         // data의 parseInt(item.page)과 같은 값의 page를 찾아 time을 count만큼 증가시킴
 
+        console.log("the item in data");
         console.log("item.page: ",item.page);
         console.log("item.time: ",item.time);
 
@@ -79,11 +72,15 @@ function Chart() {
       }
       return item;
     });
+
+    setData(updatedData);
+
   }, [scroll]);
 
   useEffect(() => {
-    setData(updatedData);
-  }, [count]);
+    console.log("2. prev page", prevScroll);
+    console.log("*********");
+  }, [prevScroll]);
   
   return (
     <ResponsiveContainer width="20%" height="85%" style={{ position: 'sticky', top:'20px'}}>
