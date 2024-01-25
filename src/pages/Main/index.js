@@ -1,35 +1,27 @@
-import React from "react";
-import { Book } from "../../components/Book";
-import { Page } from "../../components/Page";
-import { SearchBox } from "../../components/SearchBox";
-import { Hambugerbutton } from "../../icons/Hambergerbutton";
-import "./style.css";
+import React, { useState, useEffect } from "react";
+import Book from "components/Book";
+import SearchChange from "components/SearchChange";
+// import "./style.css";
 
-function Main(){
+let studyroomList = [];
+
+function Main() {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    studyroomList = data.map((e, i) => {
+      return <Book key={`book-${i}`} name={e.name} id={e.id}></Book>;
+    });
+  }, [data]);
+
   return (
     <div className="mainpage-book">
-      <div className="overlap-wrapper">
-        <div className="overlap">
-          <Page className="design-component-instance-node-2" />
-          <Hambugerbutton className="hambuger-button" />
-          <div className="search-result">
-            <div className="div">
-              <Book className="design-component-instance-node-2" />
-              <Book className="book-instance" />
-              <Book className="book-2" />
-              <Book className="book-3" />
-              <Book className="book-4" />
-            </div>
-          </div>
-          <SearchBox
-            className="search-box-instance"
-            hasVector={false}
-            searchUnion="https://c.animaapp.com/yGFj865V/img/union-1.svg"
-          />
-        </div>
+      <SearchChange setData={setData} />
+      <div className="search-result">
+        <div className="div">{studyroomList}</div>
       </div>
     </div>
   );
-};
+}
 
 export default Main;
