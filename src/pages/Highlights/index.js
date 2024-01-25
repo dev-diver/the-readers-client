@@ -1,5 +1,6 @@
 import { React, useEffect } from 'react'
 import PdfExample from 'mock/PdfExample'
+import Chart from 'components/Chart'
 
 /**************************/
 // highlight_id를 추적하기 위한 전역 변수
@@ -107,13 +108,14 @@ export default function Highlights() {
   }, []);
 
   return (
-    <>
-      <div class="page-container">
+    <div style={{height: '100vh', width: '100vw'}}>
+      <div id="page-container" style={{ display: 'flex', height: '100%', width: '80%', overflow: 'scroll'}}>
+        <Chart />
         <PdfExample />
       </div>
       <button id="deleteAllButton">모두 삭제</button>
       <div id="stored-highlights" style={{border: "black 1px solid"}}></div>
-    </>
+    </div>
   )
 }
 
