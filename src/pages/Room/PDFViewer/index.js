@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import socket, { baseURL } from "socket.js";
 import Button from "components/Button";
 
-function PDFViewer() {
+function PDFViewer({ bookname }) {
 	const [htmlContent, setHtmlContent] = useState("");
 	const [isAttention, setAttention] = useState(false);
 
@@ -28,10 +28,11 @@ function PDFViewer() {
 			scrollTop: scrollTop,
 		});
 		setAttention(false);
-	});
+	}, []);
 
 	useEffect(() => {
-		fetch(`${baseURL}/src/example.html`)
+		console.log("책 이름", bookname);
+		fetch(`${baseURL}/src/${bookname}.html`)
 			.then((response) => response.text())
 			.then((data) => {
 				setHtmlContent(data);

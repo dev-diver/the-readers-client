@@ -15,7 +15,9 @@ export const SearchBox = ({
 }) => {
   return (
     <div className={`search-box ${className}`}>
-      <div className="textfield" />
+      <div className="input-container">
+        <input type="text" required />
+      </div>
       <Search
         className="search-icon"
         ellipse="https://c.animaapp.com/yGFj865V/img/ellipse-54-1.svg"
