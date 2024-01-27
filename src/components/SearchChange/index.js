@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { baseURL } from "config/config";
 
 const SearchChange = ({ setData }) => {
 	const [bookname, setbookname] = useState("");
@@ -6,7 +7,7 @@ const SearchChange = ({ setData }) => {
 	const handleSubmit = (event) => {
 		event.preventDefault();
 
-		fetch(`http://localhost:3000/api/books/search?bookname=${encodeURIComponent(bookname)}`)
+		fetch(`${baseURL}/api/books/search?bookname=${encodeURIComponent(bookname)}`)
 			.then((response) => response.json())
 			.then((data) => {
 				console.log(data);

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./style.css";
+import { baseURL } from "config/config";
 
 const Profilecard = ({ user }) => {
 	const navigate = useNavigate();
@@ -43,7 +44,7 @@ const Profile = () => {
 	var id = userInfo.id;
 
 	useEffect(() => {
-		fetch(`http://localhost:3000/api/user/${userInfo?.id}`)
+		fetch(`${baseURL}/api/user/${userInfo?.id}`)
 			.then((res) => res.json())
 			.then((data) => {
 				console.log(data);

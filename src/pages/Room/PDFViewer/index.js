@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import socket, { baseURL } from "socket.js";
+import socket from "socket.js";
+import { baseURL } from "config/config";
 import Button from "components/Button";
 
 function PDFViewer({ bookname }) {
