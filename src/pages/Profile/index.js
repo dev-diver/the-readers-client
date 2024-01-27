@@ -1,64 +1,60 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import "./style.css";
 
 const Profilecard = ({ user }) => {
-  const navigate = useNavigate();
+	const navigate = useNavigate();
 
-  useEffect(function() {
-    document.getElementById('logout').addEventListener("onClick",handleLogout);
-  }, []);
+	useEffect(function () {
+		document.getElementById("logout").addEventListener("onClick", handleLogout);
+	}, []);
 
-  function handleLogout(event){
-    event.preventDefault();
-    navigate("/auth/logout", {replace: true});
-  }
+	function handleLogout(event) {
+		event.preventDefault();
+		navigate("/auth/logout", { replace: true });
+	}
 
-  return (
-    <div>
-       <div className="user-name">안녕하세요! {user.nick}님</div>
-        <div className="half">
-            <div>팔로잉</div>
-            <div className="count following-count">{user.followingCount}</div>
-        </div>
-        <div className="half">
-            <div>팔로워</div>
-            <div className="count follower-count">{user.followerCount}</div>
-        </div>
-        <input id="my-id" type="hidden" value={user.id} />
-        <a id="my-profile" href="/profile" className="btn">내 프로필</a>
-        <button id="logout" className="btn">로그아웃</button>
-        <form id="login-form" action="/auth/login" method="post" />
-    </div>
-  );
+	return (
+		<div>
+			<div className="user-name">안녕하세요! {user.nick}님</div>
+			<div className="half">
+				<div>팔로잉</div>
+				<div className="count following-count">{user.followingCount}</div>
+			</div>
+			<div className="half">
+				<div>팔로워</div>
+				<div className="count follower-count">{user.followerCount}</div>
+			</div>
+			<input id="my-id" type="hidden" value={user.id} />
+			<a id="my-profile" href="/profile" className="btn">
+				내 프로필
+			</a>
+			<button id="logout" className="btn">
+				로그아웃
+			</button>
+			<form id="login-form" action="/auth/login" method="post" />
+		</div>
+	);
 };
 
 const Profile = () => {
-  const [userInfo, setUserInfo] = useState(null);
+	const [userInfo, setUserInfo] = useState(null);
 
-  var id = userInfo.id;
+	var id = userInfo.id;
 
-  useEffect(() => {
-    fetch(`http://localhost:3000/api/user/${userInfo?.id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-        setUserInfo(data);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }, [userInfo]);
+	useEffect(() => {
+		fetch(`http://localhost:3000/api/user/${userInfo?.id}`)
+			.then((res) => res.json())
+			.then((data) => {
+				console.log(data);
+				setUserInfo(data);
+			})
+			.catch((err) => {
+				console.error(err);
+			});
+	}, [userInfo]);
 
-  return (
-    <div className="profilepage">
-      {userInfo && (
-        <Profilecard
-          user = { userInfo }
-        />
-      )}
-    </div>
-  );
+	return <div className="profilepage">{userInfo && <Profilecard user={userInfo} />}</div>;
 };
 
 export default Profile;
@@ -115,5 +111,3 @@ export default Profile;
 //     </div>
 //   );
 // };
-
-

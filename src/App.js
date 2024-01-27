@@ -1,3 +1,4 @@
+import React from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Hambugerbutton from "icons/Hambergerbutton";
 import Main from "pages/Main";

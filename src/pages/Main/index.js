@@ -10,7 +10,7 @@ function Main() {
 	useEffect(() => {
 		console.log("data changed");
 		const newData = data.map((e, i) => {
-			return <Book name={e.name} id={e.id}></Book>;
+			return <Book key={`book-${i}`} name={e.name} id={e.id}></Book>;
 		});
 		setStudyroomList(newData);
 	}, [data]);

@@ -3,6 +3,9 @@
       "browser": true,
       "es2021": true
     },
+    "globals":{
+      "process": "readonly"
+    },
     "extends": [
       "eslint:recommended", 
       "plugin:react/recommended", 
@@ -18,7 +21,9 @@
     },
     "plugins": ["react", "react-hooks", "prettier"],
     "rules": {
-        "prettier/prettier": "error"
+        "no-unused-vars": "warn",
+        "prettier/prettier": "warn",
+        "react/prop-types": 0
     },
     "settings": {
       "react": {

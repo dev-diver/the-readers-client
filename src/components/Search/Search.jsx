@@ -8,26 +8,26 @@ import React from "react";
 import "./style.css";
 
 export const Search = ({
-  className,
-  overlapGroupClassName,
-  unionClassName,
-  union = "https://c.animaapp.com/yGFj865V/img/union-2.svg",
-  ellipseClassName,
-  ellipseClassNameOverride,
-  ellipse = "https://c.animaapp.com/yGFj865V/img/ellipse-54-2.svg",
+	className,
+	overlapGroupClassName,
+	unionClassName,
+	union = "https://c.animaapp.com/yGFj865V/img/union-2.svg",
+	ellipseClassName,
+	ellipseClassNameOverride,
+	ellipse = "https://c.animaapp.com/yGFj865V/img/ellipse-54-2.svg",
 }) => {
-  return (
-    <div className={`search ${className}`}>
-      <div className={`overlap-group ${overlapGroupClassName}`}>
-        <img className={`union ${unionClassName}`} alt="Union" src={union} />
-        <div className={`ellipse ${ellipseClassName}`} />
-        <img className={`img ${ellipseClassNameOverride}`} alt="Ellipse" src={ellipse} />
-      </div>
-    </div>
-  );
+	return (
+		<div className={`search ${className}`}>
+			<div className={`overlap-group ${overlapGroupClassName}`}>
+				<img className={`union ${unionClassName}`} alt="Union" src={union} />
+				<div className={`ellipse ${ellipseClassName}`} />
+				<img className={`img ${ellipseClassNameOverride}`} alt="Ellipse" src={ellipse} />
+			</div>
+		</div>
+	);
 };
 
 Search.propTypes = {
-  union: PropTypes.string,
-  ellipse: PropTypes.string,
+	union: PropTypes.string,
+	ellipse: PropTypes.string,
 };
