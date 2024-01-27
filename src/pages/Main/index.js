@@ -3,15 +3,16 @@ import Book from "components/Book";
 import SearchChange from "components/SearchChange";
 // import "./style.css";
 
-let studyroomList = [];
-
 function Main() {
   const [data, setData] = useState([]);
+  const [studyroomList, setStudyroomList] = useState([]);
 
   useEffect(() => {
-    studyroomList = data.map((e, i) => {
-      return <Book key={`book-${i}`} name={e.name} id={e.id}></Book>;
+    console.log("data changed");
+    const newData = data.map((e, i) => {
+      return <Book name={e.name} id={e.id}></Book>;
     });
+    setStudyroomList(newData);
   }, [data]);
 
   return (
