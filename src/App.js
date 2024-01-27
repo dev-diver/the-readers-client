@@ -1,11 +1,11 @@
 import { BrowserRouter as Router, Routes, Route, Link} from 'react-router-dom'
-import { Hambugerbutton } from "./icons/Hambergerbutton";
 import Main from "./pages/Main";
 import CursorCanvas from './pages/CursorCanvas';
 import Room from './pages/Room';
 import ProfilePage from './pages/Profile';
 import SignupPage from './pages/Signup';
-// import HashtagPage from './HashtagPage';
+import LoginPage from './pages/Login';
+import Hambugerbutton from './icons/Hambergerbutton';
 
 function App() {
   return (
@@ -21,6 +21,15 @@ function App() {
               <li>
                 <Link to="/">Draw(Home)</Link>
               </li>
+              <li>
+                <Link to="/profile">Profile Page</Link>
+              </li>
+              <li>
+                <Link to="/signup">Sign up Page</Link>
+              </li>
+              <li>
+                <Link to="/login">Login Page</Link>
+              </li>
             </ul>
           </nav>
           <Routes>
@@ -29,7 +38,7 @@ function App() {
             <Route path="/room" element={<Room />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/signup" element={<SignupPage />} />
-            {/* <Route path="/hashtag" element={<HashtagPage />} /> */}
+            <Route path="/login" element={<LoginPage />} />
           </Routes>
         </div>
       </Router>

@@ -1,8 +1,8 @@
 import React from "react";
-import { Book } from "../../components/Book";
-import { Page } from "../../components/Page";
-import { SearchBox } from "../../components/SearchBox";
-import { Hambugerbutton } from "../../icons/Hambergerbutton";
+import { Book } from "components/Book";
+import { Page } from "components/Page";
+import { SearchBox } from "components/SearchBox";
+import Hambugerbutton from "icons/Hambergerbutton";
 import "./style.css";
 
 function Main(){
@@ -26,6 +26,7 @@ function Main(){
             hasVector={false}
             searchUnion="https://c.animaapp.com/yGFj865V/img/union-1.svg"
           />
+         
         </div>
       </div>
     </div>
