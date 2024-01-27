@@ -1,41 +1,25 @@
-// import React from 'react'
+import React, { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
 
-// function Login() {
-//   return (
-//     <div>
-//         <div>
-//             <form action="">
-//                 <div className='mb-3'>
-//                     <label htmlFor="email">Email</label>
-//                 </div>
-//             </form>
-//         </div>
-//     </div>
-//   )
-// }
-
-import React, { useEffect } from "react";
-import { BrowserRouter as useNavigate } from 'react-router-dom';
 
 function Signup() {
   const navigate = useNavigate();
-
+  const [userInfo, setUserInfo] = useState(null);
+  
   useEffect(function() {
-    // URL에서 error 매개변수가 있는지 확인
-    const errorParam = new URL(window.location.href).searchParams.get('error');
 
-    // 만약 error 매개변수가 있다면 알림을 표시
-    if (errorParam) {
+    document.getElementById("signup-form").addEventListener("submit",handleSubmit);
+    const errorParam = new URL(window.location.href).searchParams.get('error');
+        if (errorParam) {
       alert('이미 존재하는 이메일입니다.');
     }
-  }, []);
-
-function handleSubmit(event) {
-    event.preventDefault();
-
-    // 회원가입 로직 추가하기
-    // navigate('/success') 또는 에러 발생 시 navigate('/error') 등을 사용할 수 있습니다.
+  }, [userInfo]);
+  
+  function handleSubmit(event) {
+  event.preventDefault();
+  navigate("/auth/signup", {replace: true});
   }
+
 
   return (
     <div className="timeline">
@@ -52,9 +36,9 @@ function handleSubmit(event) {
           <label htmlFor="signup-password">비밀번호</label>
           <input id="signup-password" type="password" name="password" />
         </div>
-        <form id="signup-btn" action="auth/signup" method="post" className="btn">
+        <button id="signup-btn" type = "submit" method="post" className="btn">
           회원가입
-        </form>
+        </button>
       </form>
     </div>
   );
