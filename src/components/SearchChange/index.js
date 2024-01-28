@@ -9,11 +9,10 @@ const SearchChange = ({ setData }) => {
 		event.preventDefault();
 
 		api
-			.get(`/api/books/search?bookname=${encodeURIComponent(bookname)}`)
-			.then((response) => response.json())
-			.then((data) => {
-				logger.log(data);
-				setData(data.data);
+			.get(`/rooms/search?bookname=${encodeURIComponent(bookname)}`)
+			.then((res) => {
+				logger.log(res);
+				setData(res.data.data);
 			})
 			.catch((error) => {
 				logger.error("Error:", error);
