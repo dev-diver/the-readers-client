@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import FormFile from "./Formfile";
 import api from "api";
+import { logger } from "logger";
 
 export default function UploadFile() {
 	const [file, setFile] = useState(null);
@@ -13,10 +14,10 @@ export default function UploadFile() {
 				},
 			})
 			.then((response) => {
-				console.log(response.data.url);
+				logger.log(response.data.url);
 			})
 			.catch((err) => {
-				console.error(err);
+				logger.error(err);
 			});
 	};
 

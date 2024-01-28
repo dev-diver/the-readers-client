@@ -1,18 +1,18 @@
 import React from "react";
-import { useParams, useEffect } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import "./styles.css";
 import RtcViewer from "./RtcViewer";
 import PDFViewer from "./PDFViewer";
 
 function Room() {
-	const { id } = useParams();
-
+	const { bookId } = useParams();
+	const { roomId } = useParams();
 	// useEffect(() => {}, []);
 
 	return (
 		<div className="container">
 			{/* <RtcViewer/> */}
-			<PDFViewer bookname={id} />
+			<PDFViewer roomId={roomId} bookId={bookId} />
 		</div>
 	);
 }
