@@ -50,7 +50,7 @@ function highlightRange(range) {
 /**************************/
 // 형광펜 정보를 백엔드로 전송하는 함수
 function sendHighlightToServer(highlightInfos) {
-	fetch("/api/highlights", {
+	fetch("/highlights", {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
