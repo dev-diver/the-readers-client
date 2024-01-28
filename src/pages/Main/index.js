@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import Book from "components/Book";
 import SearchChange from "components/SearchChange";
+import UploadFile from "./UploadFile";
 import { logger } from "logger";
+
 // import "./style.css";
 
 function Main() {
@@ -22,6 +24,7 @@ function Main() {
 			<div className="search-result">
 				<div className="div">{studyroomList}</div>
 			</div>
+			<UploadFile />
 		</div>
 	);
 }
