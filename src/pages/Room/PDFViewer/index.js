@@ -1,12 +1,17 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
+import { createPortal } from "react-dom";
 import socket from "socket.js";
-import { baseURL } from "config/config";
-import Button from "components/Button";
+import api from "api";
 import { logger } from "logger";
+import Button from "components/Button";
+import Highlights from "./Highlights";
+import PageCanvas from "./PageCanvas";
 
-function PDFViewer({ bookname }) {
+function PDFViewer({ bookId, roomId }) {
 	const [htmlContent, setHtmlContent] = useState("");
 	const [isAttention, setAttention] = useState(false);
+	const [canvasComponents, setCanvasComponents] = useState([]);
+	const [cssLoaded, setCssLoaded] = useState(false);
 
 	const containerRef = useRef(null);
 
@@ -33,13 +38,69 @@ function PDFViewer({ bookname }) {
 	}, []);
 
 	useEffect(() => {
-		logger.log("책 이름", bookname);
-		fetch(`${baseURL}/src/${bookname}.html`)
-			.then((response) => response.text())
+		logger.log("책 id", bookId);
+		api
+			.get(`/books/${bookId}`)
+			.then((response) => {
+				const bookUrl = response.data.data.url;
+				logger.log(bookUrl);
+				return fetch(bookUrl)
+					.then((response) => {
+						return response.text();
+					})
+					.catch((err) => {
+						logger.log(err);
+					});
+			})
 			.then((data) => {
+				logger.log(data);
 				setHtmlContent(data);
 			});
 	}, []);
+
+	useEffect(() => {
+		if (htmlContent && containerRef.current) {
+			const pageContainer = containerRef.current.querySelector("#page-container");
+			const pageDivs = pageContainer.querySelectorAll("div");
+			const mapCanvasContainer = Array.from(pageDivs).map((pageDiv, index) => {
+				const container = document.createElement("div");
+				container.classList.add("page-wrapper");
+
+				const canvasLayer = document.createElement("div");
+				canvasLayer.classList.add("canvasLayer");
+
+				const textLayer = document.createElement("div");
+				textLayer.classList.add("textLayer");
+
+				const pageRect = pageDiv.getBoundingClientRect();
+				const pageDivClone = pageDiv.cloneNode(true);
+				pageDiv.parentNode.replaceChild(container, pageDiv);
+				container.appendChild(canvasLayer);
+				container.appendChild(textLayer);
+				textLayer.appendChild(pageDivClone);
+
+				logger.log("pageRect", pageRect);
+				return {
+					component: <PageCanvas pageNum={index} pageRect={pageRect} />,
+					container: canvasLayer,
+				};
+			});
+
+			setCanvasComponents(mapCanvasContainer);
+		}
+	}, [htmlContent]);
+
+	// useEffect(() => {
+	//     const link = document.createElement('link');
+	//     link.rel = "stylesheet"
+	//     link.href = `${baseURL}/src/example.css`
+	//     link.onload = () => setCssLoaded(true);
+	//     document.head.appendChild(link);
+
+	//     return() =>{
+	//         document.head.removeChild(link);
+	//     }
+	// }, []);
 
 	useEffect(() => {
 		socket.on("attention", (data) => {
@@ -66,9 +127,13 @@ function PDFViewer({ bookname }) {
 	return (
 		<>
 			<Button onClick={() => sendAttention()} />
+			<Highlights />
 			<div className="pdf-container" onScroll={handleScroll} ref={containerRef}>
 				<div className="pdf-contents" dangerouslySetInnerHTML={{ __html: htmlContent }} />
 			</div>
+			{canvasComponents.map(({ component, container }, index) => {
+				return createPortal(component, container);
+			})}
 		</>
 	);
 }

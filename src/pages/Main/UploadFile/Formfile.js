@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { logger } from "logger";
 
 export default function FormFile({ setFile }) {
 	const inputRef = useRef([]);
@@ -12,7 +13,7 @@ export default function FormFile({ setFile }) {
 			window.alert("pdf, html만 가능합니다");
 			return;
 		}
-		console.log(file);
+		logger.log(file);
 
 		setFile(file);
 	};
