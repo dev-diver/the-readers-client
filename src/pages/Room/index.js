@@ -1,15 +1,20 @@
-import React from "react"
-import './styles.css';
-import RtcViewer from './RtcViewer';
-import PDFViewer from './PDFViewer';
+import React from "react";
+import { useParams, useEffect } from "react-router-dom";
+import "./styles.css";
+import RtcViewer from "./RtcViewer";
+import PDFViewer from "./PDFViewer";
 
 function Room() {
-  return (
-    <div className="container">
-      {/* <RtcViewer/> */}
-      <PDFViewer/>
-    </div>
-  );
+	const { id } = useParams();
+
+	// useEffect(() => {}, []);
+
+	return (
+		<div className="container">
+			{/* <RtcViewer/> */}
+			<PDFViewer bookname={id} />
+		</div>
+	);
 }
 
 export default Room;

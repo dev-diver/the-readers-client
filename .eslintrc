@@ -1,0 +1,33 @@
+{
+    "env": {
+      "browser": true,
+      "es2021": true
+    },
+    "globals":{
+      "process": "readonly"
+    },
+    "extends": [
+      "eslint:recommended", 
+      "plugin:react/recommended", 
+      "plugin:react-hooks/recommended",
+      "eslint-config-prettier"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 12,
+      "sourceType": "module",
+      "ecmaFeatures": {
+        "jsx": true
+      }
+    },
+    "plugins": ["react", "react-hooks", "prettier"],
+    "rules": {
+        "no-unused-vars": "warn",
+        "prettier/prettier": "warn",
+        "react/prop-types": 0
+    },
+    "settings": {
+      "react": {
+        "version": "detect"
+      }
+    }
+  }
