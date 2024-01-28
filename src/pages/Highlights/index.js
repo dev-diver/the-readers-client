@@ -1,6 +1,8 @@
 import { React, useEffect } from "react";
 import PdfExample from "mock/PdfExample";
 import Chart from "components/Chart";
+import api from "api";
+import { logger } from "logger";
 
 /**************************/
 // highlight_id를 추적하기 위한 전역 변수
@@ -9,8 +11,8 @@ let highlightId = 1;
 // 하이라이트 칠해주는 함수
 function highlightRange(range) {
 	let passNode = false;
-	console.log("encestor", range.commonAncestorContainer.textContent);
-	console.log("start", range.startContainer.textContent, "end", range.endContainer.textContent);
+	logger.log("ancestor", range.commonAncestorContainer.textContent);
+	logger.log("start", range.startContainer.textContent, "end", range.endContainer.textContent);
 
 	const filterFunction = function (node) {
 		if (node.hasChildNodes()) {
@@ -21,7 +23,7 @@ function highlightRange(range) {
 			passNode = true;
 		}
 
-		console.log("filtering : ", node.textContent);
+		logger.log("filtering : ", node.textContent);
 		const filterState = passNode ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
 
 		if (node === range.endContainer) {
@@ -39,7 +41,7 @@ function highlightRange(range) {
 	while (currentNode) {
 		const nextNode = walker.nextNode();
 		parentElement = currentNode.parentNode;
-		console.log("walking", currentNode.textContent);
+		logger.log("walking", currentNode.textContent);
 
 		const marker = document.createElement("mark");
 		marker.classList.add("red"); // 'yellow' 클래스 추가
@@ -53,20 +55,21 @@ function highlightRange(range) {
 /**************************/
 // 형광펜 정보를 백엔드로 전송하는 함수
 function sendHighlightToServer(highlightInfos) {
-	fetch("/api/highlights", {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify(highlightInfos),
-	});
+	api
+		.post("/api/highlights")
+		.then((response) => {
+			logger.log(response.data);
+		})
+		.catch((e) => {
+			logger.log(e);
+		});
 }
 
 export default function Highlights() {
 	// 형광펜 드래그 이벤트 리스너
 	useEffect(() => {
 		const handleMouseUp = () => {
-			console.log("mouseup");
+			logger.log("mouseup");
 			const selectedRange = window.getSelection();
 
 			if (selectedRange.rangeCount > 0 && !selectedRange.isCollapsed) {

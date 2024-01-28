@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { logger } from "logger";
 
 function Hambugerbutton({ className }) {
 	const navigate = useNavigate();
@@ -12,7 +13,7 @@ function Hambugerbutton({ className }) {
 
 	// 햄버거 버튼 클릭 시 호출되는 함수
 	const handleHamburgerClick = () => {
-		console.log("Hamburger clicked!");
+		logger.log("Hamburger clicked!");
 		// 로그인 상태에 따라 동작 분기
 		if (isLoggedIn) {
 			// 이미 로그인된 경우, 프로필 창 토글

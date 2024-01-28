@@ -1,6 +1,7 @@
 import React, { useState, useEffect, PureComponent } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { debounce } from "lodash";
+import { logger } from "logger";
 
 const original_data = new Array(11).fill(0).map((_, index) => ({
 	page: `${index}`,
@@ -16,7 +17,7 @@ function Chart() {
 	const [count, setCount] = useState(0);
 
 	const handleScroll = debounce(() => {
-		console.log("debounce", scroll);
+		logger.log("debounce", scroll);
 		// setPrevScroll(scroll);
 		setScroll(calculateScrollY());
 	}, 1000);
@@ -32,8 +33,8 @@ function Chart() {
 
 	useEffect(() => {
 		setPrevScroll(scroll);
-		console.log("[scroll] scroll: ", scroll);
-		console.log("[scroll] PrevScroll: ", prevScroll);
+		logger.log("[scroll] scroll: ", scroll);
+		logger.log("[scroll] PrevScroll: ", prevScroll);
 		// 1초마다 count 증가
 		const interval = setInterval(() => {
 			setCount((c) => c + 1);
@@ -44,7 +45,7 @@ function Chart() {
 	}, [scroll]);
 
 	useEffect(() => {
-		console.log("time(count): ", count);
+		logger.log("time(count): ", count);
 	}, [scroll]);
 
 	// count는 스크롤 이벤트가 한 번 발생한 이후부터 시작. 그 전엔 카운트 안 셈.
@@ -56,9 +57,9 @@ function Chart() {
 			if (item.page && parseInt(item.page) === prevScroll) {
 				// data의 parseInt(item.page)과 같은 값의 page를 찾아 time을 count만큼 증가시킴
 
-				console.log("the item in data");
-				console.log("item.page: ", item.page);
-				console.log("item.time: ", item.time);
+				logger.log("the item in data");
+				logger.log("item.page: ", item.page);
+				logger.log("item.time: ", item.time);
 
 				const count_tmp = count;
 				setCount(0);
@@ -75,8 +76,8 @@ function Chart() {
 	}, [scroll]);
 
 	useEffect(() => {
-		console.log("2. prev page", prevScroll);
-		console.log("*********");
+		logger.log("2. prev page", prevScroll);
+		logger.log("*********");
 	}, [prevScroll]);
 
 	return (

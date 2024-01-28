@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./style.css";
 import { baseURL } from "config/config";
+import { logger } from "logger";
 
 const Profilecard = ({ user }) => {
 	const navigate = useNavigate();
@@ -47,11 +48,11 @@ const Profile = () => {
 		fetch(`${baseURL}/api/user/${userInfo?.id}`)
 			.then((res) => res.json())
 			.then((data) => {
-				console.log(data);
+				logger.log(data);
 				setUserInfo(data);
 			})
 			.catch((err) => {
-				console.error(err);
+				logger.error(err);
 			});
 	}, [userInfo]);
 

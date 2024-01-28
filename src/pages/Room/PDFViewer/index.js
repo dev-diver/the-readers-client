@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import socket from "socket.js";
 import { baseURL } from "config/config";
 import Button from "components/Button";
+import { logger } from "logger";
 
 function PDFViewer({ bookname }) {
 	const [htmlContent, setHtmlContent] = useState("");
@@ -10,7 +11,7 @@ function PDFViewer({ bookname }) {
 	const containerRef = useRef(null);
 
 	const moveToScroll = (scrollTop) => {
-		console.log("moveto", scrollTop);
+		logger.log("moveto", scrollTop);
 		containerRef.current.scrollTop = scrollTop;
 	};
 
@@ -23,7 +24,7 @@ function PDFViewer({ bookname }) {
 
 	const handleScroll = useCallback((event) => {
 		const scrollTop = event.currentTarget.scrollTop;
-		console.log(`스크롤 위치 : ${scrollTop}`);
+		logger.log(`스크롤 위치 : ${scrollTop}`);
 		socket.emit("attention_scroll", {
 			cleintID: 1,
 			scrollTop: scrollTop,
@@ -32,7 +33,7 @@ function PDFViewer({ bookname }) {
 	}, []);
 
 	useEffect(() => {
-		console.log("책 이름", bookname);
+		logger.log("책 이름", bookname);
 		fetch(`${baseURL}/src/${bookname}.html`)
 			.then((response) => response.text())
 			.then((data) => {

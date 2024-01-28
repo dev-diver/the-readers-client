@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { baseURL } from "config/config";
+import api from "api";
+import { logger } from "logger";
 
 const SearchChange = ({ setData }) => {
 	const [bookname, setbookname] = useState("");
@@ -7,14 +8,15 @@ const SearchChange = ({ setData }) => {
 	const handleSubmit = (event) => {
 		event.preventDefault();
 
-		fetch(`${baseURL}/api/books/search?bookname=${encodeURIComponent(bookname)}`)
+		api
+			.get(`/api/books/search?bookname=${encodeURIComponent(bookname)}`)
 			.then((response) => response.json())
 			.then((data) => {
-				console.log(data);
+				logger.log(data);
 				setData(data.data);
 			})
 			.catch((error) => {
-				console.error("Error:", error);
+				logger.error("Error:", error);
 			});
 	};
 

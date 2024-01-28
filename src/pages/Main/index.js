@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Book from "components/Book";
 import SearchChange from "components/SearchChange";
+import { logger } from "logger";
 // import "./style.css";
 
 function Main() {
@@ -8,7 +9,7 @@ function Main() {
 	const [studyroomList, setStudyroomList] = useState([]);
 
 	useEffect(() => {
-		console.log("data changed");
+		logger.log("data changed");
 		const newData = data.map((e, i) => {
 			return <Book key={`book-${i}`} name={e.name} id={e.id}></Book>;
 		});
