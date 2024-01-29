@@ -28,8 +28,6 @@ function Chart({ pageContainer }) {
 	const [count, setCount] = useState(0);
 
 	const handleScroll = debounce(() => {
-		logger.log("debounce", scroll);
-		// setPrevScroll(scroll);
 		setScroll(calculateScrollY(pageContainer));
 	}, 1000);
 
@@ -42,19 +40,13 @@ function Chart({ pageContainer }) {
 
 	useEffect(() => {
 		setPrevScroll(scroll);
-		logger.log("[scroll] scroll: ", scroll);
-		logger.log("[scroll] PrevScroll: ", prevScroll);
-		// 1초마다 count 증가
+
 		const interval = setInterval(() => {
 			setCount((c) => c + 1);
 		}, 1000);
 
 		// 컴포넌트가 언마운트될 때 인터벌 정리
 		return () => clearInterval(interval);
-	}, [scroll]);
-
-	useEffect(() => {
-		logger.log("time(count): ", count);
 	}, [scroll]);
 
 	// count는 스크롤 이벤트가 한 번 발생한 이후부터 시작. 그 전엔 카운트 안 셈.
@@ -65,11 +57,6 @@ function Chart({ pageContainer }) {
 		updatedData = data.map((item) => {
 			if (item.page && parseInt(item.page) === prevScroll) {
 				// data의 parseInt(item.page)과 같은 값의 page를 찾아 time을 count만큼 증가시킴
-
-				logger.log("the item in data");
-				logger.log("item.page: ", item.page);
-				logger.log("item.time: ", item.time);
-
 				const count_tmp = count;
 				setCount(0);
 
@@ -83,11 +70,6 @@ function Chart({ pageContainer }) {
 
 		setData(updatedData);
 	}, [scroll]);
-
-	useEffect(() => {
-		logger.log("2. prev page", prevScroll);
-		logger.log("*********");
-	}, [prevScroll]);
 
 	return (
 		<ResponsiveContainer width="20%" height="85%" style={{ position: "sticky", top: "20px" }}>
