@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import Sidebar from "components/Sidebar";
 
 function Login() {
+	const [showSignUpForm, setShowSignUpForm] = useState(false);
 	// useEffect(function() {
 	//     const errorParam = new URL(window.location.href).searchParams.get('error');
 	//     alert(new URL(location.href).searchParams.get('error'));
@@ -23,7 +24,7 @@ function Login() {
 						회원가입
 					</a>
 					<br />
-					<button id="login" type="submit" className="btn">
+					<button id="login" type="submit" className="btn" onClick={ ()=> setShowSignUpForm(true)}>
 						로그인
 					</button>
 					<br />

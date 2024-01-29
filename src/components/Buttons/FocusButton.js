@@ -1,7 +1,7 @@
 import React from "react";
 
-function Button(props) {
+function FocusButton(props) {
 	return <button onClick={props.onClick}>집중</button>;
 }
 
-export default Button;
+export default FocusButton;

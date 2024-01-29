@@ -34,7 +34,7 @@ const Sidebar = ({ width = 280, children }) => {
 		};
 	});
 
-	return (
+	return(
 		<div className={styles.container}>
 			<div
 				ref={side}

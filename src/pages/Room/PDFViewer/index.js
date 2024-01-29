@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import socket from "socket.js";
 import { logger } from "logger";
-import Button from "components/Button";
+import Button from "components/Buttons/FocusButton";
 import Highlights from "./Highlights";
 import PageCanvas from "./PageCanvas";
 import Chart from "components/Chart";
