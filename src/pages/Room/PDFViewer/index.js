@@ -7,7 +7,7 @@ import Button from "components/Button";
 import Highlights from "./Highlights";
 import PageCanvas from "./PageCanvas";
 
-function PDFViewer({ bookId, roomId }) {
+function PDFViewer({ book }) {
 	const [htmlContent, setHtmlContent] = useState("");
 	const [isAttention, setAttention] = useState(false);
 	const [canvasComponents, setCanvasComponents] = useState([]);
@@ -38,25 +38,18 @@ function PDFViewer({ bookId, roomId }) {
 	}, []);
 
 	useEffect(() => {
-		logger.log("책 id", bookId);
-		api
-			.get(`/books/${bookId}`)
-			.then((response) => {
-				const bookUrl = response.data.data.url;
-				logger.log(bookUrl);
-				return fetch(bookUrl)
-					.then((response) => {
-						return response.text();
-					})
-					.catch((err) => {
-						logger.log(err);
+		console.log("url", book.url);
+		book.url &&
+			fetch(book.url)
+				.then((response) => {
+					response.text().then((text) => {
+						setHtmlContent(text);
 					});
-			})
-			.then((data) => {
-				logger.log(data);
-				setHtmlContent(data);
-			});
-	}, []);
+				})
+				.catch((err) => {
+					logger.log(err);
+				});
+	}, [book.url]);
 
 	useEffect(() => {
 		if (htmlContent && containerRef.current) {

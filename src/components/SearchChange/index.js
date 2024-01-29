@@ -12,7 +12,7 @@ const SearchChange = ({ setData }) => {
 			.get(`/rooms/search?bookname=${encodeURIComponent(bookname)}`)
 			.then((res) => {
 				logger.log(res);
-				setData(res.data.data);
+				setData(res.data);
 			})
 			.catch((error) => {
 				logger.error("Error:", error);

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Book from "components/Book";
+import RoomCard from "components/RoomCard";
 import SearchChange from "components/SearchChange";
 import UploadFile from "./UploadFile";
 import { logger } from "logger";
@@ -11,9 +12,8 @@ function Main() {
 	const [studyroomList, setStudyroomList] = useState([]);
 
 	useEffect(() => {
-		logger.log("data changed");
-		const newData = data.map((e, i) => {
-			return <Book key={`book-${i}`} name={e.name} id={e.id}></Book>;
+		const newData = data.map((room, i) => {
+			return <RoomCard key={i} room={room} />;
 		});
 		setStudyroomList(newData);
 	}, [data]);
