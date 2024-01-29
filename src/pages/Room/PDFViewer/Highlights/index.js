@@ -1,5 +1,6 @@
 import { React, useEffect } from "react";
 import { logger } from "logger";
+import api from "api";
 
 let highlightId = 1;
 
@@ -18,7 +19,6 @@ function highlightRange(range) {
 			passNode = true;
 		}
 
-		logger.log("filtering : ", node.textContent);
 		const filterState = passNode ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
 
 		if (node === range.endContainer) {
@@ -36,7 +36,6 @@ function highlightRange(range) {
 	while (currentNode) {
 		const nextNode = walker.nextNode();
 		parentElement = currentNode.parentNode;
-		logger.log("walking", currentNode.textContent);
 
 		const marker = document.createElement("mark");
 		marker.classList.add("red"); // 'yellow' 클래스 추가
@@ -50,17 +49,10 @@ function highlightRange(range) {
 /**************************/
 // 형광펜 정보를 백엔드로 전송하는 함수
 function sendHighlightToServer(highlightInfos) {
-	fetch("/highlights", {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify(highlightInfos),
-	});
+	api.post("/highlights", highlightInfos);
 }
 
 const handleMouseUp = () => {
-	logger.log("mouseup");
 	const selectedRange = window.getSelection();
 
 	if (selectedRange.rangeCount > 0 && !selectedRange.isCollapsed) {
@@ -69,7 +61,6 @@ const handleMouseUp = () => {
 		for (let i = 0; i < selectedRange.rangeCount; i++) {
 			const range = selectedRange.getRangeAt(i);
 			// range에 대한 처리...
-			// wrapRange(range,"yellow")
 			highlightRange(range);
 
 			// 형광펜 정보 저장

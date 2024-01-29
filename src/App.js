@@ -6,22 +6,24 @@ import Room from "pages/Room";
 
 function App() {
 	return (
-		<Router>
-			<div>
-				<nav>
-					<ul>
-						<li>
-							<Link to="/">Main</Link>
-						</li>
-					</ul>
-				</nav>
-				<Routes>
-					<Route path="/" element={<Main />} />
-					<Route path="/room/:roomId" element={<RoomLobby />} />
-					<Route path="/room/:roomId/book/:bookId" element={<Room />} />
-				</Routes>
-			</div>
-		</Router>
+		<div>
+			<Router>
+				<div>
+					<nav>
+						<ul>
+							<li>
+								<Link to="/">Main</Link>
+							</li>
+						</ul>
+					</nav>
+					<Routes>
+						<Route path="/" element={<Main />} />
+						<Route path="/room/:roomId" element={<RoomLobby />} />
+						<Route path="/room/:roomId/book/:bookId" element={<Room />} />
+					</Routes>
+				</div>
+			</Router>
+		</div>
 	);
 }
 

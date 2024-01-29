@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import socket from "socket.js";
-import api from "api";
 import { logger } from "logger";
 import Button from "components/Button";
 import Highlights from "./Highlights";
 import PageCanvas from "./PageCanvas";
+import Chart from "components/Chart";
 
 function PDFViewer({ book }) {
 	const [htmlContent, setHtmlContent] = useState("");
@@ -54,10 +54,11 @@ function PDFViewer({ book }) {
 	useEffect(() => {
 		if (htmlContent && containerRef.current) {
 			const pageContainer = containerRef.current.querySelector("#page-container");
-			const pageDivs = pageContainer.querySelectorAll("div");
+			const pageDivs = pageContainer.querySelectorAll(":scope > div");
 			const mapCanvasContainer = Array.from(pageDivs).map((pageDiv, index) => {
 				const container = document.createElement("div");
 				container.classList.add("page-wrapper");
+				container.style.position = "relative";
 
 				const canvasLayer = document.createElement("div");
 				canvasLayer.classList.add("canvasLayer");
@@ -65,16 +66,16 @@ function PDFViewer({ book }) {
 				const textLayer = document.createElement("div");
 				textLayer.classList.add("textLayer");
 
-				const pageRect = pageDiv.getBoundingClientRect();
 				const pageDivClone = pageDiv.cloneNode(true);
 				pageDiv.parentNode.replaceChild(container, pageDiv);
 				container.appendChild(canvasLayer);
 				container.appendChild(textLayer);
 				textLayer.appendChild(pageDivClone);
 
-				logger.log("pageRect", pageRect);
+				const containerRect = container.getBoundingClientRect();
+
 				return {
-					component: <PageCanvas pageNum={index} pageRect={pageRect} />,
+					component: <PageCanvas pageNum={index} containerRect={containerRect} pageWrapper={container} />,
 					container: canvasLayer,
 				};
 			});
@@ -120,11 +121,25 @@ function PDFViewer({ book }) {
 	return (
 		<>
 			<Button onClick={() => sendAttention()} />
+			<Chart pageContainer={containerRef.current} />
 			<Highlights />
-			<div className="pdf-container" onScroll={handleScroll} ref={containerRef}>
-				<div className="pdf-contents" dangerouslySetInnerHTML={{ __html: htmlContent }} />
+			<div
+				className="pdf-container"
+				onScroll={handleScroll}
+				ref={containerRef}
+				style={{
+					height: "80vh",
+					width: "50%",
+					overflow: "scroll",
+				}}
+			>
+				<div
+					className="pdf-contents"
+					dangerouslySetInnerHTML={{ __html: htmlContent }}
+					style={{ width: "100%", height: "100%" }}
+				/>
 			</div>
-			{canvasComponents.map(({ component, container }, index) => {
+			{canvasComponents.map(({ component, container }) => {
 				return createPortal(component, container);
 			})}
 		</>

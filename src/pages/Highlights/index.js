@@ -23,7 +23,6 @@ function highlightRange(range) {
 			passNode = true;
 		}
 
-		logger.log("filtering : ", node.textContent);
 		const filterState = passNode ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
 
 		if (node === range.endContainer) {
@@ -104,7 +103,7 @@ export default function Highlights() {
 	}, []);
 
 	return (
-		<div style={{ height: "100vh", width: "100vw" }}>
+		<div>
 			<div id="page-container" style={{ display: "flex", height: "100%", width: "80%", overflow: "scroll" }}>
 				<Chart />
 				<PdfExample />

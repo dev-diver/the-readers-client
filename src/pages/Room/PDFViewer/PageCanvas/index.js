@@ -1,22 +1,35 @@
 import React, { useEffect, useRef } from "react";
 import socket from "socket.js";
 
-function PageCanvas({ pageNum, pageRect }) {
+function PageCanvas({ pageNum, containerRect, pageWrapper }) {
 	const canvas = useRef(null);
 	const pointers = useRef([]);
+	const [pageRect, setPageRect] = React.useState({});
 
 	useEffect(() => {
 		socket.on("updatepointer", (data) => {
 			updatePointers(data);
 			redrawCanvas();
 		});
+		return () => {
+			socket.off("updatepointer");
+		};
 	}, []);
 
-	const handleCanvasClick = (event) => {
-		// 클릭 이벤트의 기본 동작을 방지하고, 상위로 전파되지 않도록 함
-		event.preventDefault();
-		event.stopPropagation();
-	};
+	useEffect(() => {
+		if (pageWrapper) {
+			console.log("pageWrapper", pageWrapper);
+			const rect = pageWrapper.getBoundingClientRect();
+			const newRect = {
+				left: rect.left - containerRect.left,
+				top: rect.top - containerRect.top,
+				width: containerRect.width,
+				height: containerRect.height,
+			};
+
+			setPageRect(newRect);
+		}
+	}, [pageWrapper]);
 
 	const updatePointers = (data) => {
 		// 새로운 포인터 데이터 추가 또는 업데이트
@@ -51,18 +64,23 @@ function PageCanvas({ pageNum, pageRect }) {
 		const rect = canvas.current.getBoundingClientRect();
 		const x = event.clientX - rect.left;
 		const y = event.clientY - rect.top;
+		console.log("event", event.clientX, event.clientY);
+		console.log("canvasMouse", x, y);
 		socket.emit("movepointer", { page: pageNum, x: x, y: y });
 	};
 
 	return (
 		<canvas
 			ref={canvas}
-			onClick={handleCanvasClick}
-			onMouseMove={canvasMouse}
 			width={pageRect.width}
 			height={pageRect.height}
+			onMouseMove={(e) => canvasMouse(e)}
 			style={{
+				border: "1px solid black",
+				// pointerEvents: "none",
 				position: "absolute",
+				// width: `${pageRect.width}px`,
+				// height: `${pageRect.height}px`,
 				left: `${pageRect.left}px`,
 				top: `${pageRect.top}px`,
 			}}
