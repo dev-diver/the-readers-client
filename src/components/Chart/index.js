@@ -10,26 +10,35 @@ const original_data = new Array(11).fill(0).map((_, index) => ({
 
 let updatedData = {};
 
-function Chart() {
+const calculateScrollY = (pageContainer) => {
+	if (!pageContainer) return 0;
+
+	const scrollY = pageContainer.scrollTop;
+	const containerHeight = pageContainer.scrollHeight;
+	const clientHeight = pageContainer.clientHeight;
+	const totalScrollableHeight = containerHeight - clientHeight;
+	// (스크롤 위치 / 전체 스크롤 가능한 길이) * 10 = (전체 길이상대적인 스크롤 위치)
+	return Math.round((scrollY / totalScrollableHeight) * 10);
+};
+
+function Chart({ pageContainer }) {
 	const [prevScroll, setPrevScroll] = useState(0);
-	const [scroll, setScroll] = useState(calculateScrollY());
+	const [scroll, setScroll] = useState(calculateScrollY(pageContainer));
 	const [data, setData] = useState(original_data);
 	const [count, setCount] = useState(0);
 
 	const handleScroll = debounce(() => {
 		logger.log("debounce", scroll);
 		// setPrevScroll(scroll);
-		setScroll(calculateScrollY());
+		setScroll(calculateScrollY(pageContainer));
 	}, 1000);
 
 	useEffect(() => {
-		const pageContainer = document.getElementById("page-container");
-
 		// 스크롤 이벤트 리스너 추가
-		pageContainer.addEventListener("scroll", () => handleScroll());
+		pageContainer?.addEventListener("scroll", () => handleScroll());
 		// 컴포넌트가 언마운트될 때 리스너 제거
-		return () => pageContainer.removeEventListener("scroll", () => handleScroll());
-	}, []);
+		return () => pageContainer?.removeEventListener("scroll", () => handleScroll());
+	}, [pageContainer]);
 
 	useEffect(() => {
 		setPrevScroll(scroll);
@@ -103,18 +112,6 @@ function Chart() {
 			</LineChart>
 		</ResponsiveContainer>
 	);
-}
-
-function calculateScrollY() {
-	const pageContainer = document.getElementById("page-container");
-	if (!pageContainer) return 0;
-
-	const scrollY = pageContainer.scrollTop;
-	const containerHeight = pageContainer.scrollHeight;
-	const clientHeight = pageContainer.clientHeight;
-	const totalScrollableHeight = containerHeight - clientHeight;
-	// (스크롤 위치 / 전체 스크롤 가능한 길이) * 10 = (전체 길이상대적인 스크롤 위치)
-	return Math.round((scrollY / totalScrollableHeight) * 10);
 }
 
 export default Chart;

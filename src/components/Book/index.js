@@ -2,11 +2,13 @@ import React from "react";
 import { Link } from "react-router-dom";
 import "./style.css";
 
-function Book({ name, id }) {
+function Book({ roomId, book }) {
+	const url = roomId ? `/room/${roomId}/book/${book.id}` : `/book/${book.id}`;
+
 	return (
-		<div>
-			<Link to={`/room/${id}`}>{name}</Link>
-		</div>
+		<li>
+			<Link to={url}>{book.name}</Link>
+		</li>
 	);
 }
 
