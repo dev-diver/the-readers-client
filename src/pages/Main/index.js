@@ -5,10 +5,11 @@ import SearchChange from "components/SearchChange";
 import UploadFile from "./UploadFile";
 import { logger } from "logger";
 import SignUpButton from "components/Buttons/SignUpButton";
-import LogInButton from "components/Buttons/LoginButton";
+import ProfileButton from "components/Buttons/ProfileButton";
 import PopUp from "components/PopUp";
-import SignUpForm from "components/form/SignUpForm";
 import LoginForm from "components/form/LogInForm";
+import ProfileForm from "components/form/ProfileForm";
+import SignControllButton from "components/Buttons/SignControllButton";
 
 // import "./style.css";
 
@@ -19,6 +20,8 @@ function Main() {
 	const [LogInPopState, setLogInPopState] = useState(false);
 	const [user, setUser] = useState(null);
 	const [showSignUpForm, setShowSignUpForm] = useState(false);
+	const [ProfilePopState, setProfilePopState] = useState(false);
+	const [popState, setPopState] = useState(false);
 
 	useEffect(() => {
 		const user = localStorage.getItem('user');
@@ -38,16 +41,6 @@ function Main() {
 		setStudyroomList(newData);
 	}, [data]);
 
-	useEffect(() => {
-		if (showSignUpForm) {
-			setSignUpPopState(true);
-		}
-	}, [showSignUpForm]);
-	
-	const handleShowSignUpForm = () => {
-		setShowSignUpForm(true);
-	}
-
 	return (
 		<div className="mainpage-book">
 			<SearchChange setData={setData} />
@@ -55,18 +48,21 @@ function Main() {
 				<div className="div">{studyroomList}</div>
 			</div>
 			<UploadFile />
-			<SignUpButton setPopState={setSignUpPopState} isLogin={user?.token}/>
-			<LogInButton setPopState={setLogInPopState} isLogin={user?.token} setUser={setUser}/>
-			{/* <PopUp isOpen={SignUpPopState} onClose={() => {
-				setSignUpPopState(false);
-			}}>
-				<SignUpForm />
-			</PopUp> */}
-			<PopUp isOpen={LogInPopState} onClose={() => {
-				setLogInPopState(false);
-			}}>
-				<LoginForm setUser={setUser} isLogin={user?.token} onClick={ handleShowSignUpForm } />
-			</PopUp>
+			<SignControllButton setPopState={setLogInPopState} isLogin={user?.token} setUser={setUser} />
+			<ProfileButton setPopState={setProfilePopState} isLogin={user?.token} setUser={setUser} />
+			{user?.token ? ( 
+				<PopUp isOpen={ProfilePopState} 
+					onClose={() => {
+					setProfilePopState(false);}}>
+					<ProfileForm user={user} setUser={setUser} isLogin={user?.token} />			
+				</PopUp>
+			) : ( 
+				<PopUp isOpen={LogInPopState} 
+					onClose={() => {
+					setLogInPopState(false);}}>
+					<LoginForm setUser={setUser} isLogin={user?.token} />
+				</PopUp>
+			)}
 		</div>
 	);
 }

@@ -28,9 +28,6 @@ const Profilecard = ({ user }) => {
 				<div className="count follower-count">{user.followerCount}</div>
 			</div>
 			<input id="my-id" type="hidden" value={user.id} />
-			<a id="my-profile" href="/profile" className="btn">
-				내 프로필
-			</a>
 			<button id="logout" className="btn">
 				로그아웃
 			</button>
