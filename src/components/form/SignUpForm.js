@@ -11,7 +11,6 @@ const SignUpForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [userInfo, setUserInfo] = useState(null);
-  const navigate = useNavigate();
 
   const handleNickChange = (e) => {
     setNick(e.target.value);
@@ -33,10 +32,20 @@ const SignUpForm = () => {
     }
   }, [userInfo]);
 
-  function handleSubmit(event) {
-    event.preventDefault();
-    // api 회원가입 로직 작성 필요
-  }
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // Make API request to register user
+    api.post(`${baseURL}/auth/signup`, { nick: nick, email :email, password:password })
+        .then((response) => {
+            // Handle successful registration
+            console.log(response.data);
+        })
+        .catch((error) => {
+            // Handle error
+            console.error(error);
+        });
+};
 
   return (
     <form id="signup-form" onSubmit={handleSubmit}>
