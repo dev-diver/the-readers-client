@@ -24,7 +24,8 @@ function App() {
 					</nav>
 					<Routes>
 						<Route path="/" element={<Main />} />
-						<Route path="/room/:id" element={<Room />} />
+						<Route path="/room/:roomId/book/:bookId" element={<Room />} />
+						<Route path="/room/:roomId" element={<RoomLobby />} />
 						<Route path="/highlights" element={<Highlights />} />
 						<Route path="/profile" element={<ProfilePage />} />
 						<Route path="/signup" element={<SignupPage />} />

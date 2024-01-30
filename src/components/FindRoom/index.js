@@ -24,9 +24,6 @@ function FindRoom() {
 			<button onClick={handleSearch}>Search</button>
 			{searchResults && (
 				<div>
-					{/* {searchResults.map((room, index) => (
-						<div key={index}>{room.title}</div>
-					))} */}
 					{searchResults.map((room, index) => (
 						<RoomCard key={index} room={room} /> // 각 방에 대해 RoomCard 컴포넌트를 렌더링합니다.
 					))}

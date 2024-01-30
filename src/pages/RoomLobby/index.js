@@ -8,13 +8,14 @@ const RoomPage = () => {
 	const { roomId } = useParams();
 	// const location = useLocation();
 	// const [room, setRoom] = useState({ Books: [] });
-	const [room, setRoom] = useState([]);
+	const [room, setRoom] = useState(null);
 	useEffect(() => {
 		api.get(`/rooms/${roomId}`).then((response) => {
 			console.log("응답입니다.", response);
 			setRoom(response.data.data);
 		});
 	}, [roomId]);
+
 	return (
 		<>
 			{room && (
@@ -22,7 +23,7 @@ const RoomPage = () => {
 					<h1>{room.title}</h1>
 					<h2>책 목록</h2>
 					<h3>{room.bookFile}</h3>
-					{/* <BookShelf room={room} /> */}
+					<BookShelf room={room} />
 				</div>
 			)}
 		</>

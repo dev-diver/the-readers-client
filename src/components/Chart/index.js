@@ -33,7 +33,7 @@ function Chart({ pageContainer }) {
 
 	useEffect(() => {
 		// 스크롤 이벤트 리스너 추가
-		pageContainer?.("scroll", () => handleScroll());
+		pageContainer?.addEventListener("scroll", () => handleScroll());
 		// 컴포넌트가 언마운트될 때 리스너 제거
 		return () => pageContainer?.removeEventListener("scroll", () => handleScroll());
 	}, [pageContainer]);
