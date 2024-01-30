@@ -90,7 +90,7 @@ function PDFViewer({ book }) {
 			element = element.offsetParent;
 		}
 
-		console.log(`pagenum ${pageNum} x: ${offsetX}, y: ${offsetY}`);
+		// console.log(`pagenum ${pageNum} x: ${offsetX}, y: ${offsetY}`);
 		socket.emit("movepointer", { page: pageNum, x: offsetX, y: offsetY });
 	};
 
@@ -185,7 +185,6 @@ function PDFViewer({ book }) {
 		<>
 			<Button onClick={() => sendAttention()} />
 			<Chart pageContainer={containerRef.current} />
-			<Highlights />
 			<div
 				className="pdf-container"
 				onScroll={handleScroll}
@@ -205,6 +204,7 @@ function PDFViewer({ book }) {
 			{canvasComponents.map(({ component, container }) => {
 				return createPortal(component, container);
 			})}
+			<Highlights bookId={book.id} />
 		</>
 	);
 }
