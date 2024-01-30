@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "components/Sidebar";
 
 function Login() {
@@ -24,7 +24,7 @@ function Login() {
 						회원가입
 					</a>
 					<br />
-					<button id="login" type="submit" className="btn" onClick={ ()=> setShowSignUpForm(true)}>
+					<button id="login" type="submit" className="btn" onClick={() => setShowSignUpForm(true)}>
 						로그인
 					</button>
 					<br />

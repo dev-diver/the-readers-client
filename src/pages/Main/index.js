@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Book from "components/Book";
 import RoomCard from "components/RoomCard";
+import Page from "components/Page";
+import Hambugerbutton from "icons/Hambergerbutton";
 import SearchChange from "components/SearchChange";
 import UploadFile from "./UploadFile";
 import { logger } from "logger";
@@ -24,19 +26,27 @@ function Main() {
 	const [popState, setPopState] = useState(false);
 
 	useEffect(() => {
-		const user = localStorage.getItem('user');
+		const user = localStorage.getItem("user");
 		if (user) {
 			setUser(JSON.parse(user));
 		}
-	},[]);
+	}, []);
 
 	useEffect(() => {
-		console.log('user', user);
-	},[user])
+		console.log("user", user);
+	}, [user]);
 
 	useEffect(() => {
 		const newData = data.map((room, i) => {
 			return <RoomCard key={i} room={room} />;
+		});
+		setStudyroomList(newData);
+	}, [data]);
+
+	useEffect(() => {
+		console.log("data changed");
+		const newData = data.map((e, i) => {
+			return <Book key={i} name={e.name} id={e.id}></Book>;
 		});
 		setStudyroomList(newData);
 	}, [data]);
@@ -50,16 +60,22 @@ function Main() {
 			<UploadFile />
 			<SignControllButton setPopState={setLogInPopState} isLogin={user?.token} setUser={setUser} />
 			<ProfileButton setPopState={setProfilePopState} isLogin={user?.token} setUser={setUser} />
-			{user?.token ? ( 
-				<PopUp isOpen={ProfilePopState} 
+			{user?.token ? (
+				<PopUp
+					isOpen={ProfilePopState}
 					onClose={() => {
-					setProfilePopState(false);}}>
-					<ProfileForm user={user} setUser={setUser} isLogin={user?.token} />			
+						setProfilePopState(false);
+					}}
+				>
+					<ProfileForm user={user} setUser={setUser} isLogin={user?.token} />
 				</PopUp>
-			) : ( 
-				<PopUp isOpen={LogInPopState} 
+			) : (
+				<PopUp
+					isOpen={LogInPopState}
 					onClose={() => {
-					setLogInPopState(false);}}>
+						setLogInPopState(false);
+					}}
+				>
 					<LoginForm setUser={setUser} isLogin={user?.token} />
 				</PopUp>
 			)}
