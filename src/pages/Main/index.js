@@ -1,30 +1,51 @@
 import React, { useState, useEffect } from "react";
-import Book from "components/Book";
+// import Book from "components/Book";
 import RoomCard from "components/RoomCard";
-import SearchChange from "components/SearchChange";
+import SearchForm from "components/SearchForm";
 import UploadFile from "./UploadFile";
-import { logger } from "logger";
-
+import MakeRoom from "components/MakeRoom";
+import FindRoom from "components/FindRoom";
+// import { logger } from "logger";
 // import "./style.css";
 
 function Main() {
-	const [data, setData] = useState([]);
+	const [rooms, setRoom] = useState([]);
+	const [books, setBooks] = useState([]);
 	const [studyroomList, setStudyroomList] = useState([]);
+	const [bookList, setBookList] = useState([]);
 
 	useEffect(() => {
-		const newData = data.map((room, i) => {
+		const newData = rooms.map((room, i) => {
 			return <RoomCard key={i} room={room} />;
 		});
 		setStudyroomList(newData);
-	}, [data]);
+	}, [rooms]);
+
+	useEffect(() => {
+		const newData = books.map((book, i) => {
+			return <></>;
+		});
+		setBookList(newData);
+	}, [books]);
 
 	return (
-		<div className="mainpage-book">
-			<SearchChange setData={setData} />
-			<div className="search-result">
-				<div className="div">{studyroomList}</div>
+		<div>
+			{/* <div className="mainpage-book">
+				<SearchForm setData={setRoom} mode="room" />
+				<div className="search-result">
+					<div className="div">{studyroomList}</div>
+				</div>
+				<UploadFile />
 			</div>
-			<UploadFile />
+			<div className="mainpage-book">
+				<SearchForm setData={setBooks} mode="book" />
+				<div className="search-result">
+					<div className="div">{bookList}</div>
+				</div>
+				<UploadFile />
+			</div> */}
+			<MakeRoom />
+			<FindRoom />
 		</div>
 	);
 }
