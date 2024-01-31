@@ -33,9 +33,7 @@ function Chart(scroll) {
 
 	useEffect(() => {
 		updatedData = data.map((item) => {
-			// console.log("item.page: ", Number(item.page));
-			// console.log("prevScroll", prevScroll);
-			if (item.page && Number(item.page) === prevScroll) {
+			if (Number(item.page) === prevScroll) {
 				// data의 parseInt(item.page)과 같은 값의 page를 찾아 time을 count만큼 증가시킴
 				const count_tmp = count;
 				setCount(0);
