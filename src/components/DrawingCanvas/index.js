@@ -46,7 +46,9 @@ const DrawingCanvas = () => {
 	}, []);
 
 	useEffect(() => {
-		socket.emit("user-joined", user);
+		if (roomJoined) {
+			socket.emit("user-joined", user);
+		}
 	}, [roomJoined]);
 
 	return (
