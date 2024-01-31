@@ -98,7 +98,7 @@ function PDFViewer({ book }) {
 		}
 
 		// console.log(`pagenum ${pageNum} x: ${offsetX}, y: ${offsetY}`);
-		// socket.emit("movepointer", { page: pageNum, x: offsetX, y: offsetY });
+		socket.emit("movepointer", { page: pageNum, x: offsetX, y: offsetY });
 	};
 
 	const clearCanvas = (pageNum) => {
