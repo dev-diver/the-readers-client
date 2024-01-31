@@ -1,14 +1,22 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import socket from "socket.js";
+import Canvas from "./Canvas";
 
 const ClientRoom = ({ userNo, setUsers, setUserNo }) => {
-	const imgRef = useRef(null);
+	const canvasRef = useRef(null);
+	const ctx = useRef(null);
+	const [color, setColor] = useState("#000000");
+	const [elements, setElements] = useState([]);
+	const [history, setHistory] = useState([]);
+	const [tool, setTool] = useState("pencil");
+
 	useEffect(() => {
 		socket.on("message", (data) => {
 			toast.info(data.message);
 		});
 	}, []);
+
 	useEffect(() => {
 		socket.on("users", (data) => {
 			console.log("server에서 준 data:", data);
@@ -16,10 +24,23 @@ const ClientRoom = ({ userNo, setUsers, setUserNo }) => {
 			setUserNo(data.length);
 		});
 	}, []);
+
 	useEffect(() => {
 		socket.on("canvasImage", (data) => {
-			if (imgRef.current) {
-				imgRef.current.src = data;
+			if (canvasRef.current) {
+				const canvas = canvasRef.current;
+				const context = canvas.getContext("2d");
+				const image = new Image();
+
+				// 이미지 로드가 완료되면 실행될 함수
+				image.onload = function () {
+					// Canvas에 이미지 그리기
+					context.clearRect(0, 0, canvas.width, canvas.height); // 이전 내용을 지웁니다.
+					context.drawImage(image, 0, 0, canvas.width, canvas.height); // 이미지를 캔버스에 맞게 조정하여 그립니다.
+				};
+
+				// 이미지 소스로 Base64 URL 설정
+				image.src = data;
 			}
 		});
 	}, []);
@@ -27,13 +48,14 @@ const ClientRoom = ({ userNo, setUsers, setUserNo }) => {
 	return (
 		<div>
 			<div className="row mt-5">
-				<div
-					className="col-md-8 overflow-hidden border border-dark px-0 mx-auto
-          mt-3"
-					style={{ height: "500px" }}
-				>
-					<img className="w-100 h-100" ref={imgRef} src="" alt="image" style={{ objectFit: "contain" }} />
-				</div>
+				<Canvas
+					canvasRef={canvasRef}
+					ctx={ctx}
+					color={color}
+					setElements={setElements}
+					elements={elements}
+					tool={tool}
+				/>
 			</div>
 		</div>
 	);
