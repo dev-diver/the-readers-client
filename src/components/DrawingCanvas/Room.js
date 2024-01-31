@@ -16,12 +16,14 @@ const Room = ({ userNo, setUsers, setUserNo }) => {
 	// 		toast.info(data.message);
 	// 	});
 	// }, []);
+	/*
 	useEffect(() => {
 		socket.on("users", (data) => {
 			setUsers(data);
 			setUserNo(data.length);
 		});
 	}, []);
+	*/
 
 	const clearCanvas = () => {
 		const canvas = canvasRef.current;

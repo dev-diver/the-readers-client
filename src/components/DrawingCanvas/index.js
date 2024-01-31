@@ -51,14 +51,27 @@ const DrawingCanvas = () => {
 		}
 	}, [roomJoined]);
 
+	useEffect(() => {
+		socket.on("users", (data) => {
+			// 각 사용자의 userId와 bookId를 조합하여 canvasId를 생성
+			const updatedUsers = data.map((user) => ({
+				...user,
+				canvasId: `${user.userId}`, // userId와 bookId를 결합하여 canvasId 생성
+			}));
+			setUsers(updatedUsers); // 상태 업데이트
+			setUserNo(updatedUsers.length);
+		});
+	}, []);
+
 	return (
 		<div className="home">
 			{/* <ToastContainer /> */}
 			<>
 				<Sidebar users={users} user={user} />
 				<UtilButton />
-				<Room userNo={userNo} user={user} setUsers={setUsers} setUserNo={setUserNo} />
-				<ClientRoom userNo={userNo} setUsers={setUsers} setUserNo={setUserNo} />
+				{users.map((user, index) => (
+					<ClientRoom key={index} canvasId={user.canvasId} setUsers={setUsers} setUserNo={setUserNo} />
+				))}
 			</>
 		</div>
 	);

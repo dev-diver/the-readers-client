@@ -4,7 +4,7 @@ import api from "api";
 import socket from "socket.js";
 
 const generator = rough.generator();
-const Canvas = ({ canvasRef, ctx, color, setElements, elements, tool }) => {
+const Canvas = ({ canvasRef, canvasId, ctx, color, setElements, elements, tool }) => {
 	const [isDrawing, setIsDrawing] = useState(false);
 
 	useEffect(() => {
@@ -79,7 +79,11 @@ const Canvas = ({ canvasRef, ctx, color, setElements, elements, tool }) => {
 			}
 		});
 		const canvasImage = canvasRef.current.toDataURL();
-		socket.emit("drawing", canvasImage);
+		const data = {
+			canvasId,
+			canvasImage,
+		};
+		socket.emit("drawing", data);
 	}, [elements]);
 
 	const handleMouseMove = (e) => {
@@ -165,7 +169,7 @@ const Canvas = ({ canvasRef, ctx, color, setElements, elements, tool }) => {
 				onMouseMove={handleMouseMove}
 				onMouseUp={handleMouseUp}
 			>
-				<canvas ref={canvasRef} />
+				<canvas id={canvasId} ref={canvasRef} />
 			</div>
 		</div>
 	);
