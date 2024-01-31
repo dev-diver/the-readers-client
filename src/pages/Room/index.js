@@ -5,6 +5,7 @@ import RtcViewer from "./RtcViewer";
 import PDFViewer from "./PDFViewer";
 import BookShelf from "components/BookShelf";
 import api from "api";
+import { find } from "lodash";
 
 function Room() {
 	const { bookId } = useParams();
@@ -14,6 +15,7 @@ function Room() {
 
 	useEffect(() => {
 		api.get(`/rooms/${roomId}`).then((response) => {
+			console.log(response.data);
 			setRoom(response.data.data);
 		});
 	}, []);
