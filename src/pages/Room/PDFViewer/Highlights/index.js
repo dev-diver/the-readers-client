@@ -1,8 +1,9 @@
 import { logger } from "logger";
 import api from "api";
 import React, { useRef, useEffect, useState } from "react";
+import { rangeToInfo, InfoToRange } from "./encoder";
 
-function Highlighter({ bookId }) {
+function Highlighter({ bookId, renderContent }) {
 	const [highlightNum, setHighlightId] = useState(1);
 	const [color, setColor] = useState("yellow");
 	const [highlights, setHighlights] = useState([]);
@@ -15,33 +16,44 @@ function Highlighter({ bookId }) {
 		};
 	});
 
-	function getPageNum(selectedRange) {
-		return 1;
-	}
+	useEffect(() => {
+		if (renderContent) {
+			const userId = 1;
+			const pageNum = 1;
+			api
+				.get(`/highlights/user/${userId}/book/${bookId}/page/${pageNum}`)
+				.then((response) => {
+					logger.log(response.data);
+					let highlights = [];
+					response.data.forEach((hl) => {
+						console.log(hl);
+						const newRange = InfoToRange(hl);
+						highlightRange(newRange);
+						highlights.push(hl);
+					});
+					setHighlights(highlights);
+				})
+				.catch((err) => {
+					logger.log(err);
+				});
+		}
+	}, [renderContent]);
 
 	const handleMouseUp = () => {
 		const selectedRange = window.getSelection();
-		const pageNum = getPageNum(selectedRange);
 
 		if (selectedRange.rangeCount > 0 && !selectedRange.isCollapsed) {
 			const highlightInfos = [];
 
 			for (let i = 0; i < selectedRange.rangeCount; i++) {
 				const range = selectedRange.getRangeAt(i);
-				// range에 대한 처리...
-				highlightRange(range);
 
+				const additionalInfo = { bookId: bookId, num: highlightNum, text: selectedRange.toString() };
+				const highlightInfo = rangeToInfo(range, additionalInfo);
 				// 형광펜 정보 저장
-				highlightInfos.push({
-					num: highlightNum,
-					bookId: bookId,
-					pageNum: pageNum,
-					text: selectedRange.toString(), // 형광펜 칠해진 글자
-					startContainer: "startContainer", //range.startContainer,
-					startOffset: range.startOffset,
-					endContainer: "endContainer", //range.endContainer,
-					endOffset: range.endOffset, // 끝 위치
-				});
+				highlightInfos.push(highlightInfo);
+				const newRange = InfoToRange(highlightInfo);
+				highlightRange(newRange);
 			}
 			// 형광펜 정보를 백엔드로 전송
 			appendHighlightMemo(highlightInfos[0]);
@@ -51,8 +63,9 @@ function Highlighter({ bookId }) {
 	};
 
 	function sendHighlightToServer(highlightInfos) {
+		const userId = 1;
 		api
-			.post("/highlights", highlightInfos)
+			.post(`/highlights/user/${userId}`, highlightInfos)
 			.then((response) => {
 				//id가 포함된 highlights
 				logger.log(response);
@@ -65,23 +78,23 @@ function Highlighter({ bookId }) {
 
 	function highlightRange(range) {
 		let passNode = false;
-		logger.log("ancestor", range.commonAncestorContainer.textContent);
-		logger.log("start", range.startContainer.textContent, "end", range.endContainer.textContent);
 
 		const filterFunction = function (node) {
-			if (node.hasChildNodes()) {
+			if (node.hasChildNodes() || node.nodeType !== Node.TEXT_NODE) {
 				return NodeFilter.FILTER_SKIP;
 			}
 
 			if (node === range.startContainer) {
 				passNode = true;
+				return NodeFilter.FILTER_SKIP;
 			}
-
-			const filterState = passNode ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
 
 			if (node === range.endContainer) {
 				passNode = false;
+				return NodeFilter.FILTER_SKIP;
 			}
+
+			const filterState = passNode ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
 
 			return filterState;
 		};
@@ -90,6 +103,9 @@ function Highlighter({ bookId }) {
 
 		let parentElement;
 
+		//range.startContainer 의 range.startOffset 부터 range.startContainer 의 끝까지를 mark로 감싸는 코드
+
+		//중간
 		let currentNode = walker.nextNode();
 		while (currentNode) {
 			const nextNode = walker.nextNode();
@@ -101,6 +117,9 @@ function Highlighter({ bookId }) {
 			marker.appendChild(currentNode);
 			currentNode = nextNode;
 		}
+
+		//마지막
+
 		setHighlightId(highlightNum + 1);
 	}
 

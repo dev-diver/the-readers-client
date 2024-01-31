@@ -13,6 +13,7 @@ import "./styles.css";
 
 function PDFViewer({ book }) {
 	const [htmlContent, setHtmlContent] = useState("");
+	const [renderContent, setRenderContent] = useState(false);
 	const [isAttention, setAttention] = useState(false);
 	const [canvasComponents, setCanvasComponents] = useState([]);
 	const [cssLoaded, setCssLoaded] = useState(false);
@@ -150,8 +151,8 @@ function PDFViewer({ book }) {
 					container: canvasLayer,
 				};
 			});
-
 			setCanvasComponents(mapCanvasContainer);
+			setRenderContent(true);
 		}
 	}, [htmlContent]);
 
@@ -249,7 +250,7 @@ function PDFViewer({ book }) {
 			{canvasComponents.map(({ component, container }) => {
 				return createPortal(component, container);
 			})}
-			<Highlights bookId={book.id} />
+			<Highlights bookId={book.id} renderContent={renderContent} />
 		</>
 	);
 }
