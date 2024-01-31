@@ -158,35 +158,9 @@ const Canvas = ({ canvasRef, ctx, color, setElements, elements, tool }) => {
 
 	return (
 		<div>
-			<div className="row justify-content-center align-items-center text-center py-2">
-				<div className="col-md-2">
-					<div className="color-picker d-flex align-items-center justify-content-center">
-						<input
-							type="button"
-							// 노란색 버튼
-							className="btn btn-warning"
-							value="load canvas #time (미구현)"
-							// onClick={loadCanvas}
-						/>
-					</div>
-				</div>
-			</div>
-			<div className="row justify-content-center align-items-center text-center py-2">
-				<div className="col-md-1">
-					<div className="color-picker d-flex align-items-center justify-content-center">
-						<input
-							type="button"
-							// 초록색 버튼
-							className="btn btn-success"
-							value="save canvas"
-							onClick={saveCanvas}
-						/>
-					</div>
-				</div>
-			</div>
 			<div
 				className="col-md-8 overflow-hidden border border-dark px-0 mx-auto mt-3"
-				style={{ height: "500px" }}
+				style={{ height: "100px" }}
 				onMouseDown={handleMouseDown}
 				onMouseMove={handleMouseMove}
 				onMouseUp={handleMouseUp}
