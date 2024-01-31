@@ -4,9 +4,8 @@ import { baseURL } from "config/config";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
 import Button from "react-bootstrap/Button";
-import SignUpForm from "components/form/SignUpForm";
 
-const LogInForm = ({ setUser, isLogin }) => {
+const LogInForm = ({ setUser, isLogin, setPopState }) => {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [errorMessage, setErrorMessage] = useState("");
@@ -28,6 +27,7 @@ const LogInForm = ({ setUser, isLogin }) => {
 			.then((response) => {
 				localStorage.setItem("user", JSON.stringify(response.data.user));
 				setUser(response.data.user);
+				setPopState("none");
 				setErrorMessage("");
 			})
 			.catch(() => {
@@ -60,12 +60,10 @@ const LogInForm = ({ setUser, isLogin }) => {
 							aria-describedby="inputGroup-sizing-default"
 						/>
 					</InputGroup>
-
-					<Button onClick={() => setShowSignUpForm(true)}>가입하기</Button>
+					<Button onClick={() => setPopState("signup")}>가입하기</Button>
 					<Button type="submit">로그인</Button>
 				</div>
 			)}
-			{showSignUpForm && <SignUpForm />}
 			<br />
 			{errorMessage && <p>{errorMessage}</p>}
 		</form>
