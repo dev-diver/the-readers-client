@@ -1,9 +1,10 @@
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import rough from "roughjs/bundled/rough.esm";
 import api from "api";
+import socket from "socket.js";
 
 const generator = rough.generator();
-const Canvas = ({ canvasRef, ctx, color, setElements, elements, tool, socket }) => {
+const Canvas = ({ canvasRef, ctx, color, setElements, elements, tool }) => {
 	const [isDrawing, setIsDrawing] = useState(false);
 
 	useEffect(() => {

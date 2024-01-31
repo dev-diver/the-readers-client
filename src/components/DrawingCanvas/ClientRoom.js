@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import { toast } from "react-toastify";
+import socket from "socket.js";
 
-const ClientRoom = ({ userNo, socket, setUsers, setUserNo }) => {
+const ClientRoom = ({ userNo, setUsers, setUserNo }) => {
 	const imgRef = useRef(null);
 	useEffect(() => {
 		socket.on("message", (data) => {
@@ -18,8 +19,6 @@ const ClientRoom = ({ userNo, socket, setUsers, setUserNo }) => {
 	useEffect(() => {
 		socket.on("canvasImage", (data) => {
 			if (imgRef.current) {
-				// console.log("***mgRef.current.src***", imgRef.current.src);
-				// console.log("***data***", data);
 				imgRef.current.src = data;
 			}
 		});
