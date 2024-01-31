@@ -225,7 +225,6 @@ function PDFViewer({ book }) {
 
 	return (
 		<>
-			<DrawingCanvas socket={socket} />
 			<Button onClick={() => sendAttention()} />
 			<div className="pdf-chart-container" style={{ display: "flex", margin: "0 auto", width: "1000px" }}>
 				<Chart scroll={scroll} />
@@ -250,6 +249,7 @@ function PDFViewer({ book }) {
 				return createPortal(component, container);
 			})}
 			<Highlights bookId={book.id} />
+			<DrawingCanvas socket={socket} />
 		</>
 	);
 }
