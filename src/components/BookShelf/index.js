@@ -1,12 +1,14 @@
 import React from "react";
-import Book from "components/Book";
+import BookCard from "components/BookShelf/BookCard";
 
-const BookShelf = ({ room }) => {
+const BookShelf = ({ books, bookClickhandler }) => {
 	return (
 		<ul>
-			{room.Books.map((book, index) => (
-				<Book key={index} roomId={room.id} book={book} />
-			))}
+			{books.length != 0 ? (
+				books.map((book, index) => <BookCard key={index} book={book} handler={() => bookClickhandler(book)} />)
+			) : (
+				<div> 책이 아직 없어요.</div>
+			)}
 		</ul>
 	);
 };

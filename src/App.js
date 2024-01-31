@@ -4,6 +4,8 @@ import Main from "pages/Main";
 import RoomLobby from "pages/RoomLobby";
 import Room from "pages/Room";
 
+import Auth from "./components/Auth";
+
 function App() {
 	return (
 		<div>
@@ -15,11 +17,12 @@ function App() {
 								<Link to="/">Main</Link>
 							</li>
 						</ul>
+						<Auth />
 					</nav>
 					<Routes>
 						<Route path="/" element={<Main />} />
-						<Route path="/room/:roomId" element={<RoomLobby />} />
 						<Route path="/room/:roomId/book/:bookId" element={<Room />} />
+						<Route path="/room/:roomId" element={<RoomLobby />} />
 					</Routes>
 				</div>
 			</Router>
