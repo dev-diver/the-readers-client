@@ -6,12 +6,17 @@ import Button from "components/Buttons/FocusButton";
 import Highlights from "./Highlights";
 import PageCanvas from "./PageCanvas";
 import Chart from "components/Chart";
+import DrawingCanvas from "components/DrawingCanvas";
+import { debounce } from "lodash";
+import "./styles.css";
+// import { log } from "console";
 
 function PDFViewer({ book }) {
 	const [htmlContent, setHtmlContent] = useState("");
 	const [isAttention, setAttention] = useState(false);
 	const [canvasComponents, setCanvasComponents] = useState([]);
 	const [cssLoaded, setCssLoaded] = useState(false);
+	const [scroll, setScroll] = useState(calculateScrollY());
 
 	const canvasRef = useRef([]);
 	const pointers = useRef([]);
@@ -54,7 +59,9 @@ function PDFViewer({ book }) {
 	useEffect(() => {
 		socket.on("updatepointer", (data) => {
 			updatePointers(data);
+			// console.log("updatepointer", data);
 			redrawCanvas(data.page);
+			// redrawCanvas(1);
 		});
 		return () => {
 			socket.off("updatepointer");
@@ -96,6 +103,7 @@ function PDFViewer({ book }) {
 
 	const clearCanvas = (pageNum) => {
 		const canvas = canvasRef.current[pageNum];
+		console.log("pageNum", pageNum);
 		const ctx = canvas.getContext("2d");
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 	};
@@ -181,25 +189,62 @@ function PDFViewer({ book }) {
 		}
 	}, [isAttention]);
 
+	useEffect(() => {
+		const pageContainer = document.getElementsByClassName("pdf-container")[0];
+		if (!pageContainer) return;
+
+		// 스크롤 이벤트 리스너 추가
+		pageContainer.addEventListener("scroll", () => handleContainerScroll());
+		// 컴포넌트가 언마운트될 때 리스너 제거
+		return () => pageContainer.removeEventListener("scroll", () => handleContainerScroll());
+	}, []);
+
+	const handleContainerScroll = debounce(() => {
+		// logger.log("debounce", scroll);
+		// setPrevScroll(scroll);
+		setScroll(calculateScrollY());
+	}, 1000);
+
+	function calculateScrollY() {
+		const pageContainer = document.getElementsByClassName("pdf-container")[0];
+		if (!pageContainer) {
+			return 0;
+		}
+
+		const scrollY = pageContainer.scrollTop;
+		// logger.log("scrollY", scrollY);
+		const containerHeight = pageContainer.scrollHeight;
+		// logger.log("containerHeight", containerHeight);
+		const clientHeight = pageContainer.clientHeight;
+		// logger.log("clientHeight", clientHeight);
+		const totalScrollableHeight = containerHeight - clientHeight;
+		// logger.log("totalScrollableHeight", totalScrollableHeight);
+		// (스크롤 위치 / 전체 스크롤 가능한 길이) * 10 = (전체 길이상대적인 스크롤 위치)
+		return Math.round((scrollY / totalScrollableHeight) * 30);
+	}
+
 	return (
 		<>
+			<DrawingCanvas socket={socket} />
 			<Button onClick={() => sendAttention()} />
-			<Chart pageContainer={containerRef.current} />
-			<div
-				className="pdf-container"
-				onScroll={handleScroll}
-				ref={containerRef}
-				style={{
-					height: "80vh",
-					width: "55%",
-					overflow: "scroll",
-				}}
-			>
+			<div className="pdf-chart-container" style={{ display: "flex", margin: "0 auto", width: "1000px" }}>
+				<Chart scroll={scroll} />
 				<div
-					className="pdf-contents"
-					dangerouslySetInnerHTML={{ __html: htmlContent }}
-					style={{ width: "100%", height: "100%" }}
-				/>
+					className="pdf-container"
+					onScroll={handleScroll}
+					ref={containerRef}
+					style={{
+						height: "80vh",
+						width: "55%",
+						overflow: "scroll",
+					}}
+				>
+					<div
+						className="pdf-contents"
+						dangerouslySetInnerHTML={{ __html: htmlContent }}
+						style={{ width: "100%", height: "100%" }}
+					/>
+				</div>
 			</div>
 			{canvasComponents.map(({ component, container }) => {
 				return createPortal(component, container);

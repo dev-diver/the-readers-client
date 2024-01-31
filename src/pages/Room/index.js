@@ -15,6 +15,7 @@ function Room() {
 
 	useEffect(() => {
 		api.get(`/rooms/${roomId}`).then((response) => {
+			console.log(response.data);
 			setRoom(response.data.data);
 		});
 	}, []);
