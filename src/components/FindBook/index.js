@@ -1,19 +1,19 @@
 import React, { useState } from "react";
 import api from "api";
-import RoomCard from "./RoomCard";
+import BookCard from "components/BookShelf/BookCard";
 
-function FindRoom() {
-	const [name, setName] = useState("");
+function FindBook({ bookClickHandler }) {
+	const [bookName, setBookName] = useState("");
 	const [searchResults, setSearchResults] = useState([]); // 검색 결과를 저장할 상태
 
-	const handleSearch = () => {
+	const handleSearch = async () => {
 		api
-			.get("/rooms", {
-				params: { name: name },
+			.get("/books", {
+				params: { bookname: bookName },
 			})
 			.then((response) => {
+				console.log("검색 결과:", response.data);
 				setSearchResults(response.data.data); // 검색 결과를 상태에 저장
-				console.log("검색 결과:", response.data.data);
 			})
 			.catch((error) => {
 				console.error("검색 중 에러 발생", error.message);
@@ -28,15 +28,15 @@ function FindRoom() {
 				handleSearch();
 			}}
 		>
-			<input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="방/책 이름 검색"></input>
+			<input type="text" value={bookName} onChange={(e) => setBookName(e.target.value)} placeholder="책 검색"></input>
 			<button type="submit">Search</button>
 			<div>
-				{searchResults.map((room, index) => (
-					<RoomCard key={index} room={room} />
+				{searchResults.map((book, index) => (
+					<BookCard key={index} book={book} handler={() => bookClickHandler(book)} />
 				))}
 			</div>
 		</form>
 	);
 }
 
-export default FindRoom;
+export default FindBook;

@@ -5,7 +5,6 @@ function MakeRoom() {
 	const [isOpen, setIsOpen] = useState(false);
 	const [maxParticipants, setMaxParticipants] = useState(1);
 	const [roomName, setRoomName] = useState("");
-	const [bookFile, setBookFile] = useState("");
 
 	const openModal = () => {
 		setIsOpen(true);
@@ -19,10 +18,9 @@ function MakeRoom() {
 		event.preventDefault();
 
 		try {
-			const response = await api.post("/rooms/make", {
+			const response = await api.post("/rooms", {
 				roomName,
 				maxParticipants,
-				bookFile,
 			});
 			alert(response.data.message);
 			// 데이터를 다 입력해야만 팝업창이 닫힘
@@ -45,10 +43,6 @@ function MakeRoom() {
 		setRoomName(e.target.value);
 	};
 
-	const handleBookFileChange = (e) => {
-		setBookFile(e.target.value);
-	};
-
 	return (
 		<div>
 			<button onClick={openModal}>방 만들기</button>
@@ -56,7 +50,7 @@ function MakeRoom() {
 				<div className="modal-overlay">
 					<div className="modal-content">
 						<form onSubmit={handleSubmit}>
-							<label>방제</label>
+							<label>방 이름</label>
 							<br />
 							<input type="text" placeholder="방제를 입력하세요." value={roomName} onChange={handleRoomNameChange} />
 							<br />
@@ -69,15 +63,6 @@ function MakeRoom() {
 							<button type="button" onClick={decreaseParticipants}>
 								-
 							</button>
-							<br />
-							<label>책 파일</label>
-							<br />
-							<input
-								type="text"
-								placeholder="책파일을 업로드하세요."
-								value={bookFile}
-								onChange={handleBookFileChange}
-							/>
 							<br />
 							<button type="submit">만들기</button>
 							<button type="button" onClick={closeModal}>

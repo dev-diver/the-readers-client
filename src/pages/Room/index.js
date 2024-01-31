@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "./styles.css";
 import RtcViewer from "./RtcViewer";
 import PDFViewer from "./PDFViewer";
@@ -11,6 +11,7 @@ function Room() {
 	const { roomId } = useParams();
 	const [room, setRoom] = useState({ Books: [] });
 	const [book, setBook] = useState({});
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		api.get(`/rooms/${roomId}`).then((response) => {
@@ -23,10 +24,13 @@ function Room() {
 		setBook(findBook);
 	}, [room, bookId]);
 
+	const bookClickHandler = (book) => {
+		navigate(`/room/${roomId}/book/${book.id}`);
+	};
 	return (
 		<div className="container">
 			{/* <RtcViewer/> */}
-			{room && <BookShelf room={room} />}
+			{room && <BookShelf books={room.Books} bookClickhandler={bookClickHandler} />}
 			{book && <PDFViewer book={book} />}
 		</div>
 	);

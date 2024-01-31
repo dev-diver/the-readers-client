@@ -7,11 +7,8 @@ import SignControllButton from "components/Buttons/SignControllButton";
 
 export default function Auth() {
 	const [user, setUser] = useState(null);
-	const [SignUpPopState, setSignUpPopState] = useState(false);
 	const [LogInPopState, setLogInPopState] = useState(false);
-	const [showSignUpForm, setShowSignUpForm] = useState(false);
 	const [ProfilePopState, setProfilePopState] = useState(false);
-	const [popState, setPopState] = useState(false);
 
 	useEffect(() => {
 		const user = localStorage.getItem("user");

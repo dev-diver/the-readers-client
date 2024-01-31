@@ -1,8 +1,5 @@
-import React, { useState, useEffect } from "react";
-// import Book from "components/Book";
-import RoomCard from "components/RoomCard";
-import UploadFile from "./UploadFile";
-import MakeRoom from "components/MakeRoom";
+import React from "react";
+import MakeRoom from "pages/Main/MakeRoom";
 import FindRoom from "components/FindRoom";
 
 // import "./style.css";
@@ -12,7 +9,6 @@ function Main() {
 		<div>
 			<MakeRoom />
 			<FindRoom />
-			<UploadFile />
 		</div>
 	);
 }

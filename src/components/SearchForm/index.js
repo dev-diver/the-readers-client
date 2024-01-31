@@ -9,7 +9,9 @@ const SearchForm = ({ setData, mode }) => {
 		event.preventDefault();
 
 		api
-			.get(`/books/search/?bookname=${encodeURIComponent(bookname)}`)
+			.get(`/books`, {
+				params: { bookname: bookname },
+			})
 			.then((res) => {
 				logger.log(res);
 				if (res.data.data && res.data.data.length === 0) {
@@ -30,7 +32,7 @@ const SearchForm = ({ setData, mode }) => {
 		event.preventDefault();
 
 		api
-			.get(`/rooms/search/?bookname=${encodeURIComponent(bookname)}`)
+			.get(`/room/?bookname=${encodeURIComponent(bookname)}`)
 			.then((res) => {
 				logger.log(res);
 				if (res.data.data && res.data.data.length === 0) {
@@ -47,12 +49,15 @@ const SearchForm = ({ setData, mode }) => {
 			});
 	};
 
+	const submitHandler = mode == "room" ? searchRooms : searchBooks;
+	const placeholder = mode == "room" ? "방 이름을 입력해주세요" : "방 또는 책 이름을 입력해주세요";
+
 	return (
-		<div id="searchChange">
-			<form onSubmit={mode == "room" ? searchRooms : searchBooks}>
+		<div id="searchForm">
+			<form onSubmit={submitHandler}>
 				<input
 					type="text"
-					placeholder="책 제목을 입력해주세요"
+					placeholder={placeholder}
 					value={bookname}
 					onChange={(e) => setbookname(e.target.value)}
 					required
