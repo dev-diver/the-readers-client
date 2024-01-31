@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import socket from "socket.js";
 import Canvas from "./Canvas";
 
-const ClientRoom = ({ userNo, setUsers, setUserNo }) => {
+const ClientRoom = ({ canvasId, users, setUsers, setUserNo }) => {
 	const canvasRef = useRef(null);
 	const ctx = useRef(null);
 	const [color, setColor] = useState("#000000");
@@ -17,30 +17,41 @@ const ClientRoom = ({ userNo, setUsers, setUserNo }) => {
 		});
 	}, []);
 
+	/*
 	useEffect(() => {
 		socket.on("users", (data) => {
-			console.log("server에서 준 data:", data);
-			setUsers(data);
-			setUserNo(data.length);
+			// 각 사용자의 userId와 bookId를 조합하여 canvasId를 생성
+			const updatedUsers = data.map((user) => ({
+				...user,
+				canvasId: `${user.bookId}-${user.userId}`, // userId와 bookId를 결합하여 canvasId 생성
+			}));
+			setUsers(updatedUsers); // 상태 업데이트
+			setUserNo(updatedUsers.length);
 		});
 	}, []);
+	*/
 
 	useEffect(() => {
 		socket.on("canvasImage", (data) => {
-			if (canvasRef.current) {
-				const canvas = canvasRef.current;
-				const context = canvas.getContext("2d");
-				const image = new Image();
+			// data 객체에서 canvasId와 이미지 URL을 추출
+			if (data) {
+				const { canvasId, canvasImage } = data;
+				// 해당 canvasId를 가진 canvas 요소 찾기
+				const canvas = document.getElementById(canvasId);
+				if (canvas) {
+					const context = canvas.getContext("2d");
+					const image = new Image();
 
-				// 이미지 로드가 완료되면 실행될 함수
-				image.onload = function () {
-					// Canvas에 이미지 그리기
-					context.clearRect(0, 0, canvas.width, canvas.height); // 이전 내용을 지웁니다.
-					context.drawImage(image, 0, 0, canvas.width, canvas.height); // 이미지를 캔버스에 맞게 조정하여 그립니다.
-				};
+					// 이미지 로드가 완료되면 실행될 함수
+					image.onload = function () {
+						// Canvas에 이미지 그리기
+						context.clearRect(0, 0, canvas.width, canvas.height); // 이전 내용을 지웁니다.
+						context.drawImage(image, 0, 0, canvas.width, canvas.height); // 이미지를 캔버스에 맞게 조정하여 그립니다.
+					};
 
-				// 이미지 소스로 Base64 URL 설정
-				image.src = data;
+					// 이미지 소스로 Base64 URL 설정
+					image.src = canvasImage;
+				}
 			}
 		});
 	}, []);
@@ -50,6 +61,7 @@ const ClientRoom = ({ userNo, setUsers, setUserNo }) => {
 			<div className="row mt-5">
 				<Canvas
 					canvasRef={canvasRef}
+					canvasId={canvasId}
 					ctx={ctx}
 					color={color}
 					setElements={setElements}
