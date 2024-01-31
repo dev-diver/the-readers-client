@@ -1,28 +1,39 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 
 import BookShelf from "components/BookShelf";
 import api from "api";
+import AddBook from "./Addbook";
+import PopUp from "components/PopUp";
 
 const RoomPage = () => {
 	const { roomId } = useParams();
-	// const location = useLocation();
-	// const [room, setRoom] = useState({ Books: [] });
-	const [room, setRoom] = useState([]);
+	const navigate = useNavigate();
+	const [room, setRoom] = useState(null);
+	const [roomRefresh, setRoomRefresh] = useState(false);
+	const [pop, setPop] = useState(false);
+
 	useEffect(() => {
 		api.get(`/rooms/${roomId}`).then((response) => {
-			console.log("응답입니다.", response);
 			setRoom(response.data.data);
 		});
-	}, [roomId]);
+	}, [roomId, roomRefresh]);
+
+	const bookClickHandler = (book) => {
+		navigate(`/room/${roomId}/book/${book.id}`);
+	};
+
 	return (
 		<>
 			{room && (
 				<div>
 					<h1>{room.title}</h1>
 					<h2>책 목록</h2>
-					<h3>{room.bookFile}</h3>
-					{/* <BookShelf room={room} /> */}
+					<BookShelf books={room.Books} bookClickhandler={bookClickHandler} />
+					<button onClick={() => setPop(true)}>책 추가</button>
+					<PopUp isOpen={pop} onClose={() => setPop(false)}>
+						<AddBook room={room} refresh={setRoomRefresh} onClose={() => setPop(false)} />
+					</PopUp>
 				</div>
 			)}
 		</>

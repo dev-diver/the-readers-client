@@ -1,4 +1,3 @@
-import LogInForm from "components/form/LogInForm";
 import React from "react";
 
 const LogInButton = ({ setPopState }) => {
