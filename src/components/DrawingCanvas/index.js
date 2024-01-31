@@ -5,6 +5,7 @@ import Sidebar from "./Sidebar";
 import Room from "./Room";
 import ClientRoom from "./ClientRoom";
 import JoinCreateRoom from "./JoinCreateRoom";
+import socket from "socket.js";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "react-toastify/dist/ReactToastify.css";
@@ -33,7 +34,7 @@ const uuid = () => {
 
 // const socket = io(server, connectionOptions);
 
-const DrawingCanvas = ({ socket }) => {
+const DrawingCanvas = () => {
 	const [userNo, setUserNo] = useState(0);
 	const [roomJoined, setRoomJoined] = useState(false);
 	const [user, setUser] = useState({});
@@ -57,9 +58,9 @@ const DrawingCanvas = ({ socket }) => {
 		<div className="home">
 			<ToastContainer />
 			<>
-				<Sidebar users={users} user={user} socket={socket} />
-				<Room userNo={userNo} user={user} socket={socket} setUsers={setUsers} setUserNo={setUserNo} />
-				<ClientRoom userNo={userNo} socket={socket} setUsers={setUsers} setUserNo={setUserNo} />
+				<Sidebar users={users} user={user} />
+				<Room userNo={userNo} user={user} setUsers={setUsers} setUserNo={setUserNo} />
+				<ClientRoom userNo={userNo} setUsers={setUsers} setUserNo={setUserNo} />
 			</>
 		</div>
 	);

@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import Canvas from "./Canvas";
+import socket from "socket.js";
 
-const Room = ({ userNo, socket, setUsers, setUserNo }) => {
+const Room = ({ userNo, setUsers, setUserNo }) => {
 	const canvasRef = useRef(null);
 	const ctx = useRef(null);
 	const [color, setColor] = useState("#000000");
@@ -136,7 +137,6 @@ const Room = ({ userNo, socket, setUsers, setUserNo }) => {
 					setElements={setElements}
 					elements={elements}
 					tool={tool}
-					socket={socket}
 				/>
 			</div>
 		</div>

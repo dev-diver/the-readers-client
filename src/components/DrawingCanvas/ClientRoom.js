@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import { toast } from "react-toastify";
+import socket from "socket.js";
 
-const ClientRoom = ({ userNo, socket, setUsers, setUserNo }) => {
+const ClientRoom = ({ userNo, setUsers, setUserNo }) => {
 	const imgRef = useRef(null);
 	useEffect(() => {
 		socket.on("message", (data) => {
