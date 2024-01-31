@@ -6,6 +6,7 @@ import Room from "./Room";
 import ClientRoom from "./ClientRoom";
 import JoinCreateRoom from "./JoinCreateRoom";
 import socket from "socket.js";
+import { useParams } from "react-router-dom";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "react-toastify/dist/ReactToastify.css";
@@ -24,25 +25,19 @@ const uuid = () => {
  * console.log(uuid);
  **/
 
-// const server = "http://localhost:3000/";
-// const connectionOptions = {
-// 	"force new connection": true,
-// 	reconnectionAttempts: "Infinity",
-// 	timeout: 10000,
-// 	transports: ["websocket"],
-// };
-
-// const socket = io(server, connectionOptions);
-
 const DrawingCanvas = () => {
 	const [userNo, setUserNo] = useState(0);
 	const [roomJoined, setRoomJoined] = useState(false);
 	const [user, setUser] = useState({});
 	const [users, setUsers] = useState([]);
+	const { roomId, bookId } = useParams();
 
 	useEffect(() => {
+		setRoomJoined(true);
+
 		setUser({
-			roomId: "1",
+			roomId: roomId,
+			bookId: bookId,
 			userId: uuid(),
 			userName: "host",
 			host: true,
@@ -52,11 +47,11 @@ const DrawingCanvas = () => {
 
 	useEffect(() => {
 		socket.emit("user-joined", user);
-	}, [user]);
+	}, [roomJoined]);
 
 	return (
 		<div className="home">
-			<ToastContainer />
+			{/* <ToastContainer /> */}
 			<>
 				<Sidebar users={users} user={user} />
 				<Room userNo={userNo} user={user} setUsers={setUsers} setUserNo={setUserNo} />

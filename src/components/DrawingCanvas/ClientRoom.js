@@ -19,8 +19,6 @@ const ClientRoom = ({ userNo, setUsers, setUserNo }) => {
 	useEffect(() => {
 		socket.on("canvasImage", (data) => {
 			if (imgRef.current) {
-				// console.log("***mgRef.current.src***", imgRef.current.src);
-				// console.log("***data***", data);
 				imgRef.current.src = data;
 			}
 		});

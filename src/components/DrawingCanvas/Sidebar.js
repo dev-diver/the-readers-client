@@ -36,7 +36,7 @@ const Sidebar = ({ users, user }) => {
 				<div className="w-100 mt-5">
 					{users.map((usr, index) => (
 						<p key={index} className="text-white text-center py-2">
-							{usr.username}
+							{usr.userId}
 							{usr.id === socket.id && " - (You)"}
 						</p>
 					))}
