@@ -5,7 +5,6 @@ import RoomLobby from "pages/RoomLobby";
 import Room from "pages/Room";
 
 import Auth from "./components/Auth";
-
 function App() {
 	return (
 		<div>
