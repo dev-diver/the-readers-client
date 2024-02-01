@@ -9,15 +9,8 @@ const LogInForm = ({ setUser, isLogin, setPopState }) => {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [errorMessage, setErrorMessage] = useState("");
-	const [showSignUpForm, setShowSignUpForm] = useState(false);
 
-	const handleEmailChange = (e) => {
-		setEmail(e.target.value);
-	};
-
-	const handlePasswordChange = (e) => {
-		setPassword(e.target.value);
-	};
+	const handlePasswordChange = (e) => {};
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
@@ -37,33 +30,31 @@ const LogInForm = ({ setUser, isLogin, setPopState }) => {
 
 	return isLogin ? null : (
 		<form onSubmit={handleSubmit}>
-			{!showSignUpForm && (
-				<div>
-					<InputGroup className="mb-3">
-						<Form.Control
-							type="email"
-							placeholder="Email"
-							value={email}
-							onChange={handleEmailChange}
-							aria-label="Default"
-							aria-describedby="inputGroup-sizing-default"
-						/>
-					</InputGroup>
+			<div>
+				<InputGroup className="mb-3">
+					<Form.Control
+						type="email"
+						placeholder="Email"
+						value={email}
+						onChange={(e) => setEmail(e.target.value)}
+						aria-label="Default"
+						aria-describedby="inputGroup-sizing-default"
+					/>
+				</InputGroup>
 
-					<InputGroup className="mb-3">
-						<Form.Control
-							type="password"
-							placeholder="Password"
-							value={password}
-							onChange={handlePasswordChange}
-							aria-label="Default"
-							aria-describedby="inputGroup-sizing-default"
-						/>
-					</InputGroup>
-					<Button onClick={() => setPopState("signup")}>가입하기</Button>
-					<Button type="submit">로그인</Button>
-				</div>
-			)}
+				<InputGroup className="mb-3">
+					<Form.Control
+						type="password"
+						placeholder="Password"
+						value={password}
+						onChange={(e) => setPassword(e.target.value)}
+						aria-label="Default"
+						aria-describedby="inputGroup-sizing-default"
+					/>
+				</InputGroup>
+				<Button onClick={() => setPopState("signup")}>가입하기</Button>
+				<Button type="submit">로그인</Button>
+			</div>
 			<br />
 			{errorMessage && <p>{errorMessage}</p>}
 		</form>

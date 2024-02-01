@@ -104,7 +104,6 @@ function PDFViewer({ book }) {
 
 	const clearCanvas = (pageNum) => {
 		const canvas = canvasRef.current[pageNum];
-		console.log("pageNum", pageNum);
 		const ctx = canvas.getContext("2d");
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 	};

@@ -2,8 +2,12 @@ import { logger } from "logger";
 import api from "api";
 import React, { useRef, useEffect, useState } from "react";
 import { rangeToInfo, InfoToRange } from "./encoder";
+import { useRecoilState } from "recoil";
+import { userState } from "atom";
+import socket from "socket.js";
 
 function Highlighter({ bookId, renderContent }) {
+	const [user, setUser] = useRecoilState(userState);
 	const [highlightNum, setHighlightId] = useState(1);
 	const [color, setColor] = useState("yellow");
 	const [highlights, setHighlights] = useState([]);
@@ -16,28 +20,48 @@ function Highlighter({ bookId, renderContent }) {
 		};
 	});
 
+	function applyUserHighlight(userId, bookId, pageNum) {
+		api
+			.get(`/highlights/user/${userId}/book/${bookId}/page/${pageNum}`)
+			.then((response) => {
+				logger.log(response.data);
+				let highlights = [];
+				response.data.forEach((hl) => {
+					console.log(hl);
+					const newRange = InfoToRange(hl);
+					highlightRange(newRange);
+					highlights.push(hl);
+				});
+				setHighlights(highlights);
+			})
+			.catch((err) => {
+				logger.log(err);
+			});
+	}
+
+	useEffect(() => {
+		socket.on("users", (data) => {
+			console.log("highlight user", data);
+			// 각 사용자의 userId와 bookId를 조합하여 canvasId를 생성
+			data.forEach((socketUser) => {
+				const pageNum = 1;
+				if (socketUser.memberId && socketUser.memberId === user?.id) {
+					console.log(socketUser);
+					applyUserHighlight(socketUser.memberId, bookId, pageNum);
+				}
+			});
+		});
+	}, []);
+
 	useEffect(() => {
 		if (renderContent) {
-			const userId = 1;
 			const pageNum = 1;
-			api
-				.get(`/highlights/user/${userId}/book/${bookId}/page/${pageNum}`)
-				.then((response) => {
-					logger.log(response.data);
-					let highlights = [];
-					response.data.forEach((hl) => {
-						console.log(hl);
-						const newRange = InfoToRange(hl);
-						highlightRange(newRange);
-						highlights.push(hl);
-					});
-					setHighlights(highlights);
-				})
-				.catch((err) => {
-					logger.log(err);
-				});
+			if (user) {
+				console.log(user);
+				applyUserHighlight(user.id, bookId, pageNum);
+			}
 		}
-	}, [renderContent]);
+	}, [renderContent, user]);
 
 	const handleMouseUp = () => {
 		const selectedRange = window.getSelection();
@@ -63,9 +87,8 @@ function Highlighter({ bookId, renderContent }) {
 	};
 
 	function sendHighlightToServer(highlightInfos) {
-		const userId = 1;
 		api
-			.post(`/highlights/user/${userId}`, highlightInfos)
+			.post(`/highlights/user/${user.id}`, highlightInfos)
 			.then((response) => {
 				//id가 포함된 highlights
 				logger.log(response);

@@ -28,7 +28,7 @@ function FindBook({ bookClickHandler }) {
 				handleSearch();
 			}}
 		>
-			<input type="text" value={bookName} onChange={(e) => setBookName(e.target.value)} placeholder="책 검색"></input>
+			<input type="text" value={bookName} onChange={(e) => setBookName(e.target.value)} placeholder="책 검색" />
 			<button type="submit">Search</button>
 			<div>
 				{searchResults.map((book, index) => (

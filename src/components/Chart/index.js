@@ -16,8 +16,6 @@ function Chart(scroll) {
 
 	useEffect(() => {
 		setPrevScroll(scroll.scroll);
-		logger.log("[scroll] scroll: ", scroll);
-		logger.log("[scroll] PrevScroll: ", prevScroll);
 		// 1초마다 count 증가
 		const interval = setInterval(() => {
 			setCount((c) => c + 1);

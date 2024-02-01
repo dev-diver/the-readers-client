@@ -2,18 +2,18 @@ import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { toast, ToastContainer } from "react-toastify";
 import Sidebar from "./Sidebar";
-import Room from "./Room";
 import ClientRoom from "./ClientRoom";
-import JoinCreateRoom from "./JoinCreateRoom";
 import socket from "socket.js";
 import { useParams } from "react-router-dom";
+import { useRecoilState } from "recoil";
+import { userState } from "atom";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "react-toastify/dist/ReactToastify.css";
 import "./style.css";
 
 // 무작위 uuid 값 만들기. GPT에서 crypto 함수를 추천했음.
-const uuid = () => {
+const createUuid = () => {
 	var S4 = () => {
 		return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
 	};
@@ -26,30 +26,38 @@ const uuid = () => {
  **/
 
 const DrawingCanvas = () => {
-	const [userNo, setUserNo] = useState(0);
 	const [roomJoined, setRoomJoined] = useState(false);
-	const [user, setUser] = useState({});
+	const [user, setUser] = useRecoilState(userState);
+	const [socketUser, setSocketUser] = useState(null);
 	const [users, setUsers] = useState([]);
 	const { roomId, bookId } = useParams();
+	const uuid = createUuid();
 
 	useEffect(() => {
 		setRoomJoined(true);
-
-		setUser({
+		setSocketUser({
+			isLogin: user?.token,
 			roomId: roomId,
 			bookId: bookId,
-			userId: uuid(),
+			memberId: user?.id,
+			userId: uuid,
 			userName: "host",
 			host: true,
 			presenter: true,
 		});
-	}, []);
+	}, [user]);
 
 	useEffect(() => {
 		if (roomJoined) {
-			socket.emit("user-joined", user);
+			socket.emit("user-joined", socketUser);
 		}
 	}, [roomJoined]);
+
+	useEffect(() => {
+		if (socketUser) {
+			socket.emit("user-changed", socketUser);
+		}
+	}, [socketUser]);
 
 	useEffect(() => {
 		socket.on("users", (data) => {
@@ -59,7 +67,6 @@ const DrawingCanvas = () => {
 				canvasId: `${user.userId}`, // userId와 bookId를 결합하여 canvasId 생성
 			}));
 			setUsers(updatedUsers); // 상태 업데이트
-			setUserNo(updatedUsers.length);
 		});
 	}, []);
 
@@ -67,10 +74,10 @@ const DrawingCanvas = () => {
 		<div className="home">
 			{/* <ToastContainer /> */}
 			<>
-				<Sidebar users={users} user={user} />
-				<UtilButton />
+				<Sidebar users={users} user={socketUser} />
+				{/* <UtilButton /> */}
 				{users.map((user, index) => (
-					<ClientRoom key={index} canvasId={user.canvasId} setUsers={setUsers} setUserNo={setUserNo} />
+					<ClientRoom key={index} canvasId={user.canvasId} setUsers={setUsers} />
 				))}
 			</>
 		</div>
