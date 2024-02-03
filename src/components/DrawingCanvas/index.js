@@ -6,7 +6,7 @@ import ClientRoom from "./ClientRoom";
 import socket from "socket.js";
 import { useParams } from "react-router-dom";
 import { useRecoilState } from "recoil";
-import { userState } from "atom";
+import { userState } from "recoil/atom";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "react-toastify/dist/ReactToastify.css";
