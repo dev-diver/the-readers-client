@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import ProfileButton from "components/Buttons/ProfileButton";
 import PopUp from "components/PopUp";
-import LoginForm from "components/form/LogInForm";
-import ProfileCard from "components/form/ProfileCard";
+import LoginForm from "components/Header/SideDrawer/form/LogInForm";
+import ProfileCard from "components/Header/SideDrawer/form/ProfileCard";
 import SignControllButton from "components/Buttons/SignControllButton";
-import SignUpForm from "components/form/SignUpForm";
+import SignUpForm from "components/Header/SideDrawer/form/SignUpForm";
 import { useRecoilState } from "recoil";
-import { userState } from "atom";
+import { userState } from "recoil/atom";
 
 export default function Auth() {
 	const [user, setUser] = useRecoilState(userState);

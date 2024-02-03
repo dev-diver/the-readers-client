@@ -1,18 +1,51 @@
-import React, { useState } from "react";
+import React, { useState, forwardRef } from "react";
 import api from "api";
-import "./style.css";
-function MakeRoom() {
-	const [isOpen, setIsOpen] = useState(false);
-	const [maxParticipants, setMaxParticipants] = useState(1);
-	const [roomName, setRoomName] = useState("");
+// import "./style.css";
+import { Typography, Grid, Box, Fab, Tooltip, Modal, TextField, Slider, Button } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import { useNavigate } from "react-router-dom";
+
+const style = {
+	position: "absolute",
+	top: "50%",
+	left: "50%",
+	transform: "translate(-50%, -50%)",
+	width: 400,
+	bgcolor: "background.paper",
+	border: "2px solid #000",
+	boxShadow: 24,
+	p: 4,
+};
+
+const MakeRoom = () => {
+	const [open, setOpen] = useState(false);
 
 	const openModal = () => {
-		setIsOpen(true);
+		setOpen(true);
 	};
 
 	const closeModal = () => {
-		setIsOpen(false);
+		setOpen(false);
 	};
+
+	return (
+		<Box>
+			<Tooltip title="방 만들기">
+				<Fab color="primary" aria-label="add" onClick={openModal}>
+					<AddIcon />
+				</Fab>
+			</Tooltip>
+			<Modal open={open} onClose={closeModal} aria-labelledby="modal-add-books" aria-describedby="modal-add-books">
+				<MakeRoomForm closeModal={closeModal} />
+			</Modal>
+		</Box>
+	);
+};
+
+const MakeRoomForm = forwardRef(({ closeModal }, ref) => {
+	const [roomName, setRoomName] = useState("");
+	const [maxParticipants, setMaxParticipants] = useState(1);
+	const navigate = useNavigate();
 
 	const handleSubmit = async (event) => {
 		event.preventDefault();
@@ -24,56 +57,60 @@ function MakeRoom() {
 			});
 			alert(response.data.message);
 			// 데이터를 다 입력해야만 팝업창이 닫힘
-			if (response.data.message === "방 생성 성공") closeModal(); // 성공 시 모달 닫기
+			if (response.data.message === "방 생성 성공") {
+				closeModal();
+				navigate(`/room/${response.data.data.id}`);
+			} // 성공 시 모달 닫기
 		} catch (error) {
 			console.error("에러발생", error.message);
 		}
 	};
 
-	const increaseParticipants = () => {
-		setMaxParticipants((prevCount) => prevCount + 1);
+	const handleChange = (e, newValue) => {
+		setMaxParticipants(newValue);
 	};
 
-	const decreaseParticipants = () => {
-		setMaxParticipants((prevCount) => (prevCount > 1 ? prevCount - 1 : 1));
-	};
-
-	// 상태 업데이트 핸들러
-	const handleRoomNameChange = (e) => {
-		setRoomName(e.target.value);
-	};
+	function valuetext(value) {
+		return `${value}명`;
+	}
 
 	return (
-		<div>
-			<button onClick={openModal}>방 만들기</button>
-			{isOpen && (
-				<div className="modal-overlay">
-					<div className="modal-content">
-						<form onSubmit={handleSubmit}>
-							<label>방 이름</label>
-							<br />
-							<input type="text" placeholder="방제를 입력하세요." value={roomName} onChange={handleRoomNameChange} />
-							<br />
-							<label>최대 인원</label>
-							<br />
-							<input type="text" value={maxParticipants} readOnly />
-							<button type="button" onClick={increaseParticipants}>
-								+
-							</button>
-							<button type="button" onClick={decreaseParticipants}>
-								-
-							</button>
-							<br />
-							<button type="submit">만들기</button>
-							<button type="button" onClick={closeModal}>
-								취소
-							</button>
-						</form>
-					</div>
-				</div>
-			)}
-		</div>
+		<Box component="form" noValidate onSubmit={handleSubmit} sx={style}>
+			<Typography component="h1" variant="h5">
+				방 만들기
+			</Typography>
+			<TextField
+				id="room-name-form"
+				fullWidth
+				label="방 이름"
+				variant="outlined"
+				onChange={(e) => setRoomName(e.target.value)}
+				value={roomName}
+			/>
+			<Slider
+				aria-label="인원 수"
+				defaultValue={2}
+				value={maxParticipants}
+				onChange={handleChange}
+				getAriaValueText={valuetext}
+				step={1}
+				marks
+				min={2}
+				max={20}
+				valueLabelDisplay="auto"
+			/>
+			<Grid container>
+				<Grid item xs></Grid>
+				<Grid item>
+					<Button type="submit" variant="contained">
+						만들기
+					</Button>
+				</Grid>
+			</Grid>
+		</Box>
 	);
-}
+});
+
+MakeRoomForm.displayName = "MakeRoomForm";
 
 export default MakeRoom;
