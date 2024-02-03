@@ -9,6 +9,7 @@ import Chart from "components/Chart";
 import DrawingCanvas from "components/DrawingCanvas";
 import { debounce } from "lodash";
 import "./styles.css";
+import VideoRoom from "pages/VideoRoom";
 // import { log } from "console";
 
 function PDFViewer({ book }) {
@@ -49,6 +50,7 @@ function PDFViewer({ book }) {
 			fetch(book.url)
 				.then((response) => {
 					response.text().then((text) => {
+						console.log("text", text);
 						setHtmlContent(text);
 					});
 				})
@@ -225,6 +227,7 @@ function PDFViewer({ book }) {
 
 	return (
 		<>
+			<VideoRoom />
 			<DrawingCanvas />
 			<Button onClick={() => sendAttention()} />
 			<div className="pdf-chart-container" style={{ display: "flex", margin: "0 auto", width: "1000px" }}>

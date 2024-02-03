@@ -5,6 +5,8 @@ import RoomLobby from "pages/RoomLobby";
 import Room from "pages/Room";
 
 import Auth from "./components/Auth";
+// import VideoRoom from "pages/VideoRoom";
+import VideoChat from "./components/VideoChat";
 function App() {
 	return (
 		<div>
@@ -15,6 +17,7 @@ function App() {
 							<li>
 								<Link to="/">Main</Link>
 							</li>
+							<li>{/* <Link to="/video">Video</Link> */}</li>
 						</ul>
 						<Auth />
 					</nav>
@@ -22,6 +25,7 @@ function App() {
 						<Route path="/" element={<Main />} />
 						<Route path="/room/:roomId/book/:bookId" element={<Room />} />
 						<Route path="/room/:roomId" element={<RoomLobby />} />
+						<Route path="/video" element={<VideoChat />} />
 					</Routes>
 				</div>
 			</Router>

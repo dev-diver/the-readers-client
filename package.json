@@ -22,6 +22,7 @@
 		"recharts": "^2.10.4",
 		"recoil": "^0.7.7",
 		"roughjs": "^4.6.6",
+		"socket.io": "^4.7.4",
 		"socket.io-client": "^4.7.4",
 		"typescript": "^4",
 		"web-vitals": "^2.1.4"
@@ -52,6 +53,7 @@
 		]
 	},
 	"devDependencies": {
+		"@babel/plugin-proposal-private-property-in-object": "^7.21.11",
 		"eslint": "^8.56.0",
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-plugin-prettier": "^5.1.3",

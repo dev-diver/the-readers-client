@@ -17,18 +17,20 @@ function PageCanvas({ canvasRef, pageNum, pageWrapper }) {
 	}, [pageWrapper]);
 
 	return (
-		<canvas
-			ref={(el) => (canvasRef.current[pageNum] = el)}
-			width={pageRect.width}
-			height={pageRect.height}
-			style={{
-				// border: "1px solid black",
-				pointerEvents: "none",
-				position: "absolute",
-				left: 0,
-				top: 0,
-			}}
-		></canvas>
+		<>
+			<canvas
+				ref={(el) => (canvasRef.current[pageNum] = el)}
+				width={pageRect.width}
+				height={pageRect.height}
+				style={{
+					// border: "1px solid black",
+					pointerEvents: "none",
+					position: "absolute",
+					left: 0,
+					top: 0,
+				}}
+			></canvas>
+		</>
 	);
 }
 
