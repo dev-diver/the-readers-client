@@ -1,7 +1,8 @@
 @import url("https://fonts.googleapis.com/css?family=Lobster");
 
 #carousel {
-	position: absolute;
+	/* position: absolute; */
+	position: relative;
 	height: 200px;
 	width: 810px;
 	margin: auto;
@@ -88,6 +89,3 @@
 	margin-top: 25px;
 	left: 50px;
 }
-
-/* CSS does not support the direct equivalent of SCSS's enter and leave animations */
-/* You may need to handle animations using JavaScript or CSS animations keyframes */

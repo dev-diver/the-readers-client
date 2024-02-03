@@ -13,6 +13,7 @@ function BookCarousel({ initialItems, initialActive }) {
 	const [direction, setDirection] = useState("");
 
 	// items 배열을 순회하며 책 커버 이미지를 화면에 렌더링
+	// 활성화된 책 커버 이미지를 중심으로 좌우로 2개씩 총 5개의 책 커버 이미지를 표시함
 	const generateItems = () => {
 		let itemsComponents = [];
 		for (let i = activeIndex - 2; i < activeIndex + 3; i++) {
@@ -24,18 +25,21 @@ function BookCarousel({ initialItems, initialActive }) {
 	};
 
 	// 왼쪽 화살표를 클릭했을 때 실행되는 함수
+	// activeIndex를 감소시켜서 이전 책 커버 이미지를 활성화함
 	const moveLeft = () => {
 		setActiveIndex((prevActiveIndex) => (prevActiveIndex - 1 < 0 ? items.length - 1 : prevActiveIndex - 1));
 		setDirection("left");
 	};
 
 	// 오른쪽 화살표를 클릭했을 때 실행되는 함수
+	// activeIndex를 증가시켜서 다음 책 커버 이미지를 활성화함
 	const moveRight = () => {
 		setActiveIndex((prevActiveIndex) => (prevActiveIndex + 1) % items.length);
 		setDirection("right");
 	};
 
 	// 캐러셀을 렌더링
+	// 왼쪽, 오른쪽 화살표와 책 커버 이미지를 포함함
 	return (
 		<div id="carousel" className="noselect">
 			<div className="arrow arrow-left" onClick={moveLeft}>
