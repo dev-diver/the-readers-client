@@ -31,7 +31,7 @@ const MakeRoom = () => {
 	return (
 		<Box>
 			<Tooltip title="방 만들기">
-				<Fab color="primary" aria-label="add" onClick={openModal}>
+				<Fab sx={{ my: 2, mx: 1 }} size="small" color="primary" aria-label="add" onClick={openModal}>
 					<AddIcon />
 				</Fab>
 			</Tooltip>

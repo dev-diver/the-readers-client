@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { LogOutButton } from "components/Buttons/SignControllButton";
 import { useToggleDrawer } from "recoil/handler";
-import { Typography, Avatar, Grid, Box } from "@mui/material";
-import RoomCard from "components/FindRoom/RoomCard";
+import { Typography, Avatar, Grid, Box, List, ListItem, ListItemText, Divider } from "@mui/material";
+import { Link } from "react-router-dom";
 import api from "api";
 const mockupData = [
 	{
@@ -68,10 +68,23 @@ const ProfileCard = ({ user }) => {
 						</Grid>
 					</Grid>
 				</Box>
+
 				<Box>
-					{searchResults.map((room, index) => (
-						<RoomCard key={index} room={room} />
-					))}
+					<Divider component="div">
+						<Typography align="center" variant="h6" component="h2" gutterBottom sx={{ my: 0 }}>
+							내 스터디룸
+						</Typography>
+					</Divider>
+					<List sx={{ width: 300 }}>
+						{searchResults.map((room, index) => (
+							<>
+								<ListItem component={Link} to={`/room/${room.id}`} key={index}>
+									<ListItemText primary={room.title} />
+								</ListItem>
+								<Divider component="li" />
+							</>
+						))}
+					</List>
 				</Box>
 				<LogOutButton onClose={toggleDrawer("none")} />
 			</>

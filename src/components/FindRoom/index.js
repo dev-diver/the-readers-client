@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import api from "api";
 import RoomCard from "./RoomCard";
+import MakeRoom from "pages/Main/MakeRoom";
 import { Grid, Box, TextField, Button } from "@mui/material";
 
 function FindRoom() {
@@ -23,10 +24,14 @@ function FindRoom() {
 	};
 
 	return (
-		<Box component="form" id="searchForm" onSubmit={(e) => handleSearch(e)} sx={{ mt: 1 }}>
+		<Box sx={{ width: 450 }} component="form" id="searchForm" onSubmit={(e) => handleSearch(e)}>
 			<Grid container>
+				<Grid item>
+					<MakeRoom />
+				</Grid>
 				<Grid item xs>
 					<TextField
+						size="small"
 						margin="normal"
 						required
 						fullWidth
@@ -40,7 +45,7 @@ function FindRoom() {
 					/>
 				</Grid>
 				<Grid item>
-					<Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+					<Button type="submit" fullWidth variant="contained" sx={{ my: 2, mx: 1 }}>
 						검색
 					</Button>
 				</Grid>
