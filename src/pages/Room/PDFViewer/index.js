@@ -249,7 +249,7 @@ function PDFViewer({ book }) {
 			{canvasComponents.map(({ component, container }) => {
 				return createPortal(component, container);
 			})}
-			<Highlights bookId={book.id} renderContent={renderContent} />
+			<Highlights bookId={book.id} renderContent={renderContent} containerRef={containerRef} />
 		</>
 	);
 }

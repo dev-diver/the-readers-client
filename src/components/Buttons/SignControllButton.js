@@ -1,18 +1,32 @@
 import React from "react";
 
-const LogInButton = ({ handler }) => {
-	return <button onClick={handler}>로그인</button>;
+import { Button } from "@mui/material";
+import { useRecoilState } from "recoil";
+
+import { userState, drawerFormState } from "recoil/atom";
+
+export const LogInButton = ({ handler }) => {
+	return (
+		<Button variant="contained" onClick={handler}>
+			로그인
+		</Button>
+	);
 };
 
-const LogOutButton = ({ onClose, setUser }) => {
+export const LogOutButton = ({ onClose }) => {
+	const [user, setUser] = useRecoilState(userState);
+
 	const handler = () => {
-		console.log("logout");
 		localStorage.removeItem("user");
-		setUser(null);
 		onClose();
+		setUser(null);
 	};
 
-	return <button onClick={handler}>로그아웃</button>;
+	return (
+		<Button variant="contained" onClick={handler}>
+			로그아웃
+		</Button>
+	);
 };
 
 const SignControllButton = ({ setPopState, isLogin, setUser }) => {
