@@ -2,10 +2,13 @@ import React, { useEffect, useLayoutEffect, useState } from "react";
 import rough from "roughjs/bundled/rough.esm";
 import api from "api";
 import socket from "socket.js";
+import { useRecoilState } from "recoil";
+import { userState } from "atom";
 
 const generator = rough.generator();
 const Canvas = ({ canvasRef, canvasId, ctx, color, setElements, elements, tool }) => {
 	const [isDrawing, setIsDrawing] = useState(false);
+	const [user, setUser] = useRecoilState(userState);
 
 	useEffect(() => {
 		const canvas = canvasRef.current;
@@ -83,6 +86,7 @@ const Canvas = ({ canvasRef, canvasId, ctx, color, setElements, elements, tool }
 			canvasId,
 			canvasImage,
 		};
+
 		socket.emit("drawing", data);
 	}, [elements]);
 
@@ -162,15 +166,21 @@ const Canvas = ({ canvasRef, canvasId, ctx, color, setElements, elements, tool }
 
 	return (
 		<div>
-			<div
-				className="col-md-8 overflow-hidden border border-dark px-0 mx-auto mt-3"
-				style={{ height: "100px" }}
-				onMouseDown={handleMouseDown}
-				onMouseMove={handleMouseMove}
-				onMouseUp={handleMouseUp}
-			>
-				<canvas id={canvasId} ref={canvasRef} />
-			</div>
+			{canvasId === user.userId ? (
+				<div
+					className="col-md-8 overflow-hidden border border-dark px-0 mx-auto mt-3"
+					style={{ height: "100px" }}
+					onMouseDown={handleMouseDown}
+					onMouseMove={handleMouseMove}
+					onMouseUp={handleMouseUp}
+				>
+					<canvas id={canvasId} ref={canvasRef} />
+				</div>
+			) : (
+				<div className="col-md-8 overflow-hidden border border-gray px-0 mx-auto mt-3" style={{ height: "100px" }}>
+					<canvas id={canvasId} ref={canvasRef} />
+				</div>
+			)}
 		</div>
 	);
 };
