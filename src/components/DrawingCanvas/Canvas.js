@@ -3,7 +3,7 @@ import rough from "roughjs/bundled/rough.esm";
 import api from "api";
 import socket from "socket.js";
 import { useRecoilState } from "recoil";
-import { userState } from "atom";
+import { userState } from "recoil/atom";
 
 const generator = rough.generator();
 const Canvas = ({ canvasRef, canvasId, ctx, color, setElements, elements, tool }) => {
