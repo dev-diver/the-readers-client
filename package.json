@@ -23,6 +23,7 @@
 		"react-router-dom": "^6.21.3",
 		"react-scripts": "5.0.1",
 		"react-toastify": "^10.0.4",
+		"react-transition-group": "^4.4.5",
 		"recharts": "^2.10.4",
 		"recoil": "^0.7.7",
 		"roughjs": "^4.6.6",
