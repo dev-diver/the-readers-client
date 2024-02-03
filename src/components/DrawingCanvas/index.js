@@ -28,36 +28,36 @@ const createUuid = () => {
 const DrawingCanvas = () => {
 	const [roomJoined, setRoomJoined] = useState(false);
 	const [user, setUser] = useRecoilState(userState);
-	const [socketUser, setSocketUser] = useState(null);
+	// const [socketUser, setSocketUser] = useState(null); 게스트 기능 삭제
 	const [users, setUsers] = useState([]);
 	const { roomId, bookId } = useParams();
 	const uuid = createUuid();
 
 	useEffect(() => {
 		setRoomJoined(true);
-		setSocketUser({
-			isLogin: user?.token,
+		setUser({
+			// isLogin: user?.token,
 			roomId: roomId,
 			bookId: bookId,
-			memberId: user?.id,
+			// memberId: user?.id,
 			userId: uuid,
 			userName: "host",
 			host: true,
 			presenter: true,
 		});
-	}, [user]);
+	}, []);
 
 	useEffect(() => {
 		if (roomJoined) {
-			socket.emit("user-joined", socketUser);
+			socket.emit("room-joined", user);
 		}
 	}, [roomJoined]);
 
-	useEffect(() => {
-		if (socketUser) {
-			socket.emit("user-changed", socketUser);
-		}
-	}, [socketUser]);
+	// useEffect(() => {
+	// 	if (user) {
+	// 		socket.emit("user-changed", user);
+	// 	}
+	// }, [user]);
 
 	useEffect(() => {
 		socket.on("users", (data) => {
@@ -74,7 +74,7 @@ const DrawingCanvas = () => {
 		<div className="home">
 			{/* <ToastContainer /> */}
 			<>
-				<Sidebar users={users} user={socketUser} />
+				<Sidebar users={users} user={user} />
 				{/* <UtilButton /> */}
 				{users.map((user, index) => (
 					<ClientRoom key={index} canvasId={user.canvasId} setUsers={setUsers} />
