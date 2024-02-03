@@ -18,7 +18,7 @@ function FindRoom() {
 				console.log("검색 결과:", response.data.data);
 			})
 			.catch((error) => {
-				console.error("검색 중 에러 발생", error.message);
+				console.error(error.response.data.message);
 			});
 	};
 

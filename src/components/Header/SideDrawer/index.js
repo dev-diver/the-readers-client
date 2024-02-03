@@ -12,16 +12,25 @@ export default function SideDrawer() {
 	const [state, setState] = useRecoilState(drawerFormState);
 	const toggleDrawer = useToggleDrawer();
 
+	useEffect(() => {
+		// localStorage.removeItem("user");
+		// localStorage.setItem("user", null);
+		const localUser = localStorage.getItem("user");
+		if (localUser) {
+			setUser(JSON.parse(localUser));
+		}
+	}, []);
+
 	const avatar = user?.token ? (
 		<Tooltip title="프로필 보기">
 			<IconButton onClick={toggleDrawer("profile")} sx={{ p: 0 }}>
-				<Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+				<Avatar alt={user.nick} src={user.profileImg} />
 			</IconButton>
 		</Tooltip>
 	) : (
 		<Tooltip title="로그인">
 			<IconButton onClick={toggleDrawer("signin")} sx={{ p: 0 }}>
-				<Avatar alt="Login" src="/src/guest_prifle.jpg" />
+				<Avatar alt="Login" src="/src/guest_proifle.jpg" />
 			</IconButton>
 		</Tooltip>
 	);
@@ -30,7 +39,7 @@ export default function SideDrawer() {
 		<>
 			<Box sx={{ flexGrow: 0 }}>{avatar}</Box>
 			<Drawer anchor="right" open={state != "none"} onClose={toggleDrawer("none")}>
-				<Container fixedWidth="sm">
+				<Container>
 					<Box
 						sx={{
 							my: 8,
@@ -38,10 +47,10 @@ export default function SideDrawer() {
 							display: "flex",
 							flexDirection: "column",
 							alignItems: "center",
-							width: 300,
+							width: 350,
 						}}
 					>
-						{state == "signin" && <LoginForm setUser={setUser} isLogin={user?.token} />}
+						{state == "signin" && <LoginForm setUser={setUser} />}
 						{state == "signup" && <SignUpForm />}
 						{state == "profile" && user && <ProfileCard user={user} />}
 					</Box>

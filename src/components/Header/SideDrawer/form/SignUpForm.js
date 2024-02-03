@@ -1,48 +1,52 @@
 import React, { useState, useEffect } from "react";
 import api from "api";
 import { baseURL } from "config/config";
-import { Button, Avatar, Typography, Box, TextField, Grid, Link } from "@mui/material";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { Button, Typography, Box, TextField, Grid, Link } from "@mui/material";
 import { useToggleDrawer } from "recoil/handler";
+import ProfileSelector from "./ProfileSelector";
 
 const SignUpForm = () => {
+	const [selectedProfile, setSelectedProfile] = useState(null);
 	const [nick, setNick] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
-	const [userInfo, setUserInfo] = useState(null);
-	const toggleDrawer = useToggleDrawer();
+	const [errorMessage, setErrorMessage] = useState("");
 
-	useEffect(() => {
-		const errorParam = new URL(window.location.href).searchParams.get("error");
-		if (errorParam) {
-			alert("이미 존재하는 이메일입니다.");
-		}
-	}, [userInfo]);
+	const toggleDrawer = useToggleDrawer();
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
 
+		if (!selectedProfile) {
+			setErrorMessage("프로필을 선택해주세요.");
+			return;
+		}
 		// Make API request to register user
 		api
-			.post(`${baseURL}/auth/signup`, { nick: nick, email: email, password: password })
+			.post(`${baseURL}/auth/signup`, {
+				nick: nick,
+				email: email,
+				password: password,
+				profileImg: selectedProfile.image,
+			})
 			.then((response) => {
 				// Handle successful registration
 				console.log(response.data);
+				toggleDrawer("none")(e);
+				setErrorMessage("");
 			})
 			.catch((error) => {
-				// Handle error
+				setErrorMessage(error.response.data.message);
 				console.error(error);
 			});
 	};
 
 	return (
 		<>
-			<Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-				<LockOutlinedIcon />
-			</Avatar>
 			<Typography component="h1" variant="h5">
 				회원가입
 			</Typography>
+			<ProfileSelector selectedProfile={selectedProfile} setSelectedProfile={setSelectedProfile} />
 			<Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
 				<TextField
 					margin="normal"
@@ -53,7 +57,10 @@ const SignUpForm = () => {
 					name="nick"
 					autoComplete="nick"
 					autoFocus
-					onChange={(e) => setNick(e.target.value)}
+					onChange={(e) => {
+						setErrorMessage("");
+						setNick(e.target.value);
+					}}
 					value={nick}
 				/>
 				<TextField
@@ -63,8 +70,12 @@ const SignUpForm = () => {
 					id="email"
 					label="이메일 주소"
 					name="email"
+					type="email"
 					autoComplete="email"
-					onChange={(e) => setEmail(e.target.value)}
+					onChange={(e) => {
+						setErrorMessage("");
+						setEmail(e.target.value);
+					}}
 					value={email}
 				/>
 				<TextField
@@ -76,9 +87,15 @@ const SignUpForm = () => {
 					type="password"
 					id="password"
 					autoComplete="current-password"
-					onChange={(e) => setPassword(e.target.value)}
+					onChange={(e) => {
+						setErrorMessage("");
+						setPassword(e.target.value);
+					}}
 					value={password}
 				/>
+				<Typography variant="body2" color="error" align="center">
+					{errorMessage}
+				</Typography>
 				<Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
 					회원가입
 				</Button>

@@ -62,7 +62,7 @@ const MakeRoomForm = forwardRef(({ closeModal }, ref) => {
 				navigate(`/room/${response.data.data.id}`);
 			} // 성공 시 모달 닫기
 		} catch (error) {
-			console.error("에러발생", error.message);
+			console.error("에러발생", error.response.data.message);
 		}
 	};
 
