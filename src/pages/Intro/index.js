@@ -1,8 +1,9 @@
 import React from "react";
 import { Avatar, Badge, Card, CardContent, CardActions, Button, Typography, Link, TextField, Box } from "@mui/material";
-import { keyframes, styled } from "@mui/system";
+import { keyframes, styled, shadows } from "@mui/system";
 import { deepOrange, green } from "@mui/material/colors";
 import "./styles.css";
+import { redirect, useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 // const puff = keyframes`
 // 0% {
@@ -55,46 +56,25 @@ const StyledBody = styled("div")(({ theme }) => ({
 	// 	},
 }));
 
-const card = (
-	<Box className="card" sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-		<Card className="profile-card" sx={{ minWidth: 275, zIndex: 3 }}>
-			<CardContent>
-				<Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-					&quot;유진&quot;님이 초대함:
-				</Typography>
-				<Typography variant="h5" component="div">
-					정글
-				</Typography>
-				<Typography sx={{ mb: 1.5 }} color="text.secondary">
-					2명 온라인 | 멤버 8명
-				</Typography>
-				<Typography variant="body2">
-					별명 <TextField id="outlined-basic" label="별명을 입력하세요." variant="outlined" />
-					<br />
-					다른 회원에게 표시되는 이름입니다.
-				</Typography>
-			</CardContent>
-			<CardActions>
-				<Button sx={{ width: 200 }} variant="contained" size="large">
-					계속하기
-				</Button>
-				<Link href="#" underline="none">
-					이미 계정이 있으신가요?
-				</Link>
-			</CardActions>
-		</Card>
-	</Box>
-);
-
 const avatar = (
-	<Avatar sx={{ bgcolor: green[500], width: 56, height: 56, fontSize: "1.25rem" }} variant="rounded">
-		정글
-	</Avatar>
+	<Avatar
+		alt="group chat image"
+		src="thumbnail.png"
+		sx={{ width: 56, height: 56, border: "1px solid #ddd", boxShadow: 3 }}
+		variant="rounded"
+	></Avatar>
 );
 
-const invitee = "유진";
+const host = "유진";
 
-function ProfileCard() {
+function Intro() {
+	const navigate = useNavigate();
+	const [searchParams] = useSearchParams();
+	const roomId = searchParams.get("roomId");
+	const bookId = searchParams.get("bookId");
+	const handleClick = () => {
+		navigate(`/room/${roomId}/book/${bookId}`);
+	};
 	return (
 		<StyledBody className="profile-body">
 			<Box className="profile-card">
@@ -106,7 +86,7 @@ function ProfileCard() {
 
 					{/* <!-- 초대한 사람 --> */}
 					<Typography sx={{ mb: 0, fontSize: 20 }} color="text.secondary" gutterBottom>
-						&quot;{invitee}&quot;님이 초대함:
+						&quot;{host}&quot;님이 초대함:
 					</Typography>
 
 					{/* <!-- 방 이름 --> */}
@@ -124,7 +104,7 @@ function ProfileCard() {
 
 				{/* <!-- bit of a bio; who are you? --> */}
 				<div className="profile-bio">
-					<Typography variant="body2">
+					{/* <Typography variant="body2">
 						<TextField
 							sx={{ width: "85%", mt: 3 }}
 							id="outlined-basic"
@@ -132,17 +112,22 @@ function ProfileCard() {
 							helperText="다른 회원에게 표시되는 이름입니다."
 							variant="outlined"
 						/>
-					</Typography>
-					<Button sx={{ width: "85%", mt: 3, fontSize: 20 }} variant="contained" size="medium">
-						계속하기
+					</Typography> */}
+					<Button
+						onClick={handleClick}
+						sx={{ width: "85%", mt: 3, fontSize: 20, backgroundColor: "#313440" }}
+						variant="contained"
+						size="medium"
+					>
+						이동하기
 					</Button>
-					<Link sx={{ mt: 1, display: "block" }} href="#" underline="none">
+					{/* <Link sx={{ mt: 1, display: "block" }} href="#" underline="none">
 						이미 링크가 있으신가요?
-					</Link>
+					</Link> */}
 				</div>
 			</Box>
 		</StyledBody>
 	);
 }
 
-export default ProfileCard;
+export default Intro;
