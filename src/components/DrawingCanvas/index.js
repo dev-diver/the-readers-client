@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { toast, ToastContainer } from "react-toastify";
-import Sidebar from "./Sidebar";
+import MembersList from "./MembersList";
 import ClientRoom from "./ClientRoom";
 import socket from "socket.js";
 import { useParams } from "react-router-dom";
@@ -72,14 +72,12 @@ const DrawingCanvas = () => {
 
 	return (
 		<div className="home">
+			<MembersList users={users} user={user} />
 			{/* <ToastContainer /> */}
-			<>
-				<Sidebar users={users} user={user} />
-				{/* <UtilButton /> */}
-				{users.map((user, index) => (
-					<ClientRoom key={index} canvasId={user.canvasId} setUsers={setUsers} />
-				))}
-			</>
+			{/* <UtilButton /> */}
+			{users.map((user, index) => (
+				<ClientRoom key={index} canvasId={user.canvasId} setUsers={setUsers} />
+			))}
 		</div>
 	);
 };

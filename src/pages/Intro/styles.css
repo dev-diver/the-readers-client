@@ -345,7 +345,7 @@ p {
 		-webkit-border-radius: 4px;
 	}
 	100% {
-		width: 460px;
+		width: 360px;
 		height: 340px;
 		background: #ffffff;
 		-webkit-border-radius: 4px;
@@ -360,7 +360,7 @@ p {
 		border-radius: 4px;
 	}
 	100% {
-		width: 460px;
+		width: 360px;
 		height: 340px;
 		background: #ffffff;
 		border-radius: 4px;
@@ -496,7 +496,7 @@ p {
 		}
 		100% {
 			width: 340px;
-			height: 460px;
+			height: 360px;
 			background: #ffffff;
 			-webkit-border-radius: 4px;
 		}
@@ -510,7 +510,7 @@ p {
 		}
 		100% {
 			width: 340px;
-			height: 460px;
+			height: 360px;
 			background: #ffffff;
 			border-radius: 4px;
 		}
