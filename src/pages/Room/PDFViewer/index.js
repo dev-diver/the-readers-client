@@ -102,9 +102,7 @@ function PDFViewer({ book }) {
 	useEffect(() => {
 		socket.on("updatepointer", (data) => {
 			updatePointers(data);
-			// console.log("updatepointer", data);
 			redrawCanvas(data.page);
-			// redrawCanvas(1);
 		});
 		return () => {
 			socket.off("updatepointer");
