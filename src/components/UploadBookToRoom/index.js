@@ -20,10 +20,6 @@ export default function UploadBookToRoom({ roomId, refresher, setPop }) {
 			});
 	};
 
-	useEffect(() => {
-		console.log(file, fileName);
-	}, [file, fileName]);
-
 	return (
 		<>
 			<h3>책 추가</h3>

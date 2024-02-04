@@ -14,7 +14,6 @@ function Highlighter({ bookId, renderContent, containerRef }) {
 
 	useEffect(() => {
 		const pageContainer = containerRef?.current;
-		console.log("current", containerRef?.current);
 		pageContainer?.addEventListener("mouseup", handleMouseUp);
 
 		return () => {
@@ -26,7 +25,7 @@ function Highlighter({ bookId, renderContent, containerRef }) {
 		api
 			.get(`/highlights/user/${userId}/book/${bookId}/page/${pageNum}`)
 			.then((response) => {
-				logger.log(response.data);
+				logger.log("highlight", response.data);
 				let highlights = [];
 				response.data.forEach((hl) => {
 					console.log(hl);
@@ -43,7 +42,6 @@ function Highlighter({ bookId, renderContent, containerRef }) {
 
 	useEffect(() => {
 		socket.on("users", (data) => {
-			console.log("highlight user", data);
 			// 각 사용자의 userId와 bookId를 조합하여 canvasId를 생성
 			data.forEach((socketUser) => {
 				const pageNum = 1;
@@ -166,7 +164,6 @@ function HlMemos({ highlights, setHighlights }) {
 	const [memos, setMemos] = useState([]);
 
 	useEffect(() => {
-		console.log("highlights", highlights);
 		const newHighlights = highlights?.map(
 			(hl, i) => <HlMemo key={i} hlInfo={hl} deleteHandler={() => deleteOneHighlight(hl)} /> || []
 		);
