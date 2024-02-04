@@ -10,8 +10,8 @@ import AttentionButton from "./PdfScroller/AttentionButton";
 import CursorCanvasController from "./PageCanvasGroup/CursorCanvasController";
 import { useRecoilState } from "recoil";
 import { scrollYState, isTrailState } from "recoil/atom";
-
-import "./styles.css";
+import { Box, Grid } from "@mui/material";
+import PenController from "./PenController";
 
 function PDFViewer({ book }) {
 	const [htmlContent, setHtmlContent] = useState("");
@@ -19,8 +19,11 @@ function PDFViewer({ book }) {
 	const [canvasComponents, setCanvasComponents] = useState([]);
 	const [cssLoaded, setCssLoaded] = useState(false);
 	const [scroll, setScroll] = useRecoilState(scrollYState);
+	const [originalWidth, setOriginalWidth] = useState(0);
+	const [scale, setScale] = useState(1);
 
-	const containerRef = useRef(null);
+	const scrollerRef = useRef(null);
+	const pdfContentsRef = useRef(null);
 
 	useEffect(() => {
 		book.url &&
@@ -36,9 +39,9 @@ function PDFViewer({ book }) {
 	}, [book.url]);
 
 	useEffect(() => {
-		if (htmlContent && containerRef.current) {
+		if (htmlContent && scrollerRef.current) {
 			console.log("htmlContent rerender");
-			const pageContainer = containerRef.current.querySelector("#page-container");
+			const pageContainer = scrollerRef.current.querySelector("#page-container");
 			const pageDivs = pageContainer.querySelectorAll(":scope > div");
 			const mapCanvasContainer = Array.from(pageDivs).map((pageDiv, index) => {
 				const container = document.createElement("div");
@@ -74,6 +77,18 @@ function PDFViewer({ book }) {
 		}
 	}, [htmlContent]);
 
+	useEffect(() => {
+		if (renderContent && pdfContentsRef) {
+			setOriginalWidth(pdfContentsRef.current.getBoundingClientRect().width);
+		}
+	}, [renderContent, pdfContentsRef]);
+
+	useEffect(() => {
+		if (originalWidth) {
+			adjustScaleToWidth(800);
+		}
+	}, [originalWidth]);
+
 	// useEffect(() => {
 	//     const link = document.createElement('link');
 	//     link.rel = "stylesheet"
@@ -86,26 +101,47 @@ function PDFViewer({ book }) {
 	//     }
 	// }, []);
 
+	function adjustScaleToWidth(targetWidth) {
+		const scale = 0.65; //originalWidth / targetWidth;
+		console.log(scale);
+		setScale(scale);
+	}
+
 	return (
-		<>
-			<DrawingCanvas />
-			<AttentionButton containerRef={containerRef} />
-			<div className="pdf-chart-container" style={{ display: "flex", margin: "0 auto", width: "1000px" }}>
-				<Chart scroll={scroll} />
-				<PdfScroller containerRef={containerRef}>
-					<div
-						className="pdf-contents"
-						dangerouslySetInnerHTML={{ __html: htmlContent }}
-						style={{ width: "100%", height: "100%" }}
-					/>
-				</PdfScroller>
-			</div>
+		<div>
+			{/* <DrawingCanvas /> */}
+			<AttentionButton scrollerRef={scrollerRef} />
+			<Box className="pdf-chart-container">
+				<Grid container>
+					<Grid item style={{ flex: 1 }}>
+						<Chart scroll={scroll} />
+					</Grid>
+					<Grid item style={{ flex: 4 }}>
+						<PdfScroller scrollerRef={scrollerRef}>
+							<Box
+								ref={pdfContentsRef}
+								className="pdf-contents"
+								dangerouslySetInnerHTML={{ __html: htmlContent }}
+								sx={{
+									width: "100%",
+									transform: `scale(${scale})`,
+									transformOrigin: "top left",
+									boxSizing: "border-box",
+								}}
+							/>
+						</PdfScroller>
+					</Grid>
+					<Grid item style={{ flex: 1 }}>
+						<PenController />
+						<Highlights bookId={book.id} renderContent={renderContent} scrollerRef={scrollerRef} />
+					</Grid>
+				</Grid>
+			</Box>
 			{canvasComponents.map(({ component, container }) => {
 				return createPortal(component, container);
 			})}
-			<Highlights bookId={book.id} renderContent={renderContent} containerRef={containerRef} />
 			<CursorCanvasController totalPage={canvasComponents.length} />
-		</>
+		</div>
 	);
 }
 

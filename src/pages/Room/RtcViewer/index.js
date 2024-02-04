@@ -1,7 +1,5 @@
 import React, { useEffect, useRef } from "react";
 
-import "../styles.css";
-
 function RtcViewer() {
 	const peerConnection = new RTCPeerConnection();
 	const videoRef = useRef(null);

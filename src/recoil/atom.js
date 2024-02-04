@@ -34,3 +34,8 @@ export const bookChangedState = atom({
 	key: "bookChanged",
 	default: false,
 });
+
+export const penModeState = atom({
+	key: "penMode",
+	default: "pointer",
+});

@@ -4,20 +4,21 @@ import { scrollYState, isTrailState } from "recoil/atom";
 import { debounce } from "lodash";
 import socket from "socket";
 import { moveToScroll, calculateScrollY } from "./util";
+import { Box } from "@mui/material";
 
-export default function PdfScroller({ children, containerRef }) {
+export default function PdfScroller({ children, scrollerRef }) {
 	const [scroll, setScroll] = useRecoilState(scrollYState);
 	const [isAttention, setAttention] = useRecoilState(isTrailState);
 
 	useEffect(() => {
 		if (isAttention) {
 			socket.on("attention_scroll", (data) => {
-				moveToScroll(containerRef.current, data.scrollTop);
+				moveToScroll(scrollerRef.current, data.scrollTop);
 			});
 		} else {
 			socket.off("attention_scroll");
 		}
-	}, [containerRef.current, isAttention]);
+	}, [scrollerRef.current, isAttention]);
 
 	useEffect(() => {
 		const pageContainer = document.getElementsByClassName("pdf-container")[0];
@@ -29,7 +30,7 @@ export default function PdfScroller({ children, containerRef }) {
 	}, []);
 
 	const handleContainerScroll = debounce(() => {
-		setScroll(calculateScrollY(containerRef.current));
+		setScroll(calculateScrollY(scrollerRef.current));
 	}, 1000);
 
 	const handleScroll = useCallback((event) => {
@@ -42,17 +43,18 @@ export default function PdfScroller({ children, containerRef }) {
 	}, []);
 
 	return (
-		<div
-			className="pdf-container"
+		<Box
+			className="pdf-scroller"
 			onScroll={handleScroll}
-			ref={containerRef}
-			style={{
-				height: "80vh",
-				width: "55%",
-				overflow: "scroll",
+			ref={scrollerRef}
+			sx={{
+				width: "800px",
+				height: "100vh",
+				margin: "0 auto",
+				overflowY: "auto",
 			}}
 		>
 			{children}
-		</div>
+		</Box>
 	);
 }

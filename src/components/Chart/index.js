@@ -48,7 +48,8 @@ function Chart({ scroll }) {
 	}, [scroll]);
 
 	return (
-		<ResponsiveContainer width="25%" height={650} style={{ position: "sticky", top: "20px" }}>
+		// width="25%" height={650} style={{ position: "sticky", top: "20px" }}
+		<ResponsiveContainer>
 			<LineChart
 				layout="vertical"
 				width={400}

@@ -2,13 +2,14 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useSetCanvasRef } from "recoil/handler";
 import { useRecoilState } from "recoil";
 import { canvasMouse, clearCanvas } from "./CursorCanvasController/util";
-import { cursorCanvasRefsState, bookChangedState } from "recoil/atom";
+import { cursorCanvasRefsState, bookChangedState, penModeState } from "recoil/atom";
 
 function PageCanvasGroup({ pageNum, pageWrapper }) {
 	//여기에서 추가하기
 	// const [canvasItems, setCanvasItems] = useState([]);
 	const [bookChanged, setBookChanged] = useRecoilState(bookChangedState);
 	const [cursorCanvasRefs, setCursorCanvasRefs] = useRecoilState(cursorCanvasRefsState);
+	const [penMode, setPenMode] = useRecoilState(penModeState);
 
 	const setRef = useCallback(
 		(el) => {
@@ -39,7 +40,8 @@ function PageCanvasGroup({ pageNum, pageWrapper }) {
 				height={pageWrapper.scrollHeight}
 				style={{
 					border: "1px solid black",
-					// pointerEvents: "none",
+					pointerEvents: "none",
+					// pointerEvents: penMode == "pointer" ? "auto" : " none",
 					position: "absolute",
 					left: 0,
 					top: 0,
