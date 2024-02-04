@@ -1,0 +1,91 @@
+@import url("https://fonts.googleapis.com/css?family=Lobster");
+
+#carousel {
+	/* position: absolute; */
+	position: relative;
+	height: 200px;
+	width: 810px;
+	margin: auto;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+}
+
+.arrow {
+	position: absolute;
+	width: 30px;
+	height: 30px;
+	background-color: white;
+	text-align: center;
+	font-size: 20px; /* Removed duplicate font-size property */
+	border-radius: 50%;
+	cursor: pointer;
+	color: #228291;
+	line-height: 30px;
+	margin-top: 85px;
+	z-index: 1000;
+}
+
+.arrow-right {
+	left: 780px;
+}
+
+.item {
+	text-align: center;
+	color: white;
+	font-size: 40px;
+	position: absolute;
+	transition:
+		height 1s,
+		width 1s,
+		left 1s,
+		margin-top 1s,
+		line-height 1s,
+		background-color 1s;
+}
+
+/* Replacing SCSS variables with direct CSS values */
+.level-2 {
+	height: 150px;
+	width: 110px;
+	line-height: 150px;
+	background-color: #228291;
+	left: 650px;
+	margin-top: 25px;
+}
+
+.level-1 {
+	height: 180px;
+	width: 130px;
+	line-height: 180px;
+	background-color: #6796e5;
+	left: 500px;
+	margin-top: 10px;
+}
+
+.level0 {
+	height: 200px;
+	width: 150px;
+	line-height: 200px;
+	background-color: #4ec9e1;
+	left: 330px;
+}
+
+.level1 {
+	height: 180px;
+	width: 130px;
+	line-height: 180px;
+	background-color: #6796e5;
+	margin-top: 10px;
+	left: 180px;
+}
+
+.level2 {
+	height: 150px;
+	width: 110px;
+	line-height: 150px;
+	background-color: #228291;
+	margin-top: 25px;
+	left: 50px;
+}

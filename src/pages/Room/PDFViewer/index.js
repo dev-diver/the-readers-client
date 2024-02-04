@@ -29,12 +29,54 @@ function PDFViewer({ book }) {
 		containerRef.current.scrollTop = scrollTop;
 	};
 
-	const sendAttention = () => {
-		socket.emit("attention", {
-			attention: true,
-			scrollTop: containerRef.current.scrollTop,
-		});
+	// const sendAttention = () => {
+	// 	socket.emit("attention", {
+	// 		attention: true,
+	// 		scrollTop: containerRef.current.scrollTop,
+	// 	});
+	// };
+
+	// 진태 추가 코드
+	// 부드럽게 스크롤을 이동하도록 구현
+	// 목표 위치(destination)와 이동 시간(duration)을 인자로 받음 (이동시간은 내가 임의로 1000ms로 설정함)
+	// 현재 스크롤 위치를 시작 위치로 설정
+	// 목표 위치와 시작 위치의 차이를 계산
+	// requestAnimationFrame을 사용하여 부드럽게 스크롤
+	const smoothScrollTo = (destination, duration) => {
+		const start = containerRef.current.scrollTop;
+		const change = destination - start;
+		const startTime = performance.now();
+
+		const animateScroll = (currentTime) => {
+			const elapsedTime = currentTime - startTime;
+			const fraction = elapsedTime / duration;
+
+			containerRef.current.scrollTop = start + change * fraction;
+
+			if (fraction < 1) {
+				requestAnimationFrame(animateScroll);
+			}
+		};
+
+		requestAnimationFrame(animateScroll);
 	};
+
+	// 집중 버튼을 누르면 현재 스크롤 위치를 서버로 전송
+	const sendAttention = () => {
+		const scrollTop = containerRef.current.scrollTop; // 현재 스크롤 위치
+		socket.emit("requestAttention", { scrollTop });
+	};
+
+	// 서버로부터 받은 스크롤 위치로 부드럽게 스크롤
+	useEffect(() => {
+		socket.on("receiveAttention", (data) => {
+			smoothScrollTo(data.scrollTop, 500); // 500ms 동안 목표 위치로 부드럽게 스크롤
+		});
+
+		return () => {
+			socket.off("receiveAttention");
+		};
+	}, []);
 
 	const handleScroll = useCallback((event) => {
 		const scrollTop = event.currentTarget.scrollTop;
@@ -252,7 +294,7 @@ function PDFViewer({ book }) {
 			{canvasComponents.map(({ component, container }) => {
 				return createPortal(component, container);
 			})}
-			<Highlights bookId={book.id} renderContent={renderContent} />
+			<Highlights bookId={book.id} renderContent={renderContent} containerRef={containerRef} />
 		</>
 	);
 }

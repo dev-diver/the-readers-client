@@ -3,22 +3,24 @@ import api from "api";
 import React, { useRef, useEffect, useState } from "react";
 import { rangeToInfo, InfoToRange } from "./encoder";
 import { useRecoilState } from "recoil";
-import { userState } from "atom";
+import { userState } from "recoil/atom";
 import socket from "socket.js";
 
-function Highlighter({ bookId, renderContent }) {
+function Highlighter({ bookId, renderContent, containerRef }) {
 	const [user, setUser] = useRecoilState(userState);
 	const [highlightNum, setHighlightId] = useState(1);
 	const [color, setColor] = useState("yellow");
 	const [highlights, setHighlights] = useState([]);
 
 	useEffect(() => {
-		document.addEventListener("mouseup", handleMouseUp);
+		const pageContainer = containerRef?.current;
+		console.log("current", containerRef?.current);
+		pageContainer?.addEventListener("mouseup", handleMouseUp);
 
 		return () => {
-			document.removeEventListener("mouseup", handleMouseUp);
+			pageContainer?.removeEventListener("mouseup", handleMouseUp);
 		};
-	});
+	}, [containerRef?.current]);
 
 	function applyUserHighlight(userId, bookId, pageNum) {
 		api
@@ -87,16 +89,18 @@ function Highlighter({ bookId, renderContent }) {
 	};
 
 	function sendHighlightToServer(highlightInfos) {
-		api
-			.post(`/highlights/user/${user.id}`, highlightInfos)
-			.then((response) => {
-				//id가 포함된 highlights
-				logger.log(response);
-				//updatehighlight
-			})
-			.catch((err) => {
-				logger.log(err);
-			});
+		if (user) {
+			api
+				.post(`/highlights/user/${user.id}`, highlightInfos)
+				.then((response) => {
+					//id가 포함된 highlights
+					logger.log(response);
+					//updatehighlight
+				})
+				.catch((err) => {
+					logger.log(err);
+				});
+		}
 	}
 
 	function highlightRange(range) {
@@ -142,17 +146,17 @@ function Highlighter({ bookId, renderContent }) {
 		}
 
 		//마지막
-
-		setHighlightId(highlightNum + 1);
 	}
 
 	function appendHighlightMemo(highlightInfos) {
 		console.log("append");
+		console.log(highlights);
 		let newHighlightInfos = highlights.concat(highlightInfos).sort((a, b) => {
 			a.num - b.num; //추후 위치로 정렬
 		});
 		console.log(newHighlightInfos);
 		setHighlights(newHighlightInfos);
+		setHighlightId(highlightNum + 1);
 	}
 	return <HlMemos highlights={highlights} setHighlights={setHighlights} />;
 }
