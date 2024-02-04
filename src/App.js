@@ -17,7 +17,9 @@ function App() {
 							<li>
 								<Link to="/">Main</Link>
 							</li>
-							<li>{/* <Link to="/video">Video</Link> */}</li>
+							<li>
+								<Link to="/video">Video</Link>
+							</li>
 						</ul>
 						<Auth />
 					</nav>

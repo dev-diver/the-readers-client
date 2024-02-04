@@ -45,7 +45,7 @@ function VideoChat() {
 		if (myStream && camerasSelect.current) {
 			getCameras();
 		}
-	}, [myStream]);
+	}, []);
 
 	// 미디어 스트림을 가져오는 함수
 	async function getMedia(deviceId) {
@@ -72,7 +72,7 @@ function VideoChat() {
 
 	useEffect(() => {
 		getMedia();
-	}, [myStream]);
+	}, []);
 
 	function handleMuteClick() {
 		const audioTracks = myStream.getAudioTracks();
@@ -105,10 +105,6 @@ function VideoChat() {
 			};
 		}
 	}, [handleCameraChange]); // handleCameraChange 함수가 변경될 때마다 이 useEffect를 다시 실행합니다.
-
-	// useEffect(() => {
-	// 	camerasSelect.addEventListener("input", handleCameraChange);
-	// }, []);
 	// Welcome Form (join a room)
 
 	async function initCall() {
@@ -119,14 +115,14 @@ function VideoChat() {
 
 		// 상태 관리를 위한 useState 사용
 	}
-	// 기타 필요한 상태 및 변수 선언    event.preventDefault();
+	// 기타 필요한 상태 및 변수 선언
 	async function handleWelcomeSubmit(event) {
 		event.preventDefault();
 		await initCall();
-		const input = welcomeForm.current.querySelector("input");
-		socket.emit("join_room", input.value);
+		// const input = welcomeForm.current.querySelector("input");
+		// socket.emit("join_room", input.value);
 		// 기타 필요한 상태 및 변수 선언	roomName = input.value;
-		input.value = "";
+		// input.value = "";
 		setIsWelcomeHidden(true);
 	}
 
@@ -222,16 +218,19 @@ function VideoChat() {
 		<div>
 			<h1>The Reader</h1>
 			{/* <Input /> */}
-			<div ref={welcome} hidden={isWelcomeHidden}>
+			{/* <div ref={welcome} hidden={isWelcomeHidden}>
 				<form ref={welcomeForm} onSubmit={handleWelcomeSubmit}>
 					<input type="text" placeholder="room name" required />
 					<button type="submit">Enter room</button>
 				</form>
-			</div>
+			</div> */}
 			<div ref={call} hidden={isCallHidden}>
 				<video ref={myFace} autoPlay playsInline width="400" height="400"></video>
 				<button onClick={handleMuteClick}>{muted ? "Unmute" : "Mute"}</button>
 				<button onClick={handleCameraClick}>{cameraOff ? "Turn Camera On" : "Turn Camera Off"}</button>
+				<select ref={camerasSelect}>
+					<option>Face Camera</option>
+				</select>
 			</div>
 		</div>
 	);
