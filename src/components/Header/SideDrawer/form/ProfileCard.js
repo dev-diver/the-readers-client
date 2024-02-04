@@ -4,18 +4,6 @@ import { useToggleDrawer } from "recoil/handler";
 import { Typography, Avatar, Grid, Box, List, ListItem, ListItemText, Divider } from "@mui/material";
 import { Link } from "react-router-dom";
 import api from "api";
-const mockupData = [
-	{
-		id: 1,
-		title: "정글스터디",
-		usermx: 5,
-	},
-	{
-		id: 2,
-		title: "나 홀로 공부",
-		usermx: 5,
-	},
-];
 
 const ProfileCard = ({ user }) => {
 	const [searchResults, setSearchResults] = useState([]);
@@ -25,8 +13,7 @@ const ProfileCard = ({ user }) => {
 		api
 			.get(`/user/${user.id}/rooms`)
 			.then((response) => {
-				//setSearchResults(response.data.data); // 검색 결과를 상태에 저장
-				setSearchResults(mockupData); // 검색 결과를 상태에 저장
+				setSearchResults(response.data.data); // 검색 결과를 상태에 저장
 				console.log("검색 결과:", response.data.data);
 			})
 			.catch((error) => {
@@ -77,12 +64,12 @@ const ProfileCard = ({ user }) => {
 					</Divider>
 					<List sx={{ width: 300 }}>
 						{searchResults.map((room, index) => (
-							<>
-								<ListItem component={Link} to={`/room/${room.id}`} key={index}>
-									<ListItemText primary={room.title} />
+							<React.Fragment key={"div" + index}>
+								<ListItem component={Link} to={`/room/${room.id}`} key={"list" + index}>
+									<ListItemText key={"item" + index} primary={room.title} />
 								</ListItem>
-								<Divider component="li" />
-							</>
+								<Divider key={"div" + index} component="li" />
+							</React.Fragment>
 						))}
 					</List>
 				</Box>

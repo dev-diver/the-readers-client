@@ -3,7 +3,7 @@ import FormFile from "./Formfile";
 import api from "api";
 import { logger } from "logger";
 
-export default function UploadBookToRoom({ roomId }) {
+export default function UploadBookToRoom({ roomId, refresher, setPop }) {
 	const [file, setFile] = useState(null);
 	const [fileName, setFileName] = useState("");
 
@@ -12,6 +12,8 @@ export default function UploadBookToRoom({ roomId }) {
 			.post(`/rooms/${roomId}/books`, formData)
 			.then((response) => {
 				logger.log(response.data.url);
+				refresher((prev) => !prev);
+				setPop(false);
 			})
 			.catch((err) => {
 				logger.error(err);
