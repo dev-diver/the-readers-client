@@ -5,7 +5,6 @@ import Room from "pages/Room";
 import RoomJoinController from "components/RoomJoinController";
 
 function RoomRouter() {
-	// useParams 훅을 사용하여 현재 경로의 파라미터를 가져옵니다.
 	const { roomId } = useParams();
 
 	return (
