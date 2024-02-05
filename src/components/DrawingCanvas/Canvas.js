@@ -3,12 +3,12 @@ import rough from "roughjs/bundled/rough.esm";
 import api from "api";
 import socket from "socket.js";
 import { useRecoilState } from "recoil";
-import { userState } from "recoil/atom";
+import { roomUserState } from "recoil/atom";
 
 const generator = rough.generator();
 const Canvas = ({ canvasRef, canvasId, ctx, color, setElements, elements, tool }) => {
 	const [isDrawing, setIsDrawing] = useState(false);
-	const [user, setUser] = useRecoilState(userState);
+	const [roomUser, setRoomUser] = useRecoilState(roomUserState);
 
 	useEffect(() => {
 		const canvas = canvasRef.current;
@@ -166,7 +166,7 @@ const Canvas = ({ canvasRef, canvasId, ctx, color, setElements, elements, tool }
 
 	return (
 		<div>
-			{canvasId === user.userId ? (
+			{canvasId === roomUser.userId ? (
 				<div
 					className="col-md-8 overflow-hidden border border-dark px-0 mx-auto mt-3"
 					style={{ height: "100px" }}

@@ -1,6 +1,6 @@
 import socket from "socket";
 
-export const canvasMouse = (event, pageNum) => {
+export const canvasMouse = (event, roomUser, location) => {
 	event.stopPropagation();
 	const canvas = event.target;
 	const rect = canvas.getBoundingClientRect();
@@ -18,7 +18,14 @@ export const canvasMouse = (event, pageNum) => {
 		element = element.offsetParent;
 	}
 	// console.log(`pagenum ${pageNum} x: ${offsetX}, y: ${offsetY}`);
-	socket.emit("movepointer", { page: pageNum, x: offsetX, y: offsetY });
+	socket.emit("movepointer", {
+		user: roomUser,
+		roomId: location.roomId,
+		bookId: location.bookId,
+		page: location.pageNum,
+		x: offsetX,
+		y: offsetY,
+	});
 };
 
 export const updatePointers = (pointers, data) => {

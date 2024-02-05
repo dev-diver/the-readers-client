@@ -1,8 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Main from "pages/Main";
-import RoomLobby from "pages/RoomLobby";
-import Room from "pages/Room";
+import RoomRouter from "RoomRouter";
 import Intro from "pages/Intro";
 import Header from "components/Header";
 
@@ -14,8 +13,7 @@ function App() {
 					<Header />
 					<Routes>
 						<Route path="/" element={<Main />} />
-						<Route path="/room/:roomId/book/:bookId" element={<Room />} />
-						<Route path="/room/:roomId" element={<RoomLobby />} />
+						<Route path="/room/:roomId/*" element={<RoomRouter />} />
 						<Route path="/intro" element={<Intro />} />
 					</Routes>
 				</div>

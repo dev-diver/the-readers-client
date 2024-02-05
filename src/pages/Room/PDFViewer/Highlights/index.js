@@ -43,7 +43,7 @@ function Highlighter({ bookId, renderContent, scrollerRef }) {
 	}
 
 	useEffect(() => {
-		socket.on("users", (data) => {
+		socket.on("room-users-changed", (data) => {
 			data.forEach((socketUser) => {
 				const pageNum = 1;
 				if (socketUser.memberId && socketUser.memberId === user?.id) {
