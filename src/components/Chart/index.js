@@ -9,13 +9,13 @@ const original_data = new Array(31).fill(0).map((_, index) => ({
 
 let updatedData = {};
 
-function Chart(scroll) {
+function Chart({ scroll }) {
 	const [prevScroll, setPrevScroll] = useState(0);
 	const [data, setData] = useState(original_data);
 	const [count, setCount] = useState(0);
 
 	useEffect(() => {
-		setPrevScroll(scroll.scroll);
+		setPrevScroll(scroll);
 		// 1초마다 count 증가
 		const interval = setInterval(() => {
 			setCount((c) => c + 1);
@@ -48,7 +48,8 @@ function Chart(scroll) {
 	}, [scroll]);
 
 	return (
-		<ResponsiveContainer width="25%" height={650} style={{ position: "sticky", top: "20px" }}>
+		// width="25%" height={650} style={{ position: "sticky", top: "20px" }}
+		<ResponsiveContainer>
 			<LineChart
 				layout="vertical"
 				width={400}

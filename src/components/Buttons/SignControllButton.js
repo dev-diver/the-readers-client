@@ -3,7 +3,7 @@ import React from "react";
 import { Button } from "@mui/material";
 import { useRecoilState } from "recoil";
 
-import { userState, drawerFormState } from "recoil/atom";
+import { userState } from "recoil/atom";
 
 export const LogInButton = ({ handler }) => {
 	return (

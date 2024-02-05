@@ -27,7 +27,7 @@ const AddBook = ({ room, refresher }) => {
 			<button onClick={() => setPop(true)}>책 추가</button>
 			<PopUp isOpen={pop} onClose={() => setPop(false)}>
 				<FindBook bookClickHandler={bookClickHandler} />
-				<UploadBookToRoom roomId={room.id} />
+				<UploadBookToRoom roomId={room.id} setPop={setPop} refresher={refresher} />
 			</PopUp>
 		</>
 	);

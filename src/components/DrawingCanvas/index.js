@@ -8,8 +8,8 @@ import { useParams } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import { userState } from "recoil/atom";
 
-import "bootstrap/dist/css/bootstrap.min.css";
-import "react-toastify/dist/ReactToastify.css";
+// import "bootstrap/dist/css/bootstrap.min.css";
+// import "react-toastify/dist/ReactToastify.css";
 import "./style.css";
 
 // 무작위 uuid 값 만들기. GPT에서 crypto 함수를 추천했음.

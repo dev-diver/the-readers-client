@@ -16,7 +16,7 @@ function FindBook({ bookClickHandler }) {
 				setSearchResults(response.data.data); // 검색 결과를 상태에 저장
 			})
 			.catch((error) => {
-				console.error("검색 중 에러 발생", error.message);
+				console.error(error.response.data.message);
 			});
 	};
 
