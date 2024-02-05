@@ -164,6 +164,7 @@ function PDFViewer({ book }) {
 		if (htmlContent && containerRef.current) {
 			console.log("htmlContent rerender");
 			const pageContainer = containerRef.current.querySelector("#page-container");
+			if (!pageContainer) return;
 			const pageDivs = pageContainer.querySelectorAll(":scope > div");
 			const mapCanvasContainer = Array.from(pageDivs).map((pageDiv, index) => {
 				const container = document.createElement("div");
