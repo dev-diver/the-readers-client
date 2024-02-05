@@ -12,8 +12,21 @@ import { useRecoilState } from "recoil";
 import { scrollYState, isTrailState } from "recoil/atom";
 import { Box, Grid } from "@mui/material";
 import PenController from "./PenController";
+import { Droppable } from "components/DragNDrop/Droppable";
+import { Draggable } from "components/DragNDrop/Draggable";
+import { DndContext, useDraggable } from "@dnd-kit/core";
 
 function PDFViewer({ book }) {
+	const notesData = [
+		{
+			id: "1",
+			content: "Study English",
+			position: {
+				x: 0,
+				y: 0,
+			},
+		},
+	];
 	const [htmlContent, setHtmlContent] = useState("");
 	const [renderContent, setRenderContent] = useState(false);
 	const [canvasComponents, setCanvasComponents] = useState([]);
@@ -21,9 +34,21 @@ function PDFViewer({ book }) {
 	const [scroll, setScroll] = useRecoilState(scrollYState);
 	const [originalWidth, setOriginalWidth] = useState(0);
 	const [scale, setScale] = useState(1);
+	const [notes, setNotes] = useState(notesData);
 
 	const scrollerRef = useRef(null);
 	const pdfContentsRef = useRef(null);
+
+	function handleDragEnd(ev) {
+		const note = notes.find((x) => x.id === ev.active.id);
+		note.position.x += ev.delta.x;
+		note.position.y += ev.delta.y;
+		const _notes = notes.map((x) => {
+			if (x.id === note.id) return note;
+			return x;
+		});
+		setNotes(_notes);
+	}
 
 	useEffect(() => {
 		book.url &&
@@ -109,38 +134,57 @@ function PDFViewer({ book }) {
 
 	return (
 		<div>
-			{/* <DrawingCanvas /> */}
-			<AttentionButton scrollerRef={scrollerRef} />
-			<Box className="pdf-chart-container">
-				<Grid container>
-					<Grid item style={{ flex: 1 }}>
-						<Chart scroll={scroll} />
-					</Grid>
-					<Grid item style={{ flex: 4 }}>
-						<PdfScroller scrollerRef={scrollerRef}>
-							<Box
-								ref={pdfContentsRef}
-								className="pdf-contents"
-								dangerouslySetInnerHTML={{ __html: htmlContent }}
-								sx={{
-									width: "100%",
-									transform: `scale(${scale})`,
-									transformOrigin: "top left",
-									boxSizing: "border-box",
-								}}
-							/>
-						</PdfScroller>
-					</Grid>
-					<Grid item style={{ flex: 1 }}>
-						<PenController />
-						<Highlights bookId={book.id} renderContent={renderContent} scrollerRef={scrollerRef} />
-					</Grid>
-				</Grid>
-			</Box>
-			{canvasComponents.map(({ component, container }) => {
-				return createPortal(component, container);
-			})}
-			<CursorCanvasController totalPage={canvasComponents.length} />
+			<DndContext onDragEnd={handleDragEnd}>
+				<Droppable>
+					{/* <DrawingCanvas /> */}
+					<AttentionButton scrollerRef={scrollerRef} />
+					<Box className="pdf-chart-container">
+						<Grid container>
+							<Grid item style={{ flex: 1 }}>
+								<Chart scroll={scroll} />
+							</Grid>
+							<Grid item style={{ flex: 4 }}>
+								<PdfScroller scrollerRef={scrollerRef}>
+									<Box
+										ref={pdfContentsRef}
+										className="pdf-contents"
+										dangerouslySetInnerHTML={{ __html: htmlContent }}
+										sx={{
+											width: "100%",
+											transform: `scale(${scale})`,
+											transformOrigin: "top left",
+											boxSizing: "border-box",
+										}}
+									/>
+								</PdfScroller>
+							</Grid>
+							{notes.map((note) => (
+								<Grid item style={{ flex: 1 }} key={note.id}>
+									<Draggable
+										styles={{
+											position: "absolute",
+											left: `${note.position.x}px`,
+											top: `${note.position.y}px`,
+										}}
+										key={note.id}
+										id={note.id}
+										content={
+											<>
+												<PenController />
+											</>
+										}
+									/>
+									<Highlights bookId={book.id} renderContent={renderContent} scrollerRef={scrollerRef} />
+								</Grid>
+							))}
+						</Grid>
+					</Box>
+					{canvasComponents.map(({ component, container }) => {
+						return createPortal(component, container);
+					})}
+					<CursorCanvasController totalPage={canvasComponents.length} />
+				</Droppable>
+			</DndContext>
 		</div>
 	);
 }
