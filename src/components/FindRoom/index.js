@@ -3,6 +3,7 @@ import api from "api";
 import RoomCard from "./RoomCard";
 import MakeRoom from "pages/Main/MakeRoom";
 import { Grid, Box, TextField, Button } from "@mui/material";
+import Masonry from "@mui/lab/Masonry";
 
 function FindRoom() {
 	const [name, setName] = useState("");
@@ -51,11 +52,16 @@ function FindRoom() {
 				</Grid>
 			</Grid>
 
-			<Box>
+			{/* <Box>
 				{searchResults.map((room, index) => (
 					<RoomCard key={index} room={room} />
 				))}
-			</Box>
+			</Box> */}
+			<Masonry columns={4} spacing={2}>
+				{searchResults.map((room, index) => (
+					<RoomCard key={index} room={room} />
+				))}
+			</Masonry>
 		</Box>
 	);
 }
