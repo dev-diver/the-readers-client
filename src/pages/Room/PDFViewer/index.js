@@ -20,10 +20,10 @@ function PDFViewer({ book }) {
 	const notesData = [
 		{
 			id: "1",
-			content: "Study English",
+			content: "",
 			position: {
-				x: 0,
-				y: 0,
+				x: 550,
+				y: 100,
 			},
 		},
 	];
