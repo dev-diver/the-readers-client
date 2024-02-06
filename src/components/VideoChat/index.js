@@ -107,7 +107,7 @@ export default function Chat() {
 		myVideoRef.current.addEventListener("click", handleCameraOut);
 
 		socket.on("rtc_start", async (room) => {
-			canvasClear();
+			// canvasClear();
 			console.log("RTC Connection Start!");
 			peerConnection.addEventListener("icecandidate", ({ candidate }) => {
 				console.log("candidate finish");
@@ -118,7 +118,7 @@ export default function Chat() {
 			dataChannel.onmessage = (event) => {
 				console.log("data receiving...");
 				const parsed = JSON.parse(event.data);
-				peerPainting(parsed.payload);
+				// peerPainting(parsed.payload);
 			};
 			const offer = await peerConnection.createOffer();
 			await peerConnection.setLocalDescription(offer);
@@ -127,7 +127,7 @@ export default function Chat() {
 		});
 
 		socket.on("offer", async ({ offer, room }) => {
-			canvasClear();
+			// canvasClear();
 			peerConnection.addEventListener("datachannel", (event) => {
 				console.log("receive datachannel");
 				dataChannel = event.channel;
@@ -135,7 +135,7 @@ export default function Chat() {
 					dataChannel.onmessage = (event) => {
 						console.log("data receiving...");
 						const parsed = JSON.parse(event.data);
-						peerPainting(parsed.payload);
+						// peerPainting(parsed.payload);
 					};
 				}
 			});
@@ -164,127 +164,127 @@ export default function Chat() {
 			}
 		});
 
-		const makeCanvas = () => {
-			context = canvasBoardRef.current.getContext("2d");
-			context.lineCap = "round";
+		// const makeCanvas = () => {
+		// 	context = canvasBoardRef.current.getContext("2d");
+		// 	context.lineCap = "round";
 
-			canvasBoardRef.current.width = cavasContainerRef.current.clientWidth;
-			canvasBoardRef.current.height = cavasContainerRef.current.clientHeight;
+		// 	canvasBoardRef.current.width = cavasContainerRef.current.clientWidth;
+		// 	canvasBoardRef.current.height = cavasContainerRef.current.clientHeight;
 
-			if (!canvasBoardRef.current) return;
-			if (!context) return;
-			// mouse event
+		// 	if (!canvasBoardRef.current) return;
+		// 	if (!context) return;
+		// 	// mouse event
 
-			canvasBoardRef.current.addEventListener("mousedown", readyPainting);
-			canvasBoardRef.current.addEventListener("mousemove", beginPainting);
-			canvasBoardRef.current.addEventListener("mouseup", stopPainting);
-			canvasBoardRef.current.addEventListener("mouseout", stopPainting);
+		// 	canvasBoardRef.current.addEventListener("mousedown", readyPainting);
+		// 	canvasBoardRef.current.addEventListener("mousemove", beginPainting);
+		// 	canvasBoardRef.current.addEventListener("mouseup", stopPainting);
+		// 	canvasBoardRef.current.addEventListener("mouseout", stopPainting);
 
-			// touch event
-			canvasBoardRef.current.addEventListener("touchstart", readyPainting);
-			canvasBoardRef.current.addEventListener("touchmove", beginPainting);
-			canvasBoardRef.current.addEventListener("touchend", stopPainting);
+		// 	// touch event
+		// 	canvasBoardRef.current.addEventListener("touchstart", readyPainting);
+		// 	canvasBoardRef.current.addEventListener("touchmove", beginPainting);
+		// 	canvasBoardRef.current.addEventListener("touchend", stopPainting);
 
-			if (colorPickRefs.current) {
-				colorPickRefs.current.map((element) =>
-					element.addEventListener("click", (event) => {
-						lineWidth = 4;
-						if (event.target) {
-							pickedColor = event.target.id;
-						}
-					})
-				);
-			}
-			if (eraserRef.current) {
-				eraserRef.current.onclick = () => {
-					pickedColor = "white";
-					lineWidth = 20;
-				};
-			}
-		};
+		// 	if (colorPickRefs.current) {
+		// 		colorPickRefs.current.map((element) =>
+		// 			element.addEventListener("click", (event) => {
+		// 				lineWidth = 4;
+		// 				if (event.target) {
+		// 					pickedColor = event.target.id;
+		// 				}
+		// 			})
+		// 		);
+		// 	}
+		// 	if (eraserRef.current) {
+		// 		eraserRef.current.onclick = () => {
+		// 			pickedColor = "white";
+		// 			lineWidth = 20;
+		// 		};
+		// 	}
+		// };
 
-		function readyPainting(ev) {
-			ev.preventDefault();
-			const mousePos = getMosuePositionOnCanvas(ev);
-			context.beginPath();
-			context.moveTo(mousePos.x, mousePos.y);
-			context.lineWidth = lineWidth;
-			context.strokeStyle = pickedColor;
-			painting = true;
-			const data = {
-				x: mousePos.x,
-				y: mousePos.y,
-				lineWidth,
-				color: pickedColor,
-				painting: false,
-			};
-			if (dataChannel) {
-				console.log("send data");
-				dataChannel.send(JSON.stringify({ type: "ready", payload: { ...data } }));
-			}
-		}
+		// function readyPainting(ev) {
+		// 	ev.preventDefault();
+		// 	const mousePos = getMosuePositionOnCanvas(ev);
+		// 	context.beginPath();
+		// 	context.moveTo(mousePos.x, mousePos.y);
+		// 	context.lineWidth = lineWidth;
+		// 	context.strokeStyle = pickedColor;
+		// 	painting = true;
+		// 	const data = {
+		// 		x: mousePos.x,
+		// 		y: mousePos.y,
+		// 		lineWidth,
+		// 		color: pickedColor,
+		// 		painting: false,
+		// 	};
+		// 	if (dataChannel) {
+		// 		console.log("send data");
+		// 		dataChannel.send(JSON.stringify({ type: "ready", payload: { ...data } }));
+		// 	}
+		// }
 
-		function beginPainting(ev) {
-			ev.preventDefault();
-			if (painting) {
-				const mousePos = getMosuePositionOnCanvas(ev);
-				context.lineTo(mousePos.x, mousePos.y);
-				context.stroke();
-				const data = {
-					x: mousePos.x,
-					y: mousePos.y,
-					lineWidth,
-					color: pickedColor,
-					painting: true,
-				};
-				if (dataChannel) {
-					dataChannel.send(JSON.stringify({ type: "begin", payload: { ...data } }));
-				}
-			}
-		}
+		// function beginPainting(ev) {
+		// 	ev.preventDefault();
+		// 	if (painting) {
+		// 		const mousePos = getMosuePositionOnCanvas(ev);
+		// 		context.lineTo(mousePos.x, mousePos.y);
+		// 		context.stroke();
+		// 		const data = {
+		// 			x: mousePos.x,
+		// 			y: mousePos.y,
+		// 			lineWidth,
+		// 			color: pickedColor,
+		// 			painting: true,
+		// 		};
+		// 		if (dataChannel) {
+		// 			dataChannel.send(JSON.stringify({ type: "begin", payload: { ...data } }));
+		// 		}
+		// 	}
+		// }
 
-		function stopPainting(ev) {
-			ev.preventDefault();
-			if (painting) {
-				context.stroke();
-			}
-			painting = false;
-		}
+		// function stopPainting(ev) {
+		// 	ev.preventDefault();
+		// 	if (painting) {
+		// 		context.stroke();
+		// 	}
+		// 	painting = false;
+		// }
 
-		function getMosuePositionOnCanvas(ev) {
-			if (ev.touches) {
-				return {
-					x: ev.touches[0].clientX - ev.target.parentNode.offsetLeft,
-					y: ev.touches[0].clientY - ev.target.parentNode.offsetHeight + 25,
-				};
-			}
-			return { x: ev.offsetX, y: ev.offsetY };
-		}
-		function peerPainting(payload) {
-			if (!context) return;
-			context.strokeStyle = payload.color;
-			context.lineWidth = payload.lineWidth;
-			context.lineCap = payload.lineCap;
-			if (!payload.painting) {
-				context.beginPath();
-				context.moveTo(payload.x, payload.y);
-			} else {
-				context.lineTo(payload.x, payload.y);
-				context.stroke();
-			}
-		}
+		// function getMosuePositionOnCanvas(ev) {
+		// 	if (ev.touches) {
+		// 		return {
+		// 			x: ev.touches[0].clientX - ev.target.parentNode.offsetLeft,
+		// 			y: ev.touches[0].clientY - ev.target.parentNode.offsetHeight + 25,
+		// 		};
+		// 	}
+		// 	return { x: ev.offsetX, y: ev.offsetY };
+		// }
+		// function peerPainting(payload) {
+		// 	if (!context) return;
+		// 	context.strokeStyle = payload.color;
+		// 	context.lineWidth = payload.lineWidth;
+		// 	context.lineCap = payload.lineCap;
+		// 	if (!payload.painting) {
+		// 		context.beginPath();
+		// 		context.moveTo(payload.x, payload.y);
+		// 	} else {
+		// 		context.lineTo(payload.x, payload.y);
+		// 		context.stroke();
+		// 	}
+		// }
 
-		function canvasClear() {
-			if (!context) return;
-			if (!canvasBoardRef.current) return;
-			context.clearRect(0, 0, canvasBoardRef.current.width, canvasBoardRef.current.height);
-		}
+		// function canvasClear() {
+		// 	if (!context) return;
+		// 	if (!canvasBoardRef.current) return;
+		// 	context.clearRect(0, 0, canvasBoardRef.current.width, canvasBoardRef.current.height);
+		// }
 
 		function handleCameraOut() {
 			stream.getVideoTracks().forEach((track) => (track.enabled = !track.enabled));
 		}
 
-		makeCanvas();
+		// makeCanvas();
 	}, []);
 
 	const onValid = ({ message }) => {
@@ -302,21 +302,21 @@ export default function Chat() {
 		setPeerMuted((prev) => !prev);
 	}
 
-	const messageEndRef = useRef();
-	useEffect(() => {
-		messageEndRef.current.scrollIntoView({ behavior: "smooth" });
-	}, [messages]);
+	// const messageEndRef = useRef();
+	// useEffect(() => {
+	// 	messageEndRef.current.scrollIntoView({ behavior: "smooth" });
+	// }, [messages]);
 
-	const pageEndRef = useRef();
-	useEffect(() => {
-		pageEndRef.current.scrollIntoView({ behavior: "smooth" });
-	}, []);
+	// const pageEndRef = useRef();
+	// useEffect(() => {
+	// 	pageEndRef.current.scrollIntoView({ behavior: "smooth" });
+	// }, []);
 	return (
-		<Layout>
+		<>
+			{/* <Layout> */}
 			<Container>
 				<Header>
 					<TitleBox>
-						<h1>Nomad Catch</h1>
 						<h3>Room : {room}</h3>
 					</TitleBox>
 					{users ? (
@@ -394,26 +394,29 @@ export default function Chat() {
 							))}
 						</Users>
 					) : null}
-					<a href="/">
-						<OutButton>Exit</OutButton>
-					</a>
+					{/* <a href="/"><OutButton>Exit</OutButton></a> */}
 				</Header>
 				<VideoContainer>
 					<VideoBox>
 						<video ref={myVideoRef} autoPlay muted={myMuted} />
 					</VideoBox>
-					<StartButton
-						onClick={() => {
-							socket.emit("rtc_start", room);
-						}}
-					>
-						Start!
-					</StartButton>
+					<a href="/">
+						<OutButton>Exit!</OutButton>
+					</a>
+					<a>
+						<StartButton
+							onClick={() => {
+								socket.emit("rtc_start", room);
+							}}
+						>
+							Start!
+						</StartButton>
+					</a>
 					<VideoBox>
 						<video ref={peerVideoRef} autoPlay muted={peerMuted} />
 					</VideoBox>
 				</VideoContainer>
-				<CanvasContainer ref={cavasContainerRef}>
+				{/* <CanvasContainer ref={cavasContainerRef}>
 					<CanvasBoard ref={canvasBoardRef} />
 					<ColorsPickBox>
 						{colors.map((color, i) => {
@@ -436,8 +439,8 @@ export default function Chat() {
 							</svg>
 						</Eraser>
 					</ColorsPickBox>
-				</CanvasContainer>
-				<MessagesContainer>
+				</CanvasContainer> */}
+				{/* <MessagesContainer>
 					<MessagesBox>
 						{messages.map((message, i) => (
 							<div key={i}>
@@ -457,10 +460,11 @@ export default function Chat() {
 							</svg>
 						</MessageButton>
 					</MessageForm>
-				</MessagesContainer>
+				</MessagesContainer> */}
 			</Container>
-			<div ref={pageEndRef} />
-		</Layout>
+			{/* <div ref={pageEndRef} /> */}
+			{/* </Layout> */}
+		</>
 	);
 }
 
@@ -485,7 +489,7 @@ const Header = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	background-color: blueviolet;
+	background-color: #4a90e2;
 	width: 100%;
 	padding: 10px 20px;
 	border-radius: 20px;
@@ -545,14 +549,28 @@ const OnlineIcon = styled.div`
 		0 4px 6px rgba(50, 50, 93, 0.11),
 		0 1px 3px rgba(0, 0, 0, 0.08);
 `;
+// const OutButton = styled.button`
+// 	background-color: white;
+// 	color: blueviolet;
+// 	width: 35px;
+// 	height: 35px;
+// 	border-radius: 50%;
+// 	text-align: center;
+// 	font-size: 10px;
+// 	box-shadow:
+// 		0 4px 6px rgba(50, 50, 93, 0.11),
+// 		0 1px 3px rgba(0, 0, 0, 0.08);
+// `;
 const OutButton = styled.button`
+	align-self: flex-end;
+	cursor: pointer;
 	background-color: white;
-	color: blueviolet;
-	width: 35px;
-	height: 35px;
+	color: black;
+	width: 50px;
+	height: 50px;
 	border-radius: 50%;
 	text-align: center;
-	font-size: 10px;
+	margin-bottom: 10px;
 	box-shadow:
 		0 4px 6px rgba(50, 50, 93, 0.11),
 		0 1px 3px rgba(0, 0, 0, 0.08);
@@ -567,7 +585,7 @@ const VideoContainer = styled.div`
 `;
 
 const VideoBox = styled.div`
-	background-color: blueviolet;
+	background-color: #4a90e2;
 	width: 110px;
 	height: 110px;
 	border-radius: 50%;
@@ -603,126 +621,126 @@ const StartButton = styled.button`
 		0 1px 3px rgba(0, 0, 0, 0.08);
 `;
 
-const CanvasContainer = styled.div`
-	border: 1px solid rgba(0, 0, 0, 0.1);
-	box-shadow:
-		0 4px 6px rgba(50, 50, 93, 0.11),
-		0 1px 3px rgba(0, 0, 0, 0.08);
-	width: 95%;
-	height: 250px;
-	border-radius: 18px;
-	position: relative;
-	background-color: white;
-`;
-const CanvasBoard = styled.canvas``;
+// const CanvasContainer = styled.div`
+// 	border: 1px solid rgba(0, 0, 0, 0.1);
+// 	box-shadow:
+// 		0 4px 6px rgba(50, 50, 93, 0.11),
+// 		0 1px 3px rgba(0, 0, 0, 0.08);
+// 	width: 95%;
+// 	height: 250px;
+// 	border-radius: 18px;
+// 	position: relative;
+// 	background-color: white;
+// `;
+// const CanvasBoard = styled.canvas``;
 
-const ColorsPickBox = styled.div`
-	position: absolute;
-	left: 50%;
-	bottom: 5px;
-	display: flex;
-	transform: translate(-50%, 0);
-`;
-const ColorPick = styled.div`
-	cursor: pointer;
-	width: 30px;
-	height: 30px;
-	border-radius: 50%;
-	z-index: 999;
-	background-color: ${(props) => props.color};
-	margin-right: 5px;
-	box-shadow:
-		0 4px 6px rgba(50, 50, 93, 0.11),
-		0 1px 3px rgba(0, 0, 0, 0.08);
-`;
+// const ColorsPickBox = styled.div`
+// 	position: absolute;
+// 	left: 50%;
+// 	bottom: 5px;
+// 	display: flex;
+// 	transform: translate(-50%, 0);
+// `;
+// const ColorPick = styled.div`
+// 	cursor: pointer;
+// 	width: 30px;
+// 	height: 30px;
+// 	border-radius: 50%;
+// 	z-index: 999;
+// 	background-color: ${(props) => props.color};
+// 	margin-right: 5px;
+// 	box-shadow:
+// 		0 4px 6px rgba(50, 50, 93, 0.11),
+// 		0 1px 3px rgba(0, 0, 0, 0.08);
+// `;
 
-const Eraser = styled.div`
-	cursor: pointer;
-	width: 30px;
-	height: 30px;
-	border-radius: 50%;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	margin-right: -5px;
-`;
+// const Eraser = styled.div`
+// 	cursor: pointer;
+// 	width: 30px;
+// 	height: 30px;
+// 	border-radius: 50%;
+// 	display: flex;
+// 	justify-content: center;
+// 	align-items: center;
+// 	margin-right: -5px;
+// `;
 
-const MessagesContainer = styled.div`
-	margin-top: 5px;
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	position: relative;
-`;
+// const MessagesContainer = styled.div`
+// 	margin-top: 5px;
+// 	width: 100%;
+// 	display: flex;
+// 	flex-direction: column;
+// 	justify-content: center;
+// 	position: relative;
+// `;
 
-const MessagesBox = styled.div`
-	margin-top: 13px;
-	width: 95%;
-	height: 170px;
-	padding: 0px 10px 56px 10px;
-	overflow-y: scroll;
-	border-radius: 18px;
-	div {
-		width: 100%;
-		display: grid;
-		grid-template-columns: 1fr 6fr 1fr;
-		grid-gap: 3px;
-		color: gray;
-		span:nth-child(1) {
-			align-self: flex-start;
-			color: blueviolet;
-			font-size: 12px;
-			font-weight: 600;
-		}
-		span:nth-child(2) {
-			align-self: center;
-			color: gray;
-			font-size: 13px;
-		}
-		span:nth-child(3) {
-			place-self: flex-end;
-			align-self: center;
-			color: gray;
-			font-size: 10px;
-		}
-	}
-`;
-const MessageForm = styled.form`
-	width: 95%;
-	position: absolute;
-	bottom: 10px;
-	left: 50%;
-	transform: translate(-50%, 0%);
-`;
-const MessageInput = styled.input`
-	margin-left: 10px;
-	width: 90%;
-	padding: 12px;
-	border-radius: 10px;
-	border: 1px solid rgba(0, 0, 0, 0.2);
-	box-shadow:
-		0 4px 6px rgba(50, 50, 93, 0.11),
-		0 1px 3px rgba(0, 0, 0, 0.08);
-	font-size: 12px;
-`;
-const MessageButton = styled.button`
-	width: 35px;
-	height: 35px;
-	position: absolute;
-	right: 15px;
-	bottom: 2.5px;
-	background-color: blueviolet;
-	color: white;
-	border-radius: 50%;
-	box-shadow:
-		0 4px 6px rgba(50, 50, 93, 0.11),
-		0 1px 3px rgba(0, 0, 0, 0.08);
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	svg {
-		width: 18px;
-		height: 18px;
-	}
-`;
+// const MessagesBox = styled.div`
+// 	margin-top: 13px;
+// 	width: 95%;
+// 	height: 170px;
+// 	padding: 0px 10px 56px 10px;
+// 	overflow-y: scroll;
+// 	border-radius: 18px;
+// 	div {
+// 		width: 100%;
+// 		display: grid;
+// 		grid-template-columns: 1fr 6fr 1fr;
+// 		grid-gap: 3px;
+// 		color: gray;
+// 		span:nth-child(1) {
+// 			align-self: flex-start;
+// 			color: blueviolet;
+// 			font-size: 12px;
+// 			font-weight: 600;
+// 		}
+// 		span:nth-child(2) {
+// 			align-self: center;
+// 			color: gray;
+// 			font-size: 13px;
+// 		}
+// 		span:nth-child(3) {
+// 			place-self: flex-end;
+// 			align-self: center;
+// 			color: gray;
+// 			font-size: 10px;
+// 		}
+// 	}
+// `;
+// const MessageForm = styled.form`
+// 	width: 95%;
+// 	position: absolute;
+// 	bottom: 10px;
+// 	left: 50%;
+// 	transform: translate(-50%, 0%);
+// `;
+// const MessageInput = styled.input`
+// 	margin-left: 10px;
+// 	width: 90%;
+// 	padding: 12px;
+// 	border-radius: 10px;
+// 	border: 1px solid rgba(0, 0, 0, 0.2);
+// 	box-shadow:
+// 		0 4px 6px rgba(50, 50, 93, 0.11),
+// 		0 1px 3px rgba(0, 0, 0, 0.08);
+// 	font-size: 12px;
+// `;
+// const MessageButton = styled.button`
+// 	width: 35px;
+// 	height: 35px;
+// 	position: absolute;
+// 	right: 15px;
+// 	bottom: 2.5px;
+// 	background-color: blueviolet;
+// 	color: white;
+// 	border-radius: 50%;
+// 	box-shadow:
+// 		0 4px 6px rgba(50, 50, 93, 0.11),
+// 		0 1px 3px rgba(0, 0, 0, 0.08);
+// 	display: flex;
+// 	justify-content: center;
+// 	align-items: center;
+// 	svg {
+// 		width: 18px;
+// 		height: 18px;
+// 	}
+// `;
