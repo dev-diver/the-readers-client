@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import socket from "socket.js";
 import "./styles.css";
+
 import RtcViewer from "./RtcViewer";
 import PDFViewer from "./PDFViewer";
 import BookShelf from "components/BookShelf";
 import AddBook from "pages/RoomLobby/Addbook";
 import { Link } from "react-router-dom";
 import api from "api";
+import { Box } from "@mui/material";
 
 function Room() {
 	const { bookId } = useParams();
@@ -37,7 +39,7 @@ function Room() {
 		navigate(`/room/${roomId}/book/${book.id}`);
 	};
 	return (
-		<div className="container">
+		<Box className="container">
 			{/* <RtcViewer/> */}
 			{room && (
 				<>
@@ -47,7 +49,7 @@ function Room() {
 				</>
 			)}
 			{book && <PDFViewer book={book} />}
-		</div>
+		</Box>
 	);
 }
 

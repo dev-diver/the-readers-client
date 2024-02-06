@@ -18,8 +18,10 @@ const LogInForm = ({ setUser }) => {
 		api
 			.post(`${baseURL}/auth/login`, { email: email, password: password })
 			.then((response) => {
-				localStorage.setItem("user", JSON.stringify(response.data.user));
-				setUser(response.data.user);
+				const user = response.data.data;
+				console.log("user", user);
+				localStorage.setItem("user", JSON.stringify(user));
+				setUser(user);
 				toggleDrawer("none")(e);
 				setErrorMessage("");
 			})

@@ -1,5 +1,5 @@
 function elemPageContainer(container) {
-	console.log(container);
+	// console.log(container);
 	if (container.nodeType === Node.TEXT_NODE) {
 		container = container.parentElement;
 	}
@@ -12,14 +12,13 @@ function elemPageContainer(container) {
 	return null;
 }
 
-function elemPageNum(container) {
-	console.log("elemPageNum", container);
-
+export function elemPageNum(container) {
+	// console.log("elemPageNum", container);
 	return elemPageContainer(container).getAttribute("data-page-no");
 }
 
 function numToPageContainer(pageNum) {
-	console.log("numToPageContainer", pageNum);
+	// console.log("numToPageContainer", pageNum);
 	return document.querySelector(`[data-page-no="${pageNum}"]`);
 }
 
@@ -65,8 +64,7 @@ function pathNumToNode(pageNum, pathNum) {
 		index++;
 		elem = iterator.nextNode();
 	}
-
-	console.log("pathNumToNode", elem);
+	// console.log("pathNumToNode", elem);
 	return elem ? elem : null;
 }
 
@@ -79,9 +77,8 @@ export function InfoToRange(Info) {
 }
 
 export function rangeToInfo(range, additionalInfo) {
-	console.log("range", range);
-	console.log("startContainer", range.startContainer);
-
+	// console.log("range", range);
+	// console.log("startContainer", range.startContainer);
 	const pageNum = elemPageNum(range.startContainer);
 	const startContainerIdx = nodeToPathNum(range.startContainer);
 	const endContainerIdx = nodeToPathNum(range.endContainer);
