@@ -10,6 +10,16 @@ function App() {
 		<div>
 			<Router>
 				<div>
+					<nav>
+						<ul>
+							<li>
+								<Link to="/">Main</Link>
+							</li>
+							<li>
+								<Link to="/video">Video</Link>
+							</li>
+						</ul>
+					</nav>
 					<Header />
 					<Routes>
 						<Route path="/" element={<Main />} />
