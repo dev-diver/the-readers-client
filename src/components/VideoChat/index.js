@@ -319,7 +319,7 @@ export default function Chat() {
 					<TitleBox>
 						<h3>Room : {room}</h3>
 					</TitleBox>
-					{users ? (
+					{/* {users ? (
 						<Users>
 							{users.map(({ name: username }) => (
 								<div key={username}>
@@ -393,7 +393,7 @@ export default function Chat() {
 								</div>
 							))}
 						</Users>
-					) : null}
+					) : null} */}
 					{/* <a href="/"><OutButton>Exit</OutButton></a> */}
 				</Header>
 				<VideoContainer>

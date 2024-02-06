@@ -6,7 +6,6 @@ import Room from "pages/Room";
 import Intro from "pages/Intro";
 import Header from "components/Header";
 
-import Auth from "./components/Auth";
 function App() {
 	return (
 		<div>
@@ -21,7 +20,6 @@ function App() {
 								<Link to="/video">Video</Link>
 							</li>
 						</ul>
-						<Auth />
 					</nav>
 					<Header />
 					<Routes>

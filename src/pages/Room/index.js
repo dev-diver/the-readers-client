@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import socket from "socket.js";
-import "./styles.css";
-
 import RtcViewer from "./RtcViewer";
 import PDFViewer from "./PDFViewer";
 import BookShelf from "components/BookShelf";

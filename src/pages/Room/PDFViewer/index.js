@@ -6,7 +6,6 @@ import PageCanvasGroup from "./PageCanvasGroup";
 import Chart from "components/Chart";
 import DrawingCanvas from "components/DrawingCanvas";
 import { debounce } from "lodash";
-import "./styles.css";
 import VideoRoom from "pages/VideoRoom";
 // import { log } from "console";
 import PdfScroller from "./PdfScroller/index";
@@ -71,7 +70,7 @@ function PDFViewer({ book }) {
 	useEffect(() => {
 		if (htmlContent && scrollerRef.current) {
 			console.log("htmlContent rerender");
-			const pageContainer = containerRef.current.querySelector("#page-container");
+			const pageContainer = scrollerRef.current.querySelector("#page-container");
 			if (!pageContainer) return;
 			const pageDivs = pageContainer.querySelectorAll(":scope > div");
 			const mapCanvasContainer = Array.from(pageDivs).map((pageDiv, index) => {
@@ -170,6 +169,7 @@ function PDFViewer({ book }) {
 		<div>
 			<DndContext onDragEnd={handleDragEnd}>
 				<Droppable>
+					<VideoRoom />
 					{/* <DrawingCanvas /> */}
 					<AttentionButton scrollerRef={scrollerRef} />
 					<Box className="pdf-chart-container">
