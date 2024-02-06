@@ -18,7 +18,7 @@ function getElemPageContainer(elem) {
 	return null;
 }
 
-function numToPageContainer(pageNum) {
+export function numToPageContainer(pageNum) {
 	// console.log("numToPageContainer", pageNum);
 	return document.querySelector(`[data-page-no="${pageNum}"]`);
 }
@@ -75,6 +75,7 @@ function pathNumToNode(pageNum, pathNum) {
 
 export function InfoToRange(Info) {
 	let range = document.createRange();
+	console.log(Info);
 	range.setStart(pathNumToNode(Info.pageNum, Info.startContainer), Info.startOffset);
 	range.setEnd(pathNumToNode(Info.pageNum, Info.endContainer), Info.endOffset);
 
@@ -101,6 +102,7 @@ export function rangeToInfo(range, additionalInfo) {
 /* Draw ,Erase */
 
 export function drawHighlight(range, highlightInfo) {
+	// console.log("drawHighlight", range, highlightInfo);
 	let passNode = false;
 
 	const filterFunction = function (node) {
@@ -130,6 +132,7 @@ export function drawHighlight(range, highlightInfo) {
 
 	//중간
 	let currentNode = walker.nextNode();
+	console.log(currentNode);
 	while (currentNode) {
 		const nextNode = walker.nextNode();
 		parentElement = currentNode.parentNode;
