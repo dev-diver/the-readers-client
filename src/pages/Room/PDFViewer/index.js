@@ -4,20 +4,19 @@ import { logger } from "logger";
 import Highlights from "./Highlights";
 import PageCanvasGroup from "./PageCanvasGroup";
 import Chart from "components/Chart";
-import DrawingCanvas from "components/DrawingCanvas";
-import { debounce } from "lodash";
-import VideoRoom from "pages/VideoRoom";
-// import { log } from "console";
+import VideoChat from "components/VideoChat";
 import PdfScroller from "./PdfScroller/index";
 import AttentionButton from "./PdfScroller/AttentionButton";
 import CursorCanvasController from "./PageCanvasGroup/CursorCanvasController";
 import { useRecoilState } from "recoil";
-import { scrollYState, isTrailState } from "recoil/atom";
+import { scrollYState, scrollerRefState, viewerScaleState } from "recoil/atom";
 import { Box, Grid } from "@mui/material";
 import PenController from "./PenController";
 import { Droppable } from "components/DragNDrop/Droppable";
 import { Draggable } from "components/DragNDrop/Draggable";
 import { DndContext, useDraggable } from "@dnd-kit/core";
+
+const VIEWER_WIDTH = 800;
 
 function PDFViewer({ book }) {
 	const notesData = [
@@ -36,10 +35,10 @@ function PDFViewer({ book }) {
 	const [cssLoaded, setCssLoaded] = useState(false);
 	const [scroll, setScroll] = useRecoilState(scrollYState);
 	const [originalWidth, setOriginalWidth] = useState(0);
-	const [scale, setScale] = useState(1);
+	const [scale, setScale] = useRecoilState(viewerScaleState);
 	const [notes, setNotes] = useState(notesData);
+	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
 
-	const scrollerRef = useRef(null);
 	const pdfContentsRef = useRef(null);
 
 	function handleDragEnd(ev) {
@@ -54,11 +53,11 @@ function PDFViewer({ book }) {
 	}
 
 	useEffect(() => {
+		setRenderContent(false);
 		book.url &&
 			fetch(book.url)
 				.then((response) => {
 					response.text().then((text) => {
-						console.log("text", text);
 						setHtmlContent(text);
 					});
 				})
@@ -68,9 +67,9 @@ function PDFViewer({ book }) {
 	}, [book.url]);
 
 	useEffect(() => {
-		if (htmlContent && scrollerRef.current) {
+		if (htmlContent && scrollerRef) {
 			console.log("htmlContent rerender");
-			const pageContainer = scrollerRef.current.querySelector("#page-container");
+			const pageContainer = scrollerRef.querySelector("#page-container");
 			if (!pageContainer) return;
 			const pageDivs = pageContainer.querySelectorAll(":scope > div");
 			const mapCanvasContainer = Array.from(pageDivs).map((pageDiv, index) => {
@@ -115,7 +114,7 @@ function PDFViewer({ book }) {
 
 	useEffect(() => {
 		if (originalWidth) {
-			adjustScaleToWidth(800);
+			adjustScaleToWidth(VIEWER_WIDTH);
 		}
 	}, [originalWidth]);
 
@@ -133,52 +132,23 @@ function PDFViewer({ book }) {
 
 	function adjustScaleToWidth(targetWidth) {
 		const scale = 0.65; //originalWidth / targetWidth;
-		console.log(scale);
 		setScale(scale);
 	}
 
 	return (
-		// <>
-		// 	<VideoRoom />
-		// 	<DrawingCanvas />
-		// 	<Button onClick={() => sendAttention()} />
-		// 	<div className="pdf-chart-container" style={{ display: "flex", margin: "0 auto", width: "1000px" }}>
-		// 		<Chart scroll={scroll} />
-		// 		<div
-		// 			className="pdf-container"
-		// 			onScroll={handleScroll}
-		// 			ref={containerRef}
-		// 			style={{
-		// 				height: "80vh",
-		// 				width: "55%",
-		// 				overflow: "scroll",
-		// 			}}
-		// 		>
-		// 			<div
-		// 				className="pdf-contents"
-		// 				dangerouslySetInnerHTML={{ __html: htmlContent }}
-		// 				style={{ width: "100%", height: "100%" }}
-		// 			/>
-		// 		</div>
-		// 	</div>
-		// 	{canvasComponents.map(({ component, container }) => {
-		// 		return createPortal(component, container);
-		// 	})}
-		// 	<Highlights bookId={book.id} renderContent={renderContent} containerRef={containerRef} />
-		// </>
 		<div>
 			<DndContext onDragEnd={handleDragEnd}>
 				<Droppable>
-					<VideoRoom />
+					{/* <VideoChat /> */}
 					{/* <DrawingCanvas /> */}
-					<AttentionButton scrollerRef={scrollerRef} />
+					<AttentionButton />
 					<Box className="pdf-chart-container">
 						<Grid container>
 							<Grid item style={{ flex: 1 }}>
 								<Chart scroll={scroll} />
 							</Grid>
 							<Grid item style={{ flex: 4 }}>
-								<PdfScroller scrollerRef={scrollerRef}>
+								<PdfScroller renderContent={renderContent}>
 									<Box
 										ref={pdfContentsRef}
 										className="pdf-contents"
@@ -208,7 +178,7 @@ function PDFViewer({ book }) {
 											</>
 										}
 									/>
-									<Highlights bookId={book.id} renderContent={renderContent} scrollerRef={scrollerRef} />
+									<Highlights bookId={book.id} renderContent={renderContent} />
 								</Grid>
 							))}
 						</Grid>

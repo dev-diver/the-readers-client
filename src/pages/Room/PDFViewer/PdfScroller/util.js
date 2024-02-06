@@ -1,10 +1,13 @@
+import { numToPageContainer } from "../Highlights/util";
+
+/* deprecated */
 export const moveToScroll = (container, scrollTop) => {
-	container.current.scrollTop = scrollTop;
+	container.scrollTop = scrollTop;
 };
 
-export const smoothScrollTo = (container, destination, duration) => {
+export const smoothScrollTo = (container, destinationY, duration = 300) => {
 	const start = container.scrollTop;
-	const change = destination - start;
+	const change = destinationY - start;
 	const startTime = performance.now();
 
 	const animateScroll = (currentTime) => {
@@ -27,4 +30,31 @@ export const calculateScrollY = (pageContainer) => {
 	const totalScrollableHeight = containerHeight - clientHeight;
 	// (스크롤 위치 / 전체 스크롤 가능한 길이) * 10 = (전체 길이상대적인 스크롤 위치)
 	return Math.round((scrollY / totalScrollableHeight) * 30);
+};
+
+export const scrollToHighlight = (scroller, highlightId, scale) => {
+	const highlight = scroller.querySelector(`[data-highlight-id="${highlightId}"]`);
+	if (highlight) {
+		let top = getRelativeTop(highlight, scroller) * scale;
+		smoothScrollTo(scroller, top, 300);
+	}
+};
+
+export const scrollToPage = (scroller, pageNum, scale) => {
+	const pageDiv = numToPageContainer(pageNum);
+	if (pageDiv) {
+		let top = getRelativeTop(pageDiv, scroller) * scale;
+		smoothScrollTo(scroller, top, 300);
+	}
+};
+
+const getRelativeTop = (element, container) => {
+	let top = 0;
+	let currentElement = element;
+	while (currentElement && container.contains(currentElement) && currentElement !== container) {
+		top += currentElement.offsetTop;
+		currentElement = currentElement.offsetParent;
+	}
+
+	return top;
 };
