@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
+import { useLocation } from "react-router-dom";
 import { logger } from "logger";
 import Highlights from "./Highlights";
 import PageCanvasGroup from "./PageCanvasGroup";

@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback, useState } from "react";
 import { useRecoilState } from "recoil";
-import { scrollYState, isTrailState, scrollerRefState, highlightState } from "recoil/atom";
+import { scrollYState, isTrailState, scrollerRefState, highlightState, viewerScaleState } from "recoil/atom";
 import { debounce } from "lodash";
 import socket from "socket";
 import { scrollToPage, scrollToHighlight, calculateScrollY, smoothScrollTo } from "./util";
@@ -17,23 +17,30 @@ export default function PdfScroller({ renderContent, children }) {
 	const [isAttention, setAttention] = useRecoilState(isTrailState);
 	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
 	const [highlightList, setHighlightList] = useRecoilState(highlightState);
+	const [scale, setScale] = useRecoilState(viewerScaleState);
 	const [urlScrolled, setUrlScrolled] = useState(false);
 
 	useEffect(() => {
-		console.log("scroll with pageNum", pageNum);
-		if (!urlScrolled && renderContent && scrollerRef) {
-			scrollToPage(scrollerRef, pageNum);
-			setUrlScrolled(true);
-		}
-	}, [renderContent, pageNum]);
+		setUrlScrolled(false);
+	}, [location]);
 
 	useEffect(() => {
-		console.log("scroll with highlightId", highlightId);
-		if (!urlScrolled && highlightId && scrollerRef) {
-			scrollToHighlight(scrollerRef, highlightId);
+		console.log("scroll with pageNum", pageNum, scrollerRef, renderContent, urlScrolled);
+		if (!urlScrolled && renderContent && scrollerRef && pageNum) {
+			console.log("scroll page");
+			scrollToPage(scrollerRef, pageNum, scale);
 			setUrlScrolled(true);
 		}
-	}, [highlightList, highlightId]);
+	}, [location, renderContent, scrollerRef, pageNum, urlScrolled]);
+
+	useEffect(() => {
+		console.log("scroll with highlightId", highlightId, scrollerRef);
+		if (!urlScrolled && highlightId && scrollerRef && highlightId && highlightList.length > 0) {
+			console.log("scroll highlightID", highlightList);
+			scrollToHighlight(scrollerRef, highlightId, scale);
+			setUrlScrolled(true);
+		}
+	}, [location, highlightList, highlightId, scrollerRef, urlScrolled]);
 
 	useEffect(() => {
 		if (isAttention && scrollerRef) {
