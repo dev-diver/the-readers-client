@@ -6,12 +6,16 @@ import { useRecoilState } from "recoil";
 import { userState } from "recoil/atom";
 import socket from "socket.js";
 import { Box } from "@mui/material";
+// 진태 추가 코드
+import { OptionsModal } from "components/OptionsModal";
 
 function Highlighter({ bookId, renderContent, scrollerRef }) {
 	const [user, setUser] = useRecoilState(userState);
 	let highlightNum = 0;
 	const [color, setColor] = useState("yellow");
 	const [highlights, setHighlights] = useState([]);
+	// 진태 Highlighter 컴포넌트에서 모달 상태 추가
+	const [modalOpen, setModalOpen] = useState(false);
 
 	useEffect(() => {
 		const pageContainer = scrollerRef?.current;
@@ -84,6 +88,9 @@ function Highlighter({ bookId, renderContent, scrollerRef }) {
 			console.log(highlights);
 			appendHighlightMemo(highlightInfos[0]); //메모 작성
 			sendHighlightToServer(highlightInfos[0]); // 형광펜 정보를 백엔드로 전송
+
+			// 진태 모달 열기
+			setModalOpen(true);
 		}
 		selectedRange.removeAllRanges();
 	};
@@ -198,19 +205,22 @@ const HlMemos = ({ highlights, setHighlights }) => {
 	};
 
 	return (
-		<Box
-			id="stored-highlights"
-			ref={hlStorage}
-			sx={{
-				border: "black 1px solid",
-				maxWidth: "100%", // Grid 아이템의 너비에 맞춰 최대 너비를 제한합니다.
-				height: "100%", // Grid 아이템의 높이에 맞춰 최대 높이를 제한합니다.
-				overflow: "auto",
-			}}
-		>
-			<Box>하이라이트</Box>
-			{memos}
-		</Box>
+		<>
+			<OptionsModal open={modalOpen} onClose={() => setModalOpen(false)} highlightInfo={currentHighlightInfo} />
+			<Box
+				id="stored-highlights"
+				ref={hlStorage}
+				sx={{
+					border: "black 1px solid",
+					maxWidth: "100%", // Grid 아이템의 너비에 맞춰 최대 너비를 제한합니다.
+					height: "100%", // Grid 아이템의 높이에 맞춰 최대 높이를 제한합니다.
+					overflow: "auto",
+				}}
+			>
+				<Box>하이라이트</Box>
+				{memos}
+			</Box>
+		</>
 	);
 };
 
