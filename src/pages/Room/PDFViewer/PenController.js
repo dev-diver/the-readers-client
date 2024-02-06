@@ -2,12 +2,9 @@ import React from "react";
 import Box from "@mui/joy/Box";
 import Radio, { radioClasses } from "@mui/joy/Radio";
 import RadioGroup from "@mui/joy/RadioGroup";
-import FormatAlignCenterIcon from "@mui/icons-material/FormatAlignCenter";
-import FormatAlignJustifyIcon from "@mui/icons-material/FormatAlignJustify";
-import FormatAlignLeftIcon from "@mui/icons-material/FormatAlignLeft";
-import FormatAlignRightIcon from "@mui/icons-material/FormatAlignRight";
 import { useRecoilState } from "recoil";
 import { penModeState } from "recoil/atom";
+import { Pointer, Highlighter, PencilLine, MousePointerClick } from "lucide-react";
 
 export default function PenController() {
 	const [mode, setMode] = useRecoilState(penModeState);
@@ -51,10 +48,10 @@ export default function PenController() {
 						overlay
 						label={
 							{
-								pointer: <FormatAlignLeftIcon />,
-								highlight: <FormatAlignRightIcon />,
-								draw: <FormatAlignCenterIcon />,
-								click: <FormatAlignJustifyIcon />,
+								pointer: <Pointer color="#000000" />,
+								highlight: <Highlighter color="#000000" />,
+								draw: <PencilLine color="#000000" />,
+								click: <MousePointerClick color="#000000" />,
 							}[item]
 						}
 						variant={mode === item ? "solid" : "plain"}
