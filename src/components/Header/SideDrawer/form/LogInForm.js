@@ -19,7 +19,6 @@ const LogInForm = ({ setUser }) => {
 			.post(`${baseURL}/auth/login`, { email: email, password: password })
 			.then((response) => {
 				const user = response.data.data;
-				console.log("user", user);
 				localStorage.setItem("user", JSON.stringify(user));
 				setUser(user);
 				toggleDrawer("none")(e);

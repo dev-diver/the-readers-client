@@ -1,16 +1,21 @@
 import React, { useRef } from "react";
-import { Socket } from "socket.io-client";
 import socket from "socket.js";
 import { Box, Avatar, Menu, MenuItem, Typography, Tooltip, IconButton, Divider, ListItemIcon } from "@mui/material";
 import { Logout, PersonAdd, Settings } from "@mui/icons-material";
-const Sidebar = ({ users, user }) => {
-	const sideBarRef = useRef(null);
+import { useRecoilState } from "recoil";
+import { roomUserState, roomUsersState } from "recoil/atom";
+
+const MemberList = () => {
+	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
+	const [roomUser, setRoomUser] = useRecoilState(roomUserState);
+
+	const memberListRef = useRef(null);
 
 	const openSideBar = () => {
-		sideBarRef.current.style.right = 0;
+		memberListRef.current.style.right = 0;
 	};
 	const closeSideBar = () => {
-		sideBarRef.current.style.right = -100 + "%";
+		memberListRef.current.style.right = -100 + "%";
 	};
 
 	// const [anchorEl, setAnchorEl] = React.useState(null);
@@ -112,7 +117,7 @@ const Sidebar = ({ users, user }) => {
 			</button>
 			<div
 				className="position-fixed pt-2 h-100 bg-dark"
-				ref={sideBarRef}
+				ref={memberListRef}
 				style={{
 					width: "150px",
 					right: "-100%",
@@ -124,10 +129,10 @@ const Sidebar = ({ users, user }) => {
 					Close
 				</button>
 				<div className="w-100 mt-5">
-					{users.map((usr, index) => (
+					{roomUsers.map((usr, index) => (
 						<p key={index} className="text-white text-center py-2">
 							{usr.userId}
-							{usr.id === socket.id && " - (You)"}
+							{usr.id === roomUser.id && " - (You)"}
 						</p>
 					))}
 				</div>
@@ -136,4 +141,4 @@ const Sidebar = ({ users, user }) => {
 	);
 };
 
-export default Sidebar;
+export default MemberList;

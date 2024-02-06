@@ -18,7 +18,7 @@ const Room = ({ userNo, setUsers, setUserNo }) => {
 	// }, []);
 	/*
 	useEffect(() => {
-		socket.on("users", (data) => {
+		socket.on("room-users-changed", (data) => {
 			setUsers(data);
 			setUserNo(data.length);
 		});

@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { toast } from "react-toastify";
 import socket from "socket.js";
 import Canvas from "./Canvas";
 
@@ -10,26 +9,6 @@ const ClientRoom = ({ canvasId, users, setUsers, setUserNo }) => {
 	const [elements, setElements] = useState([]);
 	const [history, setHistory] = useState([]);
 	const [tool, setTool] = useState("pencil");
-
-	useEffect(() => {
-		socket.on("message", (data) => {
-			toast.info(data.message);
-		});
-	}, []);
-
-	/*
-	useEffect(() => {
-		socket.on("users", (data) => {
-			// 각 사용자의 userId와 bookId를 조합하여 canvasId를 생성
-			const updatedUsers = data.map((user) => ({
-				...user,
-				canvasId: `${user.bookId}-${user.userId}`, // userId와 bookId를 결합하여 canvasId 생성
-			}));
-			setUsers(updatedUsers); // 상태 업데이트
-			setUserNo(updatedUsers.length);
-		});
-	}, []);
-	*/
 
 	useEffect(() => {
 		socket.on("canvasImage", (data) => {

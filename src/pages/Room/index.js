@@ -9,16 +9,15 @@ import api from "api";
 import { Box } from "@mui/material";
 
 function Room() {
-	const { bookId } = useParams();
-	const { roomId } = useParams();
+	const { bookId, roomId } = useParams();
 	const [room, setRoom] = useState({ Books: [] });
 	const [book, setBook] = useState({});
 	const [roomRefresh, setRoomRefresh] = useState(false);
+
 	const navigate = useNavigate();
 
 	useEffect(() => {
 		api.get(`/rooms/${roomId}`).then((response) => {
-			console.log(response.data);
 			setRoom(response.data.data);
 		});
 	}, [roomId, roomRefresh]);

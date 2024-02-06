@@ -1,15 +1,24 @@
 import React, { useEffect, useState, useCallback } from "react";
+import { useParams } from "react-router-dom";
 import { useSetCanvasRef } from "recoil/handler";
 import { useRecoilState } from "recoil";
 import { canvasMouse, clearCanvas } from "./CursorCanvasController/util";
-import { cursorCanvasRefsState, bookChangedState, penModeState } from "recoil/atom";
+import { roomUserState, cursorCanvasRefsState, bookChangedState, penModeState } from "recoil/atom";
 
 function PageCanvasGroup({ pageNum, pageWrapper }) {
+	const { bookId, roomId } = useParams();
 	//여기에서 추가하기
 	// const [canvasItems, setCanvasItems] = useState([]);
+	const [roomUser, setRoomUser] = useRecoilState(roomUserState);
 	const [bookChanged, setBookChanged] = useRecoilState(bookChangedState);
 	const [cursorCanvasRefs, setCursorCanvasRefs] = useRecoilState(cursorCanvasRefsState);
 	const [penMode, setPenMode] = useRecoilState(penModeState);
+
+	const location = {
+		bookId: bookId,
+		roomId: roomId,
+		pageNum: pageNum,
+	};
 
 	const setRef = useCallback(
 		(el) => {
@@ -46,7 +55,9 @@ function PageCanvasGroup({ pageNum, pageWrapper }) {
 					left: 0,
 					top: 0,
 				}}
-				onMouseMove={(e) => canvasMouse(e, pageNum)}
+				onMouseMove={(e) => {
+					canvasMouse(e, roomUser, location);
+				}}
 				onMouseOut={(e) => clearCanvas(e.target)}
 			></canvas>
 			{/* {canvasItems} */}
