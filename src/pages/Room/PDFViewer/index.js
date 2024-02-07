@@ -16,6 +16,7 @@ import PenController from "./PenController";
 import { Droppable } from "components/DragNDrop/Droppable";
 import { Draggable } from "components/DragNDrop/Draggable";
 import { DndContext, useDraggable } from "@dnd-kit/core";
+import userEvent from "@testing-library/user-event";
 
 const VIEWER_WIDTH = 800;
 

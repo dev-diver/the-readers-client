@@ -18,7 +18,7 @@ export const canvasMouse = (event, roomUser, location) => {
 		element = element.offsetParent;
 	}
 	// console.log(`pagenum ${pageNum} x: ${offsetX}, y: ${offsetY}`);
-	socket.emit("movepointer", {
+	socket.emit("move-pointer", {
 		user: roomUser,
 		roomId: location.roomId,
 		bookId: location.bookId,

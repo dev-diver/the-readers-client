@@ -20,14 +20,14 @@ export default function CursorCanvasController({ totalPage }) {
 
 	useEffect(() => {
 		if (cursorCanvasRefs.length === 0) return;
-		socket.on("updatepointer", (data) => {
+		socket.on("update-pointer", (data) => {
 			const canvasRefItem = cursorCanvasRefs.find((refItem) => refItem.page == data.page);
 			const canvas = canvasRefItem ? canvasRefItem.ref : null;
 			updatePointers(pointers.current, data);
 			redrawCanvas(canvas, pointers.current);
 		});
 		return () => {
-			socket.off("updatepointer");
+			socket.off("update-pointer");
 		};
 	}, [cursorCanvasRefs]);
 
