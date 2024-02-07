@@ -17,7 +17,7 @@ export default function HighlightListItem({ hlInfo, deleteHandler }) {
 			<Grid container justifyContent="space-between">
 				<Grid item>
 					<Tooltip placement="left" title={hlInfo.text}>
-						<Typography component="a" variant="span" data-page-num={hlInfo.pageNum} data-highlight-id={hlInfo.id}>
+						<Typography component="span" variant="span" data-page-num={hlInfo.pageNum} data-highlight-id={hlInfo.id}>
 							{displayText}
 						</Typography>
 					</Tooltip>
