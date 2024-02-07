@@ -12,7 +12,7 @@ function RoomRouter() {
 			<RoomJoinController roomId={roomId} />
 			<Routes>
 				<Route path="/" element={<RoomLobby />} />
-				<Route path="book/:bookId" element={<Room />} />
+				<Route path="/book/:bookId" element={<Room />} />
 			</Routes>
 		</div>
 	);

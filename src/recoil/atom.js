@@ -1,10 +1,17 @@
 import { atom } from "recoil";
 
+/* sign in */
 export const userState = atom({
 	key: "user",
 	default: null,
 });
 
+export const drawerFormState = atom({
+	key: "drawerForm",
+	default: "none",
+});
+
+/* socket 	*/
 export const roomUserState = atom({
 	key: "roomUser",
 	default: null,
@@ -15,11 +22,19 @@ export const roomUsersState = atom({
 	default: [],
 });
 
-export const drawerFormState = atom({
-	key: "drawerForm",
-	default: "none",
+/* PDF viewer */
+
+export const bookChangedState = atom({
+	key: "bookChanged",
+	default: false,
 });
 
+export const viewerScaleState = atom({
+	key: "viewerScale",
+	default: 1,
+});
+
+/* attenition feature */
 export const isTrailState = atom({
 	key: "isTrail",
 	default: false,
@@ -35,22 +50,25 @@ export const scrollYState = atom({
 	default: 0,
 });
 
-export const cursorCanvasRefsState = atom({
-	key: "canvasRefsState",
+/* highlight */
+export const highlightState = atom({
+	key: "highlight",
 	default: [],
 });
 
-export const bookChangedState = atom({
-	key: "bookChanged",
-	default: false,
-});
-
+/* pen mode */
 export const penModeState = atom({
 	key: "penMode",
 	default: "pointer",
 });
 
-export const roomJoinedState = atom({
-	key: "roomJoined",
-	default: false,
+/* domRef */
+export const cursorCanvasRefsState = atom({
+	key: "canvasRefsState",
+	default: [],
+});
+
+export const scrollerRefState = atom({
+	key: "scrollerRefState",
+	default: null,
 });

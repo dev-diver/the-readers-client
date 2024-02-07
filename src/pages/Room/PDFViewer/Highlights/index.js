@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { rangeToInfo, InfoToRange, eraseHighlight, drawHighlight } from "./util";
 import { useRecoilState } from "recoil";
-import { userState } from "recoil/atom";
+import { userState, scrollerRefState, highlightState } from "recoil/atom";
 import socket from "socket.js";
 import "./styles.css";
 
@@ -15,26 +15,37 @@ import InsertLink from "components/OptionsModal/InsertLink";
 import InsertMemo from "components/OptionsModal/InsertMemo";
 import InsertHighlight from "components/OptionsModal/InsertHighlight";
 
-function Highlighter({ bookId, renderContent, scrollerRef }) {
+function Highlighter({ bookId, renderContent }) {
 	const { roomId } = useParams();
 	const [user, setUser] = useRecoilState(userState);
 	const [color, setColor] = useState("yellow");
-	const [highlightList, setHighlightList] = useState([]);
+
 	// 진태 추가 코드
 	const [optionsModalOpen, setOptionsModalOpen] = useState(false);
 	const [highlightId, setHighlightId] = useState(null);
 	const [userId, setUserId] = useState(null);
 	const [highlightInfos, setHighlightInfo] = useState(null);
 
+	const [highlightList, setHighlightList] = useRecoilState(highlightState);
+	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
+
+
 	useEffect(() => {
-		const pageContainer = scrollerRef?.current;
-		pageContainer?.addEventListener("mouseup", selectionToHighlight);
+		scrollerRef?.addEventListener("mouseup", selectionToHighlight);
 		return () => {
-			pageContainer?.removeEventListener("mouseup", selectionToHighlight);
+			scrollerRef?.removeEventListener("mouseup", selectionToHighlight);
 		};
-	}, [scrollerRef?.current, user]);
+	}, [scrollerRef]);
+
+	useEffect(() => {
+		setHighlightList([]);
+	}, [bookId]);
 
 	const selectionToHighlight = () => {
+		if (!user) {
+			alert("하이라이팅은 로그인이 필요합니다.");
+			return;
+		}
 		const selectedRange = window.getSelection();
 
 		if (selectedRange.rangeCount > 0 && !selectedRange.isCollapsed) {
@@ -44,6 +55,7 @@ function Highlighter({ bookId, renderContent, scrollerRef }) {
 				const range = selectedRange.getRangeAt(i);
 				const additionalInfo = { bookId: bookId, text: selectedRange.toString() };
 				const highlightInfo = rangeToInfo(range, additionalInfo);
+				console.log("highlightInfo", highlightInfo);
 				highlightInfos.push(highlightInfo);
 			}
 
@@ -144,11 +156,11 @@ function Highlighter({ bookId, renderContent, scrollerRef }) {
 						color: color,
 					};
 					drawHighlight(newRange, drawHighlightInfo);
-					if (userId === user?.id) {
+					if (userId == user?.id) {
 						highlights.push(highlightInfo);
 					}
 				});
-				if (userId === user?.id) {
+				if (userId == user?.id) {
 					setHighlightList(highlights);
 				}
 			})
