@@ -1,9 +1,9 @@
 import React from "react";
-import { Avatar, Badge, Card, CardContent, CardActions, Button, Typography, Link, TextField, Box } from "@mui/material";
+import { Avatar, Badge, Card, CardContent, CardActions, Button, Typography, TextField, Box } from "@mui/material";
 import { keyframes, styled, shadows } from "@mui/system";
 import { deepOrange, green } from "@mui/material/colors";
 import "./styles.css";
-import { redirect, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { redirect, useNavigate, useParams, useSearchParams, Link } from "react-router-dom";
 
 // const puff = keyframes`
 // 0% {
@@ -56,33 +56,26 @@ const StyledBody = styled("div")(({ theme }) => ({
 	// 	},
 }));
 
-const avatar = (
-	<Avatar
-		alt="group chat image"
-		src="thumbnail.png"
-		sx={{ width: 56, height: 56, border: "1px solid #ddd", boxShadow: 3 }}
-		variant="rounded"
-	></Avatar>
-);
-
 const host = "유진";
 
 function Intro() {
-	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
 	const roomId = searchParams.get("roomId");
 	const bookId = searchParams.get("bookId");
-	const handleClick = () => {
-		navigate(`/room/${roomId}/book/${bookId}`);
-	};
+
 	return (
 		<StyledBody className="profile-body">
 			<Box className="profile-card">
 				<header>
 					{/* <!-- 방 정보로 이동하는 기능? --> */}
-					<Link href="#" underline="none">
-						{avatar}
-					</Link>
+					<Avatar
+						component={Link}
+						to={`/room/${roomId}`}
+						alt="group chat image"
+						src="thumbnail.png"
+						sx={{ width: 56, height: 56, border: "1px solid #ddd", boxShadow: 3 }}
+						variant="rounded"
+					></Avatar>
 
 					{/* <!-- 초대한 사람 --> */}
 					<Typography sx={{ mb: 0, fontSize: 20 }} color="text.secondary" gutterBottom>
@@ -114,7 +107,8 @@ function Intro() {
 						/>
 					</Typography> */}
 					<Button
-						onClick={handleClick}
+						component={Link}
+						to={`/room/${roomId}/book/${bookId}`}
 						sx={{ width: "85%", mt: 3, fontSize: 20, backgroundColor: "#313440" }}
 						variant="contained"
 						size="medium"

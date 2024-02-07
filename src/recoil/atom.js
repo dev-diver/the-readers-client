@@ -5,6 +5,16 @@ export const userState = atom({
 	default: null,
 });
 
+export const roomUserState = atom({
+	key: "roomUser",
+	default: null,
+});
+
+export const roomUsersState = atom({
+	key: "roomUsers",
+	default: [],
+});
+
 export const drawerFormState = atom({
 	key: "drawerForm",
 	default: "none",
@@ -38,4 +48,9 @@ export const bookChangedState = atom({
 export const penModeState = atom({
 	key: "penMode",
 	default: "pointer",
+});
+
+export const roomJoinedState = atom({
+	key: "roomJoined",
+	default: false,
 });

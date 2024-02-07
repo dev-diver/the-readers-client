@@ -1,74 +1,40 @@
 import { logger } from "logger";
 import api from "api";
-import React, { useRef, useEffect, useState } from "react";
-import { rangeToInfo, InfoToRange, elemPageNum } from "./encoder";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { rangeToInfo, InfoToRange, eraseHighlight, drawHighlight } from "./util";
 import { useRecoilState } from "recoil";
 import { userState } from "recoil/atom";
 import socket from "socket.js";
-import { Box } from "@mui/material";
+import "./styles.css";
+
+import HighlightList from "./HighlightList";
 // 진태 추가 코드
-import { OptionsModal } from "components/OptionsModal";
+import OptionsModal from "components/OptionsModal";
+import InsertLink from "components/OptionsModal/InsertLink";
+import InsertMemo from "components/OptionsModal/InsertMemo";
+import InsertHighlight from "components/OptionsModal/InsertHighlight";
 
 function Highlighter({ bookId, renderContent, scrollerRef }) {
+	const { roomId } = useParams();
 	const [user, setUser] = useRecoilState(userState);
-	let highlightNum = 0;
 	const [color, setColor] = useState("yellow");
-	const [highlights, setHighlights] = useState([]);
-	// 진태 Highlighter 컴포넌트에서 모달 상태 추가
-	const [modalOpen, setModalOpen] = useState(false);
+	const [highlightList, setHighlightList] = useState([]);
+	// 진태 추가 코드
+	const [optionsModalOpen, setOptionsModalOpen] = useState(false);
+	const [highlightId, setHighlightId] = useState(null);
+	const [userId, setUserId] = useState(null);
+	const [highlightInfos, setHighlightInfo] = useState(null);
 
 	useEffect(() => {
 		const pageContainer = scrollerRef?.current;
-		pageContainer?.addEventListener("mouseup", handleMouseUp);
-
+		pageContainer?.addEventListener("mouseup", selectionToHighlight);
 		return () => {
-			pageContainer?.removeEventListener("mouseup", handleMouseUp);
+			pageContainer?.removeEventListener("mouseup", selectionToHighlight);
 		};
-	}, [scrollerRef?.current]);
+	}, [scrollerRef?.current, user]);
 
-	function applyUserHighlight(userId, bookId, pageNum) {
-		api
-			.get(`/highlights/user/${userId}/book/${bookId}/page/${pageNum}`)
-			.then((response) => {
-				logger.log("highlight", response.data);
-				let highlights = [];
-				response.data.forEach((hl, index) => {
-					console.log(hl);
-					const newRange = InfoToRange(hl);
-					hl.num = highlightNum;
-					highlightRange(newRange, userId);
-					highlights.push(hl);
-				});
-				setHighlights(highlights);
-			})
-			.catch((err) => {
-				logger.log(err);
-			});
-	}
-
-	useEffect(() => {
-		socket.on("users", (data) => {
-			data.forEach((socketUser) => {
-				const pageNum = 1;
-				if (socketUser.memberId && socketUser.memberId === user?.id) {
-					console.log(socketUser);
-					applyUserHighlight(socketUser.memberId, bookId, pageNum);
-				}
-			});
-		});
-	}, []);
-
-	useEffect(() => {
-		if (renderContent) {
-			const pageNum = 1;
-			if (user) {
-				console.log(user);
-				applyUserHighlight(user.id, bookId, pageNum);
-			}
-		}
-	}, [renderContent, user]);
-
-	const handleMouseUp = () => {
+	const selectionToHighlight = () => {
 		const selectedRange = window.getSelection();
 
 		if (selectedRange.rangeCount > 0 && !selectedRange.isCollapsed) {
@@ -76,166 +42,189 @@ function Highlighter({ bookId, renderContent, scrollerRef }) {
 
 			for (let i = 0; i < selectedRange.rangeCount; i++) {
 				const range = selectedRange.getRangeAt(i);
-
-				const additionalInfo = { bookId: bookId, num: highlightNum, text: selectedRange.toString() };
+				const additionalInfo = { bookId: bookId, text: selectedRange.toString() };
 				const highlightInfo = rangeToInfo(range, additionalInfo);
-				// 형광펜 정보 저장
 				highlightInfos.push(highlightInfo);
-				const newRange = InfoToRange(highlightInfo);
-				highlightRange(newRange, user.id);
 			}
 
-			console.log(highlights);
-			appendHighlightMemo(highlightInfos[0]); //메모 작성
-			sendHighlightToServer(highlightInfos[0]); // 형광펜 정보를 백엔드로 전송
+			// mouseup 이벤트가 발생하면 selectionToHighlight 함수가 실행되고
+			// setOptionsModalOpen(true)로 모달이 열림.
+			setOptionsModalOpen(true);
+			setHighlightInfo(highlightInfos[0]);
 
-			// 진태 모달 열기
-			setModalOpen(true);
+			highlightInfos.forEach(async (highlightInfo) => {
+				const newRange = InfoToRange(highlightInfo);
+				const highlightId = await sendHighlightToServer(highlightInfo); // 형광펜 서버로 전송
+				console.log("highlightId", highlightId);
+				highlightInfo = {
+					...highlightInfo,
+					id: highlightId,
+					roomId: roomId,
+					userId: user.id,
+				};
+				socket.emit("insert-highlight", highlightInfo); //소켓에 전송
+				const drawHighlightInfo = {
+					id: highlightId,
+					userId: user.id,
+					color: color,
+				};
+
+				// drawHighlight(newRange, drawHighlightInfo); // 형관펜 화면에 그림
+				// appendHighlightListItem(highlightInfo); //형광펜 리스트 생성
+			});
 		}
+
 		selectedRange.removeAllRanges();
 	};
 
-	function sendHighlightToServer(highlightInfos) {
+	useEffect(() => {
 		if (user) {
-			api
-				.post(`/highlights/user/${user.id}`, highlightInfos)
-				.then((response) => {
-					//id가 포함된 highlights
-					logger.log(response);
-					//updatehighlight
-				})
-				.catch((err) => {
-					logger.log(err);
+			console.log("room-users-changed", user);
+			socket.on("room-users-changed", (data) => {
+				data.forEach((roomUser) => {
+					const pageNum = 1; //레이지로드 전까지는 1로 해도 전체 가져옴
+					if (roomUser.userId !== user.id) {
+						applyServerHighlight(roomUser.userId, bookId, pageNum, "pink");
+					}
 				});
+			});
 		}
-	}
-
-	function highlightRange(range, userId) {
-		let passNode = false;
-
-		const filterFunction = function (node) {
-			if (node.hasChildNodes() || node.nodeType !== Node.TEXT_NODE) {
-				return NodeFilter.FILTER_SKIP;
-			}
-
-			if (node === range.startContainer) {
-				passNode = true;
-				return NodeFilter.FILTER_SKIP;
-			}
-
-			if (node === range.endContainer) {
-				passNode = false;
-				return NodeFilter.FILTER_SKIP;
-			}
-
-			const filterState = passNode ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
-
-			return filterState;
+		return () => {
+			socket.off("room-users-changed");
 		};
+	}, [user]);
 
-		const walker = document.createTreeWalker(range.commonAncestorContainer, NodeFilter.SHOW_ALL, filterFunction);
+	useEffect(() => {
+		socket.on("draw-highlight", (data) => {
+			console.log("draw-highlight", data);
+			const newRange = InfoToRange(data);
+			const drawHighlightInfo = {
+				id: data.id,
+				userId: data.userId,
+				color: "pink",
+			};
+			drawHighlight(newRange, drawHighlightInfo);
+		});
+		return () => {
+			socket.off("draw-highlight");
+		};
+	}, [user]);
 
-		let parentElement;
-		//range.startContainer 의 range.startOffset 부터 range.startContainer 의 끝까지를 mark로 감싸는 코드
+	useEffect(() => {
+		socket.on("erase-highlight", (data) => {
+			console.log("erase-highlight", data);
+			eraseHighlight(data.id);
+		});
+		return () => {
+			socket.off("erase-highlight");
+		};
+	}, [user]);
 
-		//중간
-		let currentNode = walker.nextNode();
-		while (currentNode) {
-			const nextNode = walker.nextNode();
-			parentElement = currentNode.parentNode;
-
-			const marker = document.createElement("mark");
-			marker.classList.add(color);
-			marker.setAttribute("data-highlight-num", highlightNum);
-			marker.setAttribute("data-page-num", elemPageNum(range.startContainer));
-			marker.setAttribute("data-user-id", userId);
-			parentElement.replaceChild(marker, currentNode);
-			marker.appendChild(currentNode);
-			currentNode = nextNode;
+	useEffect(() => {
+		if (renderContent) {
+			const pageNum = 1;
+			if (user) {
+				applyServerHighlight(user.id, bookId, pageNum, color);
+			}
 		}
-		highlightNum += 1;
-		//마지막
-	}
+	}, [renderContent, user]);
 
-	function appendHighlightMemo(highlightInfos) {
+	/* Server */
+	const applyServerHighlight = (userId, bookId, pageNum, color) => {
+		api
+			.get(`/highlights/user/${userId}/book/${bookId}/page/${pageNum}`)
+			.then((response) => {
+				// logger.log("highlight", response.data);
+				let highlights = [];
+				response.data.forEach((highlightInfo) => {
+					const newRange = InfoToRange(highlightInfo);
+					const drawHighlightInfo = {
+						id: highlightInfo.id,
+						userId: userId,
+						color: color,
+					};
+					drawHighlight(newRange, drawHighlightInfo);
+					if (userId === user?.id) {
+						highlights.push(highlightInfo);
+					}
+				});
+				if (userId === user?.id) {
+					setHighlightList(highlights);
+				}
+			})
+			.catch((err) => {
+				logger.log(err);
+			});
+	};
+
+	const sendHighlightToServer = async (highlightInfo) => {
+		console.log("user", user, highlightInfo);
+		if (!user) {
+			return null; // 세미콜론은 여기서 선택적이지만, 명확성을 위해 사용할 수 있습니다.
+		}
+		return api
+			.post(`/highlights/user/${user.id}`, highlightInfo)
+			.then((response) => {
+				logger.log(response);
+				const highlightId = response.data.data[0].HighlightId;
+				setHighlightId(highlightId);
+				return highlightId;
+			})
+			.catch((err) => {
+				logger.log(err);
+				return null; // 에러 처리 후, 명시적으로 null 반환
+			}); // Promise 체인이 끝나는 곳에 세미콜론 사용
+	};
+
+	/* Highlight List Item */
+
+	const appendHighlightListItem = (highlightInfo) => {
 		console.log("append");
-		setHighlights((prevHighlights) => {
+		setHighlightList((prevHighlights) => {
 			console.log(prevHighlights);
-			const newHighlightInfos = [...prevHighlights, highlightInfos].sort((a, b) => a.num - b.num);
+			const newHighlightInfos = [...prevHighlights, highlightInfo].sort((a, b) => a.num - b.num);
 			console.log(newHighlightInfos);
 			return newHighlightInfos;
 		});
-	}
+	};
 
-	return <HlMemos highlights={highlights} setHighlights={setHighlights} />;
-}
+	const deleteHighlightListItem = (highlightInfo) => {
+		setHighlightList(highlightList.filter((h) => h.id !== highlightInfo.id));
 
-const HlMemos = ({ highlights, setHighlights }) => {
-	const hlStorage = useRef(null);
-	const [memos, setMemos] = useState([]);
+		api
+			.delete(`/highlights/${highlightInfo.id}`)
+			.then((response) => {
+				logger.log(response);
+			})
+			.catch((err) => {
+				logger.log(err);
+			});
 
-	useEffect(() => {
-		const newHighlights = highlights?.map(
-			(hl, i) => <HlMemo key={i} hlInfo={hl} deleteHandler={() => deleteOneHighlight(hl)} /> || []
-		);
-		setMemos(newHighlights);
-	}, [highlights]);
-
-	const deleteOneHighlight = (hl) => {
-		setHighlights(highlights.filter((h) => h.num !== hl.num));
-
-		hl.id &&
-			api
-				.delete(`/highlights/${hl.id}`)
-				.then((response) => {
-					logger.log(response);
-				})
-				.catch((err) => {
-					logger.log(err);
-				});
-
-		const highlightNum = hl.num;
-		const highlightMarks = document.querySelectorAll(`[data-highlight-num="${highlightNum}"]`);
-		//highlightMarks를 감싸고 있는 mark를 제거
-		highlightMarks.forEach((mark) => {
-			const parent = mark.parentNode;
-			while (mark.firstChild) parent.insertBefore(mark.firstChild, mark);
-			parent.removeChild(mark);
-		});
+		eraseHighlight(highlightInfo.id);
+		socket.emit("delete-highlight", { roomId: roomId, ...highlightInfo });
 	};
 
 	return (
 		<>
-			<OptionsModal open={modalOpen} onClose={() => setModalOpen(false)} highlightInfo={currentHighlightInfo} />
-			<Box
-				id="stored-highlights"
-				ref={hlStorage}
-				sx={{
-					border: "black 1px solid",
-					maxWidth: "100%", // Grid 아이템의 너비에 맞춰 최대 너비를 제한합니다.
-					height: "100%", // Grid 아이템의 높이에 맞춰 최대 높이를 제한합니다.
-					overflow: "auto",
-				}}
-			>
-				<Box>하이라이트</Box>
-				{memos}
-			</Box>
+			<HighlightList highlights={highlightList} deleteHandler={deleteHighlightListItem} />
+			{/* 조건부 랜더링 : optionsModalOpen이 true되면 OptionsModal이 화면에 랜더링됨. */}
+			{optionsModalOpen && (
+				<OptionsModal
+					isOpen={optionsModalOpen}
+					onClose={() => setOptionsModalOpen(false)}
+					user={user}
+					userId={userId}
+					highlightId={highlightId}
+					setHighlightId={setHighlightId}
+					bookId={bookId}
+					roomId={roomId}
+					color={color}
+					drawHighlight={drawHighlight}
+					appendHighlightListItem={appendHighlightListItem}
+					selectedHighlightInfo={highlightInfos} // selectedHighlightInfo를 OptionsModal에 전달
+				/>
+			)}
 		</>
-	);
-};
-
-function HlMemo({ hlInfo, deleteHandler }) {
-	const displayLength = 100;
-
-	const displayText =
-		hlInfo.text.length > displayLength ? hlInfo.text.substring(0, displayLength) + "..." : hlInfo.text;
-	return (
-		<div>
-			<div data-highlight-num={hlInfo.num} data-page-num={hlInfo.pageNum}>
-				{displayText}
-			</div>
-			<button onClick={deleteHandler}>일부 삭제</button>
-		</div>
 	);
 }
 

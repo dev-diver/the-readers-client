@@ -15,10 +15,10 @@ export default function SideDrawer() {
 	useEffect(() => {
 		// localStorage.removeItem("user");
 		// localStorage.setItem("user", null);
-		const localUser = localStorage.getItem("user");
-		if (localUser) {
-			setUser(JSON.parse(localUser));
-		}
+		// const localUser = localStorage.getItem("user");
+		// if (localUser) {
+		// 	setUser(JSON.parse(localUser));
+		// }
 	}, []);
 
 	const avatar = user?.token ? (
