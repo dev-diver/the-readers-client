@@ -1,6 +1,14 @@
 import React, { useEffect, useCallback, useState } from "react";
 import { useRecoilState } from "recoil";
-import { scrollYState, isTrailState, scrollerRefState, highlightState, htmlContentState } from "recoil/atom";
+import {
+	userState,
+	scrollYState,
+	isTrailState,
+	isLeadState,
+	scrollerRefState,
+	highlightState,
+	viewerScaleState,
+} from "recoil/atom";
 import { debounce } from "lodash";
 import socket from "socket";
 import { scrollToPage, scrollToHighlight, calculateScrollY, smoothScrollTo } from "./util";
@@ -13,60 +21,88 @@ export default function PdfScroller({ renderContent, children }) {
 	const pageNum = queryParams.get("page");
 	const highlightId = queryParams.get("highlightId");
 
+	const [user, setUser] = useRecoilState(userState);
 	const [scroll, setScroll] = useRecoilState(scrollYState); //forChart
-	const [isAttention, setAttention] = useRecoilState(isTrailState);
-	const [htmlContent, setHtmlContent] = useRecoilState(htmlContentState);
+	const [isTrail, setAttention] = useRecoilState(isTrailState);
+	const [isLead, setLead] = useRecoilState(isLeadState);
 	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
 	const [highlightList, setHighlightList] = useRecoilState(highlightState);
+	const [scale, setScale] = useRecoilState(viewerScaleState);
 	const [urlScrolled, setUrlScrolled] = useState(false);
 
 	useEffect(() => {
-		console.log("scroll with pageNum", pageNum);
-		if (!urlScrolled && renderContent && scrollerRef) {
-			scrollToPage(scrollerRef, pageNum);
-			setUrlScrolled(true);
-		}
-	}, [renderContent, pageNum]);
+		setUrlScrolled(false);
+	}, [location]);
 
 	useEffect(() => {
-		console.log("scroll with highlightId", highlightId);
-		if (!urlScrolled && highlightId && scrollerRef) {
-			scrollToHighlight(scrollerRef, highlightId);
+		if (!urlScrolled && renderContent && scrollerRef && pageNum) {
+			console.log("scroll page");
+			scrollToPage(scrollerRef, pageNum, scale);
 			setUrlScrolled(true);
 		}
-	}, [highlightList, highlightId]);
+	}, [location, renderContent, scrollerRef, pageNum, urlScrolled]);
 
 	useEffect(() => {
-		if (isAttention && scrollerRef) {
-			socket.on("attention_scroll", (data) => {
+		if (!urlScrolled && highlightId && scrollerRef && highlightId && highlightList.length > 0) {
+			console.log("scroll highlightID", highlightList);
+			scrollToHighlight(scrollerRef, highlightId, scale);
+			setUrlScrolled(true);
+		}
+	}, [location, highlightList, highlightId, scrollerRef, urlScrolled]);
+
+	useEffect(() => {
+		console.log("is Trail", isTrail);
+		if (isTrail) {
+			socket.on("receive-attention-scroll", (data) => {
+				console.log("receive-attention-scroll", data);
 				smoothScrollTo(scrollerRef, data.scrollTop);
 			});
-		} else {
-			socket.off("attention_scroll");
 		}
-	}, [scrollerRef, isAttention]);
+		return () => {
+			socket.off("receive-attention-scroll");
+		};
+	}, [scrollerRef, isTrail]);
 
-	const handleContainerScroll = debounce(() => {
-		setScroll(calculateScrollY(scrollerRef.current));
-	}, 1000);
+	const debounceSetScroll = useCallback(
+		debounce(() => {
+			setScroll(calculateScrollY(scrollerRef));
+		}, 1000),
+		[scrollerRef, setScroll]
+	);
 
-	useEffect(() => {
-		const pageContainer = document.getElementsByClassName("pdf-scroller")[0];
-		if (!pageContainer) return;
-		// 스크롤 이벤트 리스너 추가
-		pageContainer.addEventListener("scroll", () => handleContainerScroll());
-		// 컴포넌트가 언마운트될 때 리스너 제거
-		return () => pageContainer.removeEventListener("scroll", () => handleContainerScroll());
-	}, [htmlContent]);
+	const handleScroll = useCallback(
+		(event) => {
+			console.log("handleScroll");
 
-	const handleScroll = useCallback((event) => {
-		const scrollTop = event.currentTarget.scrollTop;
-		socket.emit("attention_scroll", {
-			cleintID: 1,
-			scrollTop: scrollTop,
-		});
-		setAttention(false);
-	}, []);
+			const scrollTop = event.currentTarget.scrollTop;
+			if (isLead) {
+				console.log("lead-scroll", scrollTop);
+				socket.emit("request-attention-scroll", {
+					userId: user.id,
+					scrollTop: scrollTop,
+				});
+			}
+			// setAttention(false);
+			debounceSetScroll(); //for chart
+		},
+		[isLead, debounceSetScroll, user, socket]
+	);
+
+	const onCtrlWheelHandler = useCallback(
+		(event) => {
+			console.log("ctrlWheel");
+			const ratio = 1.1;
+			if (event.ctrlKey) {
+				event.preventDefault();
+				if (event.deltaY < 0) {
+					setScale((prev) => prev * ratio);
+				} else {
+					setScale((prev) => prev / ratio);
+				}
+			}
+		},
+		[setScale]
+	);
 
 	const setRef = useCallback((el) => setScrollerRef(el), [setScrollerRef]);
 
@@ -74,6 +110,7 @@ export default function PdfScroller({ renderContent, children }) {
 		<Box
 			className="pdf-scroller"
 			onScroll={handleScroll}
+			onWheel={onCtrlWheelHandler}
 			ref={setRef}
 			sx={{
 				position: "relative",

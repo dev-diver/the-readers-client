@@ -8,7 +8,6 @@ import socket from "socket.js";
 import { Box } from "@mui/material";
 
 export default function HighlightList({ highlights, deleteHandler }) {
-	const { roomId } = useParams();
 	const listContainer = useRef(null);
 	const [items, setItems] = useState([]);
 

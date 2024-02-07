@@ -1,26 +1,33 @@
 import React from "react";
-import { useRecoilState } from "recoil";
-import { scrollerRefState, viewerScaleState } from "recoil/atom";
-import { scrollToHighlight } from "../../PdfScroller/util";
+import { Link, useParams } from "react-router-dom";
+import { Button, Grid, Tooltip, Typography } from "@mui/material";
 
-const DISPLAY_LENGTH = 100;
+const DISPLAY_LENGTH = 12;
 
 export default function HighlightListItem({ hlInfo, deleteHandler }) {
-	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
-	const [scale, setScale] = useRecoilState(viewerScaleState);
+	const { roomId } = useParams();
 
 	const displayText =
 		hlInfo.text.length > DISPLAY_LENGTH ? hlInfo.text.substring(0, DISPLAY_LENGTH) + "..." : hlInfo.text;
 	return (
-		<div
-			onClick={(e) => {
-				scrollToHighlight(scrollerRef, hlInfo.id, scale);
-			}}
+		<Link
+			style={{ textDecoration: "none ", color: "inherit" }}
+			to={`/room/${roomId}/book/${hlInfo.bookId}?highlightId=${hlInfo.id}`}
 		>
-			<div data-page-num={hlInfo.pageNum} data-highlight-id={hlInfo.id}>
-				{displayText}
-			</div>
-			<button onClick={deleteHandler}>삭제</button>
-		</div>
+			<Grid container justifyContent="space-between">
+				<Grid item>
+					<Tooltip placement="left" title={hlInfo.text}>
+						<Typography component="span" variant="span" data-page-num={hlInfo.pageNum} data-highlight-id={hlInfo.id}>
+							{displayText}
+						</Typography>
+					</Tooltip>
+				</Grid>
+				<Grid item>
+					<Button variant="outlined" size="small" onClick={deleteHandler}>
+						삭제
+					</Button>
+				</Grid>
+			</Grid>
+		</Link>
 	);
 }

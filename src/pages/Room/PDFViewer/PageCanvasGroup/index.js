@@ -12,8 +12,6 @@ import {
 	roomUserState,
 	roomUsersState,
 } from "recoil/atom";
-import { useParams, useNavigate } from "react-router-dom";
-import { set } from "lodash";
 import rough from "roughjs/bundled/rough.esm";
 import socket from "socket";
 
@@ -94,7 +92,7 @@ function PageCanvasGroup({ pageNum, pageWrapper }) {
 		[setDrawingCanvasRefs] // 의존성 배열에 pageNum과 setDrawingCanvasRefs를 포함합니다.
 	);
 
-	const info = { userId: user, bookId: bookId, pageNum: pageNum };
+	const info = { user: user, bookId: bookId, pageNum: pageNum };
 
 	return (
 		<div className="page-canvas-group">
@@ -146,6 +144,7 @@ function DrawingCanvases({ pageNum, roomUsers, pageWrapper, setDrawingRef }) {
 
 	useLayoutEffect(() => {
 		if (drawingCanvasRefs.length === 0) return;
+		if (!user) return;
 		const canvasRef = getCanvasRef(drawingCanvasRefs, pageNum, user.id);
 		if (!canvasRef) {
 			console.log("can't find canvasRef");

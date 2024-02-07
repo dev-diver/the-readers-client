@@ -29,13 +29,12 @@ function Highlighter({ bookId, renderContent }) {
 	const [highlightList, setHighlightList] = useRecoilState(highlightState);
 	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
 
-
 	useEffect(() => {
 		scrollerRef?.addEventListener("mouseup", selectionToHighlight);
 		return () => {
 			scrollerRef?.removeEventListener("mouseup", selectionToHighlight);
 		};
-	}, [scrollerRef]);
+	}, [scrollerRef, user]);
 
 	useEffect(() => {
 		setHighlightList([]);
@@ -225,7 +224,7 @@ function Highlighter({ bookId, renderContent }) {
 					isOpen={optionsModalOpen}
 					onClose={() => setOptionsModalOpen(false)}
 					user={user}
-					userId={userId}
+					userId={user.id}
 					highlightId={highlightId}
 					setHighlightId={setHighlightId}
 					bookId={bookId}

@@ -24,6 +24,7 @@ export default function CursorCanvasController({ totalPage }) {
 		socket.on("update-pointer", (data) => {
 			const canvasRefItem = cursorCanvasRefs.find((refItem) => refItem.page == data.page);
 			const canvas = canvasRefItem ? canvasRefItem.ref : null;
+			if (!canvas) return;
 			updatePointers(pointers.current, data);
 			redrawCanvas(canvas, pointers.current);
 		});

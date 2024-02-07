@@ -75,7 +75,7 @@ function pathNumToNode(pageNum, pathNum) {
 
 export function InfoToRange(Info) {
 	let range = document.createRange();
-	console.log(Info);
+	// console.log(Info);
 	range.setStart(pathNumToNode(Info.pageNum, Info.startContainer), Info.startOffset);
 	range.setEnd(pathNumToNode(Info.pageNum, Info.endContainer), Info.endOffset);
 
@@ -132,7 +132,7 @@ export function drawHighlight(range, highlightInfo) {
 
 	//중간
 	let currentNode = walker.nextNode();
-	console.log(currentNode);
+	// console.log(currentNode);
 	while (currentNode) {
 		const nextNode = walker.nextNode();
 		parentElement = currentNode.parentNode;

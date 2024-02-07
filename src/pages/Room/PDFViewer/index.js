@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { logger } from "logger";
 import Highlights from "./Highlights";
@@ -130,10 +130,10 @@ function PDFViewer({ book }) {
 			<AttentionButton />
 			<Box className="pdf-chart-container">
 				<Grid container>
-					<Grid item xs={2}>
+					<Grid item style={{ flex: 1 }}>
 						<Chart scroll={scroll} />
 					</Grid>
-					<Grid item xs={8}>
+					<Grid item style={{ flex: 4 }}>
 						<PdfScroller renderContent={renderContent}>
 							<Box
 								ref={pdfContentsRef}
