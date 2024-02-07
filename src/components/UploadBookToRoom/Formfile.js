@@ -2,8 +2,6 @@ import React, { useEffect, useRef } from "react";
 import { logger } from "logger";
 
 export default function FormFile({ setFile }) {
-	const inputRef = useRef([]);
-
 	const onUpload = (e) => {
 		const file = e.target.files[0];
 		const fileExt = file.name.split(".").pop();
@@ -18,13 +16,5 @@ export default function FormFile({ setFile }) {
 		setFile(file);
 	};
 
-	return (
-		<input
-			accept="application/pdf, .html"
-			multiple
-			type="file"
-			ref={(el) => (inputRef.current[0] = el)}
-			onChange={(e) => onUpload(e)}
-		/>
-	);
+	return <input accept="application/pdf, .html" multiple type="file" onChange={(e) => onUpload(e)} />;
 }

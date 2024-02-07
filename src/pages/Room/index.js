@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import socket from "socket.js";
 import RtcViewer from "./RtcViewer";
 import PDFViewer from "./PDFViewer";
 import BookShelf from "components/BookShelf";
@@ -20,6 +21,10 @@ function Room() {
 		api.get(`/rooms/${roomId}`).then((response) => {
 			setRoom(response.data.data);
 		});
+		socket.emit("join-room", roomId);
+		// socket.on("refresh-room", () => {
+		// 	setRoomRefresh((prev) => !prev);
+		// });
 	}, [roomId, roomRefresh]);
 
 	useEffect(() => {
