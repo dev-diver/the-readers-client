@@ -9,13 +9,26 @@ import socket from "socket.js";
 import "./styles.css";
 
 import HighlightList from "./HighlightList";
+// 진태 추가 코드
+import OptionsModal from "components/OptionsModal";
+import InsertLink from "components/OptionsModal/InsertLink";
+import InsertMemo from "components/OptionsModal/InsertMemo";
+import InsertHighlight from "components/OptionsModal/InsertHighlight";
 
 function Highlighter({ bookId, renderContent }) {
 	const { roomId } = useParams();
 	const [user, setUser] = useRecoilState(userState);
 	const [color, setColor] = useState("yellow");
+
+	// 진태 추가 코드
+	const [optionsModalOpen, setOptionsModalOpen] = useState(false);
+	const [highlightId, setHighlightId] = useState(null);
+	const [userId, setUserId] = useState(null);
+	const [highlightInfos, setHighlightInfo] = useState(null);
+
 	const [highlightList, setHighlightList] = useRecoilState(highlightState);
 	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
+
 
 	useEffect(() => {
 		scrollerRef?.addEventListener("mouseup", selectionToHighlight);
@@ -45,6 +58,12 @@ function Highlighter({ bookId, renderContent }) {
 				console.log("highlightInfo", highlightInfo);
 				highlightInfos.push(highlightInfo);
 			}
+
+			// mouseup 이벤트가 발생하면 selectionToHighlight 함수가 실행되고
+			// setOptionsModalOpen(true)로 모달이 열림.
+			setOptionsModalOpen(true);
+			setHighlightInfo(highlightInfos[0]);
+
 			highlightInfos.forEach(async (highlightInfo) => {
 				const newRange = InfoToRange(highlightInfo);
 				const highlightId = await sendHighlightToServer(highlightInfo); // 형광펜 서버로 전송
@@ -61,10 +80,12 @@ function Highlighter({ bookId, renderContent }) {
 					userId: user.id,
 					color: color,
 				};
-				drawHighlight(newRange, drawHighlightInfo); // 형관펜 화면에 그림
-				appendHighlightListItem(highlightInfo); //형광펜 리스트 생성
+
+				// drawHighlight(newRange, drawHighlightInfo); // 형관펜 화면에 그림
+				// appendHighlightListItem(highlightInfo); //형광펜 리스트 생성
 			});
 		}
+
 		selectedRange.removeAllRanges();
 	};
 
@@ -158,6 +179,7 @@ function Highlighter({ bookId, renderContent }) {
 			.then((response) => {
 				logger.log(response);
 				const highlightId = response.data.data[0].HighlightId;
+				setHighlightId(highlightId);
 				return highlightId;
 			})
 			.catch((err) => {
@@ -194,7 +216,28 @@ function Highlighter({ bookId, renderContent }) {
 		socket.emit("delete-highlight", { roomId: roomId, ...highlightInfo });
 	};
 
-	return <HighlightList highlights={highlightList} deleteHandler={deleteHighlightListItem} />;
+	return (
+		<>
+			<HighlightList highlights={highlightList} deleteHandler={deleteHighlightListItem} />
+			{/* 조건부 랜더링 : optionsModalOpen이 true되면 OptionsModal이 화면에 랜더링됨. */}
+			{optionsModalOpen && (
+				<OptionsModal
+					isOpen={optionsModalOpen}
+					onClose={() => setOptionsModalOpen(false)}
+					user={user}
+					userId={userId}
+					highlightId={highlightId}
+					setHighlightId={setHighlightId}
+					bookId={bookId}
+					roomId={roomId}
+					color={color}
+					drawHighlight={drawHighlight}
+					appendHighlightListItem={appendHighlightListItem}
+					selectedHighlightInfo={highlightInfos} // selectedHighlightInfo를 OptionsModal에 전달
+				/>
+			)}
+		</>
+	);
 }
 
 export default Highlighter;
