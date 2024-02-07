@@ -1,5 +1,10 @@
 import { atom } from "recoil";
 
+export const htmlContentState = atom({
+	key: "htmlContent",
+	default: "",
+});
+
 export const userState = atom({
 	key: "user",
 	default: null,
@@ -37,6 +42,11 @@ export const scrollYState = atom({
 
 export const cursorCanvasRefsState = atom({
 	key: "canvasRefsState",
+	default: [],
+});
+
+export const drawingCanvasRefsState = atom({
+	key: "drawingCanvasRefs",
 	default: [],
 });
 

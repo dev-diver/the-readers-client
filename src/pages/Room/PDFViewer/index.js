@@ -4,12 +4,12 @@ import { logger } from "logger";
 import Highlights from "./Highlights";
 import PageCanvasGroup from "./PageCanvasGroup";
 import Chart from "components/Chart";
-import DrawingCanvas from "components/DrawingCanvas";
 import PdfScroller from "./PdfScroller/index";
 import AttentionButton from "./PdfScroller/AttentionButton";
 import CursorCanvasController from "./PageCanvasGroup/CursorCanvasController";
+import DrawingCanvasController from "./PageCanvasGroup/DrawingCanvasController";
 import { useRecoilState } from "recoil";
-import { scrollYState, isTrailState } from "recoil/atom";
+import { scrollYState, isTrailState, htmlContentState } from "recoil/atom";
 import { Box, Grid } from "@mui/material";
 import PenController from "./PenController";
 import { Droppable } from "components/DragNDrop/Droppable";
@@ -27,7 +27,7 @@ function PDFViewer({ book }) {
 			},
 		},
 	];
-	const [htmlContent, setHtmlContent] = useState("");
+	const [htmlContent, setHtmlContent] = useRecoilState(htmlContentState);
 	const [renderContent, setRenderContent] = useState(false);
 	const [canvasComponents, setCanvasComponents] = useState([]);
 	const [cssLoaded, setCssLoaded] = useState(false);
@@ -79,7 +79,7 @@ function PDFViewer({ book }) {
 				canvasLayer.classList.add("canvasLayer");
 
 				const textLayer = document.createElement("div");
-				textLayer.classList.add("textLayer"); //content애 크기 맞추기
+				textLayer.classList.add("textLayer"); //content에 크기 맞추기
 				textLayer.style.display = "inline-block";
 				textLayer.style.height = "auto";
 				// textLayer.addEventListener("mousemove", (e) => canvasMouse(e, index));
@@ -127,7 +127,7 @@ function PDFViewer({ book }) {
 	// }, []);
 
 	function adjustScaleToWidth(targetWidth) {
-		const scale = 0.65; //originalWidth / targetWidth;
+		const scale = 0.65; // originalWidth / targetWidth;
 		console.log(scale);
 		setScale(scale);
 	}
@@ -140,10 +140,10 @@ function PDFViewer({ book }) {
 					<AttentionButton scrollerRef={scrollerRef} />
 					<Box className="pdf-chart-container">
 						<Grid container>
-							<Grid item style={{ flex: 1 }}>
+							<Grid item xs={2}>
 								<Chart scroll={scroll} />
 							</Grid>
-							<Grid item style={{ flex: 4 }}>
+							<Grid item xs={8}>
 								<PdfScroller scrollerRef={scrollerRef}>
 									<Box
 										ref={pdfContentsRef}
@@ -166,7 +166,6 @@ function PDFViewer({ book }) {
 											left: `${note.position.x}px`,
 											top: `${note.position.y}px`,
 										}}
-										key={note.id}
 										id={note.id}
 										content={
 											<>
@@ -183,6 +182,7 @@ function PDFViewer({ book }) {
 						return createPortal(component, container);
 					})}
 					<CursorCanvasController totalPage={canvasComponents.length} />
+					<DrawingCanvasController totalPage={canvasComponents.length} />
 				</Droppable>
 			</DndContext>
 		</div>

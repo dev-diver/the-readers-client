@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback } from "react";
 import { useRecoilState } from "recoil";
-import { scrollYState, isTrailState } from "recoil/atom";
+import { scrollYState, isTrailState, htmlContentState } from "recoil/atom";
 import { debounce } from "lodash";
 import socket from "socket";
 import { moveToScroll, calculateScrollY } from "./util";
@@ -9,6 +9,7 @@ import { Box } from "@mui/material";
 export default function PdfScroller({ children, scrollerRef }) {
 	const [scroll, setScroll] = useRecoilState(scrollYState);
 	const [isAttention, setAttention] = useRecoilState(isTrailState);
+	const [htmlContent, setHtmlContent] = useRecoilState(htmlContentState);
 
 	useEffect(() => {
 		if (isAttention) {
@@ -20,18 +21,18 @@ export default function PdfScroller({ children, scrollerRef }) {
 		}
 	}, [scrollerRef.current, isAttention]);
 
+	const handleContainerScroll = debounce(() => {
+		setScroll(calculateScrollY(scrollerRef.current));
+	}, 1000);
+
 	useEffect(() => {
-		const pageContainer = document.getElementsByClassName("pdf-container")[0];
+		const pageContainer = document.getElementsByClassName("pdf-scroller")[0];
 		if (!pageContainer) return;
 		// 스크롤 이벤트 리스너 추가
 		pageContainer.addEventListener("scroll", () => handleContainerScroll());
 		// 컴포넌트가 언마운트될 때 리스너 제거
 		return () => pageContainer.removeEventListener("scroll", () => handleContainerScroll());
-	}, []);
-
-	const handleContainerScroll = debounce(() => {
-		setScroll(calculateScrollY(scrollerRef.current));
-	}, 1000);
+	}, [htmlContent]);
 
 	const handleScroll = useCallback((event) => {
 		const scrollTop = event.currentTarget.scrollTop;

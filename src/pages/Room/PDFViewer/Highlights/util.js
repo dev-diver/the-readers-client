@@ -51,7 +51,7 @@ function pathNumToNode(pageNum, pathNum) {
 	const pageDiv = numToPageContainer(pageNum);
 
 	if (!pageDiv) {
-		console.log("pathNumToNode: pageDiv is null");
+		console.log("pathNumToNode: pageDiv is null", pageNum, pathNum);
 	}
 
 	let index = 0;

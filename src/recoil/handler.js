@@ -20,7 +20,7 @@ export const useSetCanvasRef = (pageNum, bookChanged) => {
 			(el) => {
 				// pageNum과 el을 사용하여 상태를 업데이트하는 로직을 정의합니다.
 				set(cursorCanvasRefsState, (oldRefs) => {
-					console.log("oldRefs", oldRefs);
+					// console.log("oldRefs", oldRefs);
 					return oldRefs.map((ref) => {
 						if (ref.page === pageNum) {
 							// 주어진 pageNum에 해당하는 ref를 업데이트합니다.

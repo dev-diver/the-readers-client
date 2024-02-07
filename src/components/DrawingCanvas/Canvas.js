@@ -30,29 +30,8 @@ const Canvas = ({ canvasRef, canvasId, ctx, color, setElements, elements, tool }
 		ctx.current.strokeStyle = color;
 	}, [color]);
 
-	const handleMouseDown = (e) => {
-		const { offsetX, offsetY } = e.nativeEvent;
-
-		if (tool === "pencil") {
-			setElements((prevElements) => [
-				...prevElements,
-				{
-					offsetX,
-					offsetY,
-					path: [[offsetX, offsetY]],
-					stroke: color,
-					element: tool,
-				},
-			]);
-		} else {
-			setElements((prevElements) => [...prevElements, { offsetX, offsetY, stroke: color, element: tool }]);
-		}
-
-		setIsDrawing(true);
-	};
-
 	useLayoutEffect(() => {
-		const roughCanvas = rough.canvas(canvasRef.current);
+		// const roughCanvas = rough.canvas(canvasRef.current);
 		if (elements.length > 0) {
 			ctx.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
 		}
@@ -90,7 +69,28 @@ const Canvas = ({ canvasRef, canvasId, ctx, color, setElements, elements, tool }
 		socket.emit("drawing", data);
 	}, [elements]);
 
-	const handleMouseMove = (e) => {
+	const drawMouseDown = (e) => {
+		const { offsetX, offsetY } = e.nativeEvent;
+
+		if (tool === "pencil") {
+			setElements((prevElements) => [
+				...prevElements,
+				{
+					offsetX,
+					offsetY,
+					path: [[offsetX, offsetY]],
+					stroke: color,
+					element: tool,
+				},
+			]);
+		} else {
+			setElements((prevElements) => [...prevElements, { offsetX, offsetY, stroke: color, element: tool }]);
+		}
+
+		setIsDrawing(true);
+	};
+
+	const drawMouseMove = (e) => {
 		if (!isDrawing) {
 			return;
 		}
@@ -142,7 +142,7 @@ const Canvas = ({ canvasRef, canvasId, ctx, color, setElements, elements, tool }
 			);
 		}
 	};
-	const handleMouseUp = () => {
+	const drawMouseUp = () => {
 		setIsDrawing(false);
 	};
 
@@ -170,9 +170,9 @@ const Canvas = ({ canvasRef, canvasId, ctx, color, setElements, elements, tool }
 				<div
 					className="col-md-8 overflow-hidden border border-dark px-0 mx-auto mt-3"
 					style={{ height: "100px" }}
-					onMouseDown={handleMouseDown}
-					onMouseMove={handleMouseMove}
-					onMouseUp={handleMouseUp}
+					onMouseDown={drawMouseDown}
+					onMouseMove={drawMouseMove}
+					onMouseUp={drawMouseUp}
 				>
 					<canvas id={canvasId} ref={canvasRef} />
 				</div>

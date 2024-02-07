@@ -61,8 +61,8 @@ function Highlighter({ bookId, renderContent, scrollerRef }) {
 
 	useEffect(() => {
 		if (user) {
-			console.log("room-users-changed", user);
 			socket.on("room-users-changed", (data) => {
+				console.log("room-users-changed", data);
 				data.forEach((roomUser) => {
 					const pageNum = 1; //레이지로드 전까지는 1로 해도 전체 가져옴
 					if (roomUser.userId !== user.id) {
@@ -116,7 +116,7 @@ function Highlighter({ bookId, renderContent, scrollerRef }) {
 		api
 			.get(`/highlights/user/${userId}/book/${bookId}/page/${pageNum}`)
 			.then((response) => {
-				// logger.log("highlight", response.data);
+				logger.log("highlight", response.data);
 				let highlights = [];
 				response.data.forEach((highlightInfo) => {
 					const newRange = InfoToRange(highlightInfo);
