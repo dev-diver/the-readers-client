@@ -1,6 +1,5 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
-import { useLocation } from "react-router-dom";
 import { logger } from "logger";
 import Highlights from "./Highlights";
 import PageCanvasGroup from "./PageCanvasGroup";
@@ -15,8 +14,7 @@ import { Box, Grid } from "@mui/material";
 import PenController from "./PenController";
 import { Droppable } from "components/DragNDrop/Droppable";
 import { Draggable } from "components/DragNDrop/Draggable";
-import { DndContext, useDraggable } from "@dnd-kit/core";
-import userEvent from "@testing-library/user-event";
+import { DndContext } from "@dnd-kit/core";
 
 const VIEWER_WIDTH = 800;
 
@@ -133,7 +131,7 @@ function PDFViewer({ book }) {
 	// }, []);
 
 	function adjustScaleToWidth(targetWidth) {
-		const scale = 0.65; //originalWidth / targetWidth;
+		const scale = originalWidth / targetWidth;
 		setScale(scale);
 	}
 

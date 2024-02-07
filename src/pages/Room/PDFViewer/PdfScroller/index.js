@@ -73,6 +73,7 @@ export default function PdfScroller({ renderContent, children }) {
 	const handleScroll = useCallback(
 		(event) => {
 			console.log("handleScroll");
+
 			const scrollTop = event.currentTarget.scrollTop;
 			if (isLead) {
 				console.log("lead-scroll", scrollTop);
@@ -87,12 +88,29 @@ export default function PdfScroller({ renderContent, children }) {
 		[isLead, debounceSetScroll, user, socket]
 	);
 
+	const onCtrlWheelHandler = useCallback(
+		(event) => {
+			console.log("ctrlWheel");
+			const ratio = 1.1;
+			if (event.ctrlKey) {
+				event.preventDefault();
+				if (event.deltaY < 0) {
+					setScale((prev) => prev * ratio);
+				} else {
+					setScale((prev) => prev / ratio);
+				}
+			}
+		},
+		[setScale]
+	);
+
 	const setRef = useCallback((el) => setScrollerRef(el), [setScrollerRef]);
 
 	return (
 		<Box
 			className="pdf-scroller"
 			onScroll={handleScroll}
+			onWheel={onCtrlWheelHandler}
 			ref={setRef}
 			sx={{
 				position: "relative",
