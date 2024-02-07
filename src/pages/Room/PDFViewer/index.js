@@ -139,7 +139,7 @@ function PDFViewer({ book }) {
 		<div>
 			<DndContext onDragEnd={handleDragEnd}>
 				<Droppable>
-					{/* <VideoChat /> */}
+					<VideoChat />
 					{/* <DrawingCanvas /> */}
 					<AttentionButton />
 					<Box className="pdf-chart-container">

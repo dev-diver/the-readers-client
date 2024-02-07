@@ -25,44 +25,48 @@ function FindRoom() {
 	};
 
 	return (
-		<Box sx={{ width: 450 }} component="form" id="searchForm" onSubmit={(e) => handleSearch(e)}>
-			<Grid container>
-				<Grid item>
-					<MakeRoom />
+		<>
+			<Box sx={{ width: 450 }} component="form" id="searchForm" onSubmit={(e) => handleSearch(e)}>
+				<Grid container>
+					<Grid item>
+						<MakeRoom />
+					</Grid>
+					<Grid item xs>
+						<TextField
+							size="small"
+							margin="normal"
+							required
+							fullWidth
+							id="search_name_field"
+							label="방/책 이름 검색"
+							name="name"
+							autoComplete="name"
+							autoFocus
+							value={name}
+							onChange={(e) => setName(e.target.value)}
+						/>
+					</Grid>
+					<Grid item>
+						<Button type="submit" fullWidth variant="contained" sx={{ my: 2, mx: 1 }}>
+							검색
+						</Button>
+					</Grid>
 				</Grid>
-				<Grid item xs>
-					<TextField
-						size="small"
-						margin="normal"
-						required
-						fullWidth
-						id="search_name_field"
-						label="방/책 이름 검색"
-						name="name"
-						autoComplete="name"
-						autoFocus
-						value={name}
-						onChange={(e) => setName(e.target.value)}
-					/>
-				</Grid>
-				<Grid item>
-					<Button type="submit" fullWidth variant="contained" sx={{ my: 2, mx: 1 }}>
-						검색
-					</Button>
-				</Grid>
-			</Grid>
+			</Box>
 
 			{/* <Box>
 				{searchResults.map((room, index) => (
 					<RoomCard key={index} room={room} />
 				))}
 			</Box> */}
-			<Masonry columns={4} spacing={2}>
-				{searchResults.map((room, index) => (
-					<RoomCard key={index} room={room} />
-				))}
-			</Masonry>
-		</Box>
+			<Grid sx={{ width: 800 }}>
+				<Masonry columns={3} spacing={2}>
+					{searchResults.map((room, index) => (
+						<RoomCard key={index} room={room} />
+					))}
+				</Masonry>
+			</Grid>
+		</>
 	);
 }
 
