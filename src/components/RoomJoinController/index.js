@@ -17,15 +17,15 @@ export default function RoomJoinController({ roomId }) {
 	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
 	// const uuid = createUuid();
 
-	useEffect(() => {
-		socket.on("message", (data) => {
-			alert(data.message);
-			// toast.info(data.message);
-		});
-		return () => {
-			socket.off("message");
-		};
-	}, []);
+	// useEffect(() => {
+	// 	socket.on("message", (data) => {
+	// 		alert(data.message);
+	// 		// toast.info(data.message);
+	// 	});
+	// 	return () => {
+	// 		socket.off("message");
+	// 	};
+	// }, []);
 
 	useEffect(() => {
 		if (user) {
@@ -44,17 +44,21 @@ export default function RoomJoinController({ roomId }) {
 
 	useEffect(() => {
 		socket.on("room-users-changed", (data) => {
+			console.log("room-users-changed", data);
 			// 각 사용자의 userId와 bookId를 조합하여 canvasId를 생성
-			const updatedUsers = data.map((user) => ({
-				...user,
-				canvasId: `${user.userId}`, // userId와 bookId를 결합하여 canvasId 생성
-			}));
+			const updatedUsers = data.map((user) => {
+				console.log("user", user);
+				return {
+					...user,
+					canvasId: `${user.userId}`, // userId와 bookId를 결합하여 canvasId 생성
+				};
+			});
 			setRoomUsers(updatedUsers); // 상태 업데이트
 		});
 		return () => {
 			socket.off("room-users-changed");
 		};
-	}, []);
+	}, [user]);
 
 	return (
 		<div>

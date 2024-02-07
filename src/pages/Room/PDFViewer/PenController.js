@@ -1,13 +1,20 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Box from "@mui/joy/Box";
 import Radio, { radioClasses } from "@mui/joy/Radio";
 import RadioGroup from "@mui/joy/RadioGroup";
 import { useRecoilState } from "recoil";
 import { penModeState } from "recoil/atom";
 import { Pointer, Highlighter, PencilLine, MousePointerClick } from "lucide-react";
+// import FormatAlignLeftIcon from "@mui/icons-material/FormatAlignLeft";
+// import PageCanvasGroup from "./PageCanvasGroup";
+// import { ConnectingAirportsOutlined } from "@mui/icons-material";
 
 export default function PenController() {
 	const [mode, setMode] = useRecoilState(penModeState);
+
+	useEffect(() => {
+		console.log(mode);
+	}, [mode]);
 
 	return (
 		<RadioGroup
@@ -16,7 +23,9 @@ export default function PenController() {
 			name="mode"
 			variant="outlined"
 			value={mode}
-			onChange={(event) => setMode(event.target.value)}
+			onChange={(event) => {
+				setMode(event.target.value);
+			}}
 		>
 			{["pointer", "highlight", "draw", "click"].map((item) => (
 				<Box
