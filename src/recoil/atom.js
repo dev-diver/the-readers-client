@@ -1,5 +1,10 @@
 import { atom } from "recoil";
 
+export const htmlContentState = atom({
+	key: "htmlContent",
+	default: "",
+});
+
 /* sign in */
 export const userState = atom({
 	key: "user",
@@ -23,11 +28,6 @@ export const roomUsersState = atom({
 });
 
 /* PDF viewer */
-
-export const bookChangedState = atom({
-	key: "bookChanged",
-	default: false,
-});
 
 export const viewerScaleState = atom({
 	key: "viewerScale",
@@ -54,6 +54,16 @@ export const scrollYState = atom({
 export const highlightState = atom({
 	key: "highlight",
 	default: [],
+});
+
+export const drawingCanvasRefsState = atom({
+	key: "drawingCanvasRefs",
+	default: [],
+});
+
+export const bookChangedState = atom({
+	key: "bookChanged",
+	default: false,
 });
 
 /* pen mode */

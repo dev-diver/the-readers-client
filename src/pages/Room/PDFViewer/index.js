@@ -8,8 +8,9 @@ import VideoChat from "components/VideoChat";
 import PdfScroller from "./PdfScroller/index";
 import AttentionButton from "./PdfScroller/AttentionButton";
 import CursorCanvasController from "./PageCanvasGroup/CursorCanvasController";
+import DrawingCanvasController from "./PageCanvasGroup/DrawingCanvasController";
 import { useRecoilState } from "recoil";
-import { scrollYState, scrollerRefState, viewerScaleState } from "recoil/atom";
+import { scrollYState, scrollerRefState, viewerScaleState, htmlContentState } from "recoil/atom";
 import { Box, Grid } from "@mui/material";
 import PenController from "./PenController";
 import { DraggableElement } from "components/DragNDrop/DraggableElement";
@@ -27,7 +28,7 @@ function PDFViewer({ book }) {
 			},
 		},
 	];
-	const [htmlContent, setHtmlContent] = useState("");
+	const [htmlContent, setHtmlContent] = useRecoilState(htmlContentState);
 	const [renderContent, setRenderContent] = useState(false);
 	const [canvasComponents, setCanvasComponents] = useState([]);
 	const [cssLoaded, setCssLoaded] = useState(false);
@@ -70,7 +71,7 @@ function PDFViewer({ book }) {
 				canvasLayer.classList.add("canvasLayer");
 
 				const textLayer = document.createElement("div");
-				textLayer.classList.add("textLayer"); //content애 크기 맞추기
+				textLayer.classList.add("textLayer"); //content에 크기 맞추기
 				textLayer.style.display = "inline-block";
 				textLayer.style.height = "auto";
 				// textLayer.addEventListener("mousemove", (e) => canvasMouse(e, index));
@@ -118,7 +119,7 @@ function PDFViewer({ book }) {
 	// }, []);
 
 	function adjustScaleToWidth(targetWidth) {
-		const scale = 0.65; //originalWidth / targetWidth;
+		const scale = originalWidth / targetWidth;
 		setScale(scale);
 	}
 
@@ -129,10 +130,10 @@ function PDFViewer({ book }) {
 			<AttentionButton />
 			<Box className="pdf-chart-container">
 				<Grid container>
-					<Grid item style={{ flex: 1 }}>
+					<Grid item xs={2}>
 						<Chart scroll={scroll} />
 					</Grid>
-					<Grid item style={{ flex: 4 }}>
+					<Grid item xs={8}>
 						<PdfScroller renderContent={renderContent}>
 							<Box
 								ref={pdfContentsRef}
@@ -161,6 +162,7 @@ function PDFViewer({ book }) {
 				return createPortal(component, container);
 			})}
 			<CursorCanvasController totalPage={canvasComponents.length} />
+			<DrawingCanvasController totalPage={canvasComponents.length} />
 		</div>
 	);
 }

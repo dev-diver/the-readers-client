@@ -14,20 +14,21 @@ export default function CursorCanvasController({ totalPage }) {
 		const newRefs = new Array(totalPage).fill(null).map((e, i) => {
 			return { page: i + 1, ref: React.createRef() };
 		});
+
 		setBookChanged((prev) => !prev);
 		setCursorCanvasRefs(newRefs);
 	}, [totalPage]);
 
 	useEffect(() => {
 		if (cursorCanvasRefs.length === 0) return;
-		socket.on("updatepointer", (data) => {
+		socket.on("update-pointer", (data) => {
 			const canvasRefItem = cursorCanvasRefs.find((refItem) => refItem.page == data.page);
 			const canvas = canvasRefItem ? canvasRefItem.ref : null;
 			updatePointers(pointers.current, data);
 			redrawCanvas(canvas, pointers.current);
 		});
 		return () => {
-			socket.off("updatepointer");
+			socket.off("update-pointer");
 		};
 	}, [cursorCanvasRefs]);
 

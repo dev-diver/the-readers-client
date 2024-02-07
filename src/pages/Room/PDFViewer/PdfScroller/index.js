@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback, useState } from "react";
 import { useRecoilState } from "recoil";
-import { scrollYState, isTrailState, scrollerRefState, highlightState } from "recoil/atom";
+import { scrollYState, isTrailState, scrollerRefState, highlightState, htmlContentState } from "recoil/atom";
 import { debounce } from "lodash";
 import socket from "socket";
 import { scrollToPage, scrollToHighlight, calculateScrollY, smoothScrollTo } from "./util";
@@ -15,6 +15,7 @@ export default function PdfScroller({ renderContent, children }) {
 
 	const [scroll, setScroll] = useRecoilState(scrollYState); //forChart
 	const [isAttention, setAttention] = useRecoilState(isTrailState);
+	const [htmlContent, setHtmlContent] = useRecoilState(htmlContentState);
 	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
 	const [highlightList, setHighlightList] = useRecoilState(highlightState);
 	const [urlScrolled, setUrlScrolled] = useState(false);
@@ -45,18 +46,18 @@ export default function PdfScroller({ renderContent, children }) {
 		}
 	}, [scrollerRef, isAttention]);
 
+	const handleContainerScroll = debounce(() => {
+		setScroll(calculateScrollY(scrollerRef.current));
+	}, 1000);
+
 	useEffect(() => {
-		const pageContainer = document.getElementsByClassName("pdf-container")[0];
+		const pageContainer = document.getElementsByClassName("pdf-scroller")[0];
 		if (!pageContainer) return;
 		// 스크롤 이벤트 리스너 추가
 		pageContainer.addEventListener("scroll", () => handleContainerScroll());
 		// 컴포넌트가 언마운트될 때 리스너 제거
 		return () => pageContainer.removeEventListener("scroll", () => handleContainerScroll());
-	}, []);
-
-	const handleContainerScroll = debounce(() => {
-		setScroll(calculateScrollY(scrollerRef));
-	}, 1000);
+	}, [htmlContent]);
 
 	const handleScroll = useCallback((event) => {
 		const scrollTop = event.currentTarget.scrollTop;
