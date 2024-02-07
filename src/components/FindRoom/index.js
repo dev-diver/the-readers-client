@@ -53,12 +53,6 @@ function FindRoom() {
 					</Grid>
 				</Grid>
 			</Box>
-
-			{/* <Box>
-				{searchResults.map((room, index) => (
-					<RoomCard key={index} room={room} />
-				))}
-			</Box> */}
 			<Grid sx={{ width: 800 }}>
 				<Masonry columns={3} spacing={2}>
 					{searchResults.map((room, index) => (
