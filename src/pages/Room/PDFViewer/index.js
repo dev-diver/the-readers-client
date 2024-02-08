@@ -125,7 +125,7 @@ function PDFViewer({ book }) {
 
 	return (
 		<div>
-			<VideoChat />
+			{/* <VideoChat /> */}
 			{/* <DrawingCanvas /> */}
 			<AttentionButton />
 			<Box className="pdf-chart-container">

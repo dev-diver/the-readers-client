@@ -1,39 +1,30 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import api from "api";
-import { Box, Button, TextField, Typography, Modal, FormControl } from "@mui/material";
+import { Box, Button, Typography, Modal } from "@mui/material";
+import { View } from "lucide-react";
+import ViewMyMarker from "components/ViewMyMarker";
 
 function InsertInner({ isOpen, onClose, userId, highlightId, bookId }) {
-	const [OuterLink, setOuterLink] = useState("");
 	const [highlights, setHighlights] = useState([]);
 
-	const fetchHighlights = async () => {
-		try {
-			const response = await api.get(`/highlights/book/${bookId}`);
-			console.log("데이터 입니다", response.data.data);
-			setHighlights(response.data.data);
-		} catch (error) {
-			console.error("Failed to fetch highlights", error);
-		}
-	};
-
-	useEffect(() => {
-		fetchHighlights();
-	}, []);
-
-	// const handleSubmit = async (e) => {
-	// 	e.preventDefault(); // 폼 제출 시 페이지 새로고침 방지
+	// 클릭 이벤트 핸들러
+	// const handleComponentClick = async () => {
 	// 	try {
-	// 		const response = await api.post(`/outerlinks`, {
-	// 			highlightId: highlightId,
-	// 			OuterLink: OuterLink,
-	// 		});
-	// 		console.log("외부 링크 삽입 성공", response.data.data);
-	// 		onClose();
-	// 		setOuterLink("");
+	// 		const response = await api.get(`/highlights/book/${bookId}`);
+	// 		console.log("데이터 입니다", response.data.data.data);
+	// 		setHighlights(response.data.data); // 상태 업데이트
 	// 	} catch (error) {
-	// 		console.error("외부 링크 삽입 실패", error);
+	// 		console.error("Failed to fetch highlights", error);
 	// 	}
 	// };
+
+	// 하이라이트 선택 핸들러
+	const handleSelectHighlight = async (highlightId) => {
+		console.log("선택된 하이라이트 ID:", highlightId);
+		// try {
+		// 	const response = await api.post(`link/${highlightId}`);
+		// }
+	};
 
 	const modalStyle = {
 		position: "absolute",
@@ -44,7 +35,7 @@ function InsertInner({ isOpen, onClose, userId, highlightId, bookId }) {
 		bgcolor: "background.paper",
 		boxShadow: 24,
 		p: 4,
-		outline: "none", // 모달 포커스 시 아웃라인 제거
+		outline: "none",
 	};
 
 	return (
@@ -54,38 +45,15 @@ function InsertInner({ isOpen, onClose, userId, highlightId, bookId }) {
 			aria-labelledby="modal-modal-title"
 			aria-describedby="modal-modal-description"
 		>
-			<Box sx={modalStyle} component="form" /*onSubmit={handleSubmit}*/ noValidate>
-				{/* <Typography id="modal-modal-title" variant="h6" component="h2">
-					외부 링크 삽입
-				</Typography>
-				<FormControl fullWidth margin="normal">
-					<TextField
-						autoFocus
-						margin="dense"
-						id="memo"
-						label="메모"
-						type="text"
-						fullWidth
-						variant="outlined"
-						value={OuterLink}
-						onChange={(e) => setOuterLink(e.target.value)}
-					/>
-				</FormControl>
-				<Box mt={2} display="flex" justifyContent="space-between">
-					<Button variant="outlined" onClick={onClose}>
-						취소
-					</Button>
-					<Button type="submit" variant="contained">
-						제출
-					</Button>
-				</Box> */}
-				{highlights.map((highlight) => {
-					return (
-						<div key={highlight.id}>
-							<p>{highlight.text}</p>
-						</div>
-					);
-				})}
+			<Box sx={modalStyle} component="form" noValidate>
+				{highlights.map((highlight) => (
+					<Box key={highlight.id} display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+						<Typography variant="body1">{highlight.text}</Typography>
+						<Button variant="outlined" onClick={() => handleSelectHighlight(highlight.id)}>
+							선택
+						</Button>
+					</Box>
+				))}
 			</Box>
 		</Modal>
 	);

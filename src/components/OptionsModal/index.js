@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Box, Button } from "@mui/material";
 import InsertHighlight from "./InsertHighlight";
 import { InfoToRange, drawHighlight } from "pages/Room/PDFViewer/Highlights/util";
@@ -13,10 +13,12 @@ import InsertLink from "./InsertLink";
 function OptionsModal({
 	isOpen,
 	onClose,
+	user,
 	userId,
 	highlightId,
 	bookId,
 	roomId,
+	setHighlightId,
 	selectedHighlightInfo,
 	appendHighlightListItem,
 	color = "yellow", // 하이라이트 색상 기본값 설정
@@ -35,64 +37,60 @@ function OptionsModal({
 		setActiveModal(null);
 	};
 
+	useEffect(() => {
+		// drawHighlight 함수나 다른 로직에서 handleHighlightClick을 사용할 수 있도록 설정
+		// 이 부분은 컴포넌트의 다른 부분과 연동되어야 합니다.
+	}, []);
+
+	const sendHighlightToServer = async (highlightInfo) => {
+		console.log("user", user, highlightInfo);
+		if (!user) {
+			return null; // 세미콜론은 여기서 선택적이지만, 명확성을 위해 사용할 수 있습니다.
+		}
+		return api
+			.post(`/highlights/user/${user.id}`, highlightInfo)
+			.then((response) => {
+				logger.log(response);
+				const highlightId = response.data.data[0].HighlightId;
+				setHighlightId(highlightId);
+				return highlightId;
+			})
+			.catch((err) => {
+				logger.log(err);
+				return null; // 에러 처리 후, 명시적으로 null 반환
+			}); // Promise 체인이 끝나는 곳에 세미콜론 사용
+	};
+
 	// 하이라이트 생성 버튼 클릭 핸들러
 	const handleCreateHighlight = () => {
 		if (selectedHighlightInfo) {
 			// 화면에 하이라이트 그리기
-			drawHighlight(InfoToRange(selectedHighlightInfo), {
-				id: new Date().getTime(), // 예시로 유니크 ID 생성, 실제 구현에서는 서버에서 받은 ID 사용
-				userId: userId,
-				color: "yellow", // 색상은 상황에 맞게 설정
-			});
+			selectedHighlightInfo.forEach(async (highlightInfo) => {
+				const newRange = InfoToRange(highlightInfo);
+				const highlightId = await sendHighlightToServer(highlightInfo); // 형광펜 서버로 전송
+				console.log("highlightId", highlightId);
+				highlightInfo = {
+					...highlightInfo,
+					id: highlightId,
+					roomId: roomId,
+					userId: user.id,
+					bookId: bookId,
+				};
+				socket.emit("insert-highlight", highlightInfo); //소켓에 전송
+				const drawHighlightInfo = {
+					id: highlightId,
+					userId: user.id,
+					color: color,
+					bookId: bookId,
+				};
 
-			// 하이라이트 목록에 추가
-			appendHighlightListItem({
-				...selectedHighlightInfo,
-				id: new Date().getTime(), // 실제 구현에서는 서버에서 받은 ID 사용
+				drawHighlight(newRange, drawHighlightInfo); // 형관펜 화면에 그림
+				appendHighlightListItem(highlightInfo); //형광펜 리스트 생성
 			});
 
 			onClose(); // 모달 닫기
 		}
 	};
-
-	// const handleCreateHighlight = async () => {
-	// 	console.log("핸들핸들");
-	// 	if (selectedHighlightInfo && userId && bookId) {
-	// 		try {
-	// 			const response = await api.post(`/highlights/user/${userId}`, {
-	// 				...selectedHighlightInfo,
-	// 				bookId: bookId,
-	// 				color: color,
-	// 			});
-	// 			const highlightId = response.data.highlightId; // 서버에서 반환한 하이라이트 ID
-
-	// 			const highlightInfoWithId = {
-	// 				...selectedHighlightInfo,
-	// 				id: highlightId,
-	// 			};
-
-	// 			// 화면에 하이라이트 그리기 (정확한 highlightId 사용)
-	// 			drawHighlight(InfoToRange(highlightInfoWithId), {
-	// 				id: highlightId,
-	// 				userId: userId,
-	// 				color: color,
-	// 			});
-
-	// 			// 하이라이트 목록에 추가
-	// 			appendHighlightListItem(highlightInfoWithId);
-
-	// 			// 소켓을 통해 다른 클라이언트에 하이라이트 생성 정보 전송
-	// 			socket.emit("insert-highlight", {
-	// 				...highlightInfoWithId,
-	// 				roomId: roomId,
-	// 			});
-
-	// 			onClose(); // 모달 닫기, 올바른 위치에 있음
-	// 		} catch (error) {
-	// 			console.error("Failed to create highlight:", error);
-	// 		}
-	// 	}
-	// };
 
 	// 모달 스타일 : 그냥 챗지피티에서 따옴
 	const modalStyle = {
