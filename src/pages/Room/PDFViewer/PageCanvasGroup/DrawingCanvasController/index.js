@@ -36,7 +36,7 @@ export default function DrawingCanvasController({ totalPage }) {
 			}, {});
 			return { page: i + 1, userRefs: userRefs };
 		});
-		// console.log("newRefs", newRefs);
+		console.log("newRefs", newRefs);
 		setInitialize(true);
 		setBookChanged((prev) => !prev);
 		setDrawingCanvasRefs(newRefs);
