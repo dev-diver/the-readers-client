@@ -12,10 +12,6 @@ import { Pointer, Highlighter, PencilLine, MousePointerClick } from "lucide-reac
 export default function PenController() {
 	const [mode, setMode] = useRecoilState(penModeState);
 
-	useEffect(() => {
-		console.log(mode);
-	}, [mode]);
-
 	return (
 		<RadioGroup
 			orientation="horizontal"
@@ -30,26 +26,26 @@ export default function PenController() {
 			{["pointer", "highlight", "draw", "click"].map((item) => (
 				<Box
 					key={item}
-					sx={(theme) => ({
-						position: "relative",
-						display: "flex",
-						justifyContent: "center",
-						alignItems: "center",
-						width: 48,
-						height: 48,
-						"&:not([data-first-child])": {
-							borderLeft: "1px solid",
-							borderColor: "divider",
-						},
-						[`&[data-first-child] .${radioClasses.action}`]: {
-							borderTopLeftRadius: `calc(${theme.vars.radius.sm} - 1px)`,
-							borderBottomLeftRadius: `calc(${theme.vars.radius.sm} - 1px)`,
-						},
-						[`&[data-last-child] .${radioClasses.action}`]: {
-							borderTopRightRadius: `calc(${theme.vars.radius.sm} - 1px)`,
-							borderBottomRightRadius: `calc(${theme.vars.radius.sm} - 1px)`,
-						},
-					})}
+					// sx={(theme) => ({
+					// 	position: "relative",
+					// 	display: "flex",
+					// 	justifyContent: "center",
+					// 	alignItems: "center",
+					// 	width: 48,
+					// 	height: 48,
+					// 	// "&:not([data-first-child])": {
+					// 	// 	borderLeft: "1px solid",
+					// 	// 	borderColor: "divider",
+					// 	// },
+					// 	// [`&[data-first-child] .${radioClasses.action}`]: {
+					// 	// 	borderTopLeftRadius: `calc(${theme.vars.radius.sm} - 1px)`,
+					// 	// 	borderBottomLeftRadius: `calc(${theme.vars.radius.sm} - 1px)`,
+					// 	// },
+					// 	// [`&[data-last-child] .${radioClasses.action}`]: {
+					// 	// 	borderTopRightRadius: `calc(${theme.vars.radius.sm} - 1px)`,
+					// 	// 	borderBottomRightRadius: `calc(${theme.vars.radius.sm} - 1px)`,
+					// 	// },
+					// })}
 				>
 					<Radio
 						value={item}
@@ -66,9 +62,9 @@ export default function PenController() {
 						variant={mode === item ? "solid" : "plain"}
 						slotProps={{
 							input: { "aria-label": item },
-							action: {
-								sx: { borderRadius: 0, transition: "none" },
-							},
+							// action: {
+							// 	sx: { borderRadius: 0, transition: "none" },
+							// },
 							label: { sx: { lineHeight: 0 } },
 						}}
 					/>

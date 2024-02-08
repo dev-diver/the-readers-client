@@ -5,39 +5,13 @@ import HomeIcon from "./HomeIcon";
 import SideDrawer from "./SideDrawer";
 import { Link } from "react-router-dom";
 
-export default function Header() {
-	const [isHovering, setIsHovering] = useState(false);
-	const [anchorElNav, setAnchorElNav] = useState(null);
-	const [anchorElUser, setAnchorElUser] = useState(null);
-
+export default function Header({ children }) {
 	const appTitle = "The Readers";
 	const pages = [];
 
-	const handleOpenNavMenu = (event) => {
-		setAnchorElNav(event.currentTarget);
-	};
-
-	const handleOpenUserMenu = (event) => {
-		setAnchorElUser(event.currentTarget);
-	};
-
-	const handleCloseNavMenu = () => {
-		setAnchorElNav(null);
-	};
-
 	return (
-		<div
-			onMouseOver={() => setIsHovering(true)}
-			onMouseLeave={() => setIsHovering(false)}
-			style={{ height: "25px", position: "absolute", top: 0, width: "100%" }}
-		>
-			<AppBar
-				position="absolute"
-				style={{
-					top: isHovering ? 0 : `-64px`,
-					transition: "top 0.5s",
-				}}
-			>
+		<div style={{ height: "25px", position: "absolute", top: 0, width: "100%" }}>
+			<AppBar>
 				<Container maxWidth="xl">
 					<Toolbar disableGutters>
 						<HomeIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
@@ -65,14 +39,12 @@ export default function Header() {
 								aria-label="account of current user"
 								aria-controls="menu-appbar"
 								aria-haspopup="true"
-								onClick={handleOpenNavMenu}
 								color="inherit"
 							>
 								{/* <MenuIcon /> */}
 							</IconButton>
 							<Menu
 								id="menu-appbar"
-								anchorEl={anchorElNav}
 								anchorOrigin={{
 									vertical: "bottom",
 									horizontal: "left",
@@ -82,14 +54,12 @@ export default function Header() {
 									vertical: "top",
 									horizontal: "left",
 								}}
-								open={Boolean(anchorElNav)}
-								onClose={handleCloseNavMenu}
 								sx={{
 									display: { xs: "block", md: "none" },
 								}}
 							>
 								{pages.map((page) => (
-									<MenuItem key={page} onClick={handleCloseNavMenu}>
+									<MenuItem key={page}>
 										<Typography textAlign="center">{page}</Typography>
 									</MenuItem>
 								))}
@@ -116,12 +86,13 @@ export default function Header() {
 						</Typography>
 						<Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
 							{pages.map((page) => (
-								<Button key={page} onClick={handleCloseNavMenu} sx={{ my: 2, color: "white", display: "block" }}>
+								<Button key={page} sx={{ my: 2, color: "white", display: "block" }}>
 									{page}
 								</Button>
 							))}
 						</Box>
 						<SideDrawer />
+						{children}
 					</Toolbar>
 				</Container>
 			</AppBar>
