@@ -4,7 +4,8 @@ import Radio, { radioClasses } from "@mui/joy/Radio";
 import RadioGroup from "@mui/joy/RadioGroup";
 import { useRecoilState } from "recoil";
 import { penModeState, widthState } from "recoil/atom";
-import { Pointer, Highlighter, PencilLine, MousePointerClick } from "lucide-react";
+import { Pointer, Highlighter, PencilLine, MousePointerClick, Eraser } from "lucide-react";
+import AttentionButton from "./AttentionButton";
 // import FormatAlignLeftIcon from "@mui/icons-material/FormatAlignLeft";
 // import PageCanvasGroup from "./PageCanvasGroup";
 // import { ConnectingAirportsOutlined } from "@mui/icons-material";
@@ -87,7 +88,7 @@ export default function PenController() {
 									pointer: <Pointer color="#000000" />,
 									highlight: <Highlighter color="#000000" />,
 									draw: <PencilLine color="#000000" />,
-									click: <MousePointerClick color="#000000" />,
+									click: <Eraser color="#000000" />,
 								}[item]
 							}
 							variant={mode === item ? "solid" : "plain"}
@@ -101,6 +102,7 @@ export default function PenController() {
 						/>
 					</Box>
 				))}
+				<AttentionButton />
 			</RadioGroup>
 		</Box>
 	);

@@ -4,7 +4,8 @@ import { useRecoilState } from "recoil";
 import { isLeadState, isTrailState, userState, scrollerRefState } from "recoil/atom";
 import socket from "socket";
 import { Button } from "@mui/material";
-import { smoothScrollTo } from "./util";
+import { smoothScrollTo } from "../PdfScroller/util";
+import CampaignIcon from "@mui/icons-material/Campaign";
 
 export default function AttentionButton() {
 	const { roomId, bookId } = useParams();
@@ -41,5 +42,17 @@ export default function AttentionButton() {
 		};
 	}, [scrollerRef]);
 
-	return <Button onClick={() => sendAttention()}>집중</Button>;
+	return (
+		<Button
+			onClick={() => sendAttention()}
+			sx={{
+				borderRadius: 0,
+				color: "#f44336",
+				borderLeft: "1px solid",
+				borderColor: "divider",
+			}}
+		>
+			<CampaignIcon />
+		</Button>
+	);
 }

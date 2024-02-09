@@ -64,12 +64,23 @@ function Room() {
 	};
 
 	return (
-		<Box className="container" sx={{ display: "grid", gridTemplateColumns: "1fr", gridTemplateRows: "auto 1fr" }}>
+		<Box
+			className="container"
+			sx={{
+				display: "grid",
+				gridTemplateColumns: "1fr",
+				gridTemplateRows: "auto 1fr",
+				maxWidth: "1400px",
+				width: "100%",
+				margin: "0 auto",
+				overflow: "hidden",
+			}}
+		>
 			{/* <RtcViewer/> */}
 			<Box sx={{ gridColumn: "1", gridRow: "1", justifySelf: "end" }}>
 				<Info room={room} bookClickHandler={bookClickHandler} setRoomRefresh={setRoomRefresh} bookId={bookId} />
 			</Box>
-			<Box sx={{ gridColumn: "1", gridRow: "2" }}>{book && <PDFViewer book={book} />}</Box>
+			<Box>{book && <PDFViewer book={book} />}</Box>
 		</Box>
 	);
 }

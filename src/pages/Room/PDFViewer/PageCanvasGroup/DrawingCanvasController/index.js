@@ -104,5 +104,5 @@ export default function DrawingCanvasController({ totalPage }) {
 	// 	};
 	// }, [drawingCanvasRefs]);
 
-	return <div>CanvasController</div>;
+	return <></>;
 }

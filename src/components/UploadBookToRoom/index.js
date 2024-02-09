@@ -26,7 +26,7 @@ export default function UploadBookToRoom({ roomId, refresher, setPop }) {
 			<h3>책 추가</h3>
 			<div>
 				<span>책 이름</span>
-				<input type="text" value={fileName} onChange={(e) => setFileName(e.target.value)} />
+				<input accept="application/pdf" type="text" value={fileName} onChange={(e) => setFileName(e.target.value)} />
 			</div>
 			<div>
 				<span>파일 업로드</span>
