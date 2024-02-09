@@ -13,6 +13,7 @@ import { useRecoilState } from "recoil";
 import { scrollYState, scrollerRefState, viewerScaleState, htmlContentState } from "recoil/atom";
 import { Box, Grid, Hidden } from "@mui/material";
 import PenController from "./PenController";
+import SwitchController from "./SwitchController";
 import { DraggableElement } from "components/DragNDrop/DraggableElement";
 import RoomUserList from "components/RoomUserList";
 
@@ -164,6 +165,9 @@ function PDFViewer({ book }) {
 				</Hidden>
 				{notes.map((note) => (
 					<Grid item style={{ flex: 1 }} key={note.id}>
+						<DraggableElement>
+							<SwitchController />
+						</DraggableElement>
 						<DraggableElement>
 							<PenController />
 						</DraggableElement>
