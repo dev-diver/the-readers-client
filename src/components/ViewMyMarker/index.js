@@ -25,6 +25,7 @@ function ViewMyMarker({ isOpen, onClose, bookId, MyMarkers, fromHighlightId }) {
 			});
 			console.log("링크 생성 성공:", response.data);
 			// 성공 처리 로직 (예: 상태 업데이트, 사용자에게 알림 등)
+			onClose();
 		} catch (error) {
 			console.error("링크 생성 실패:", error);
 			// 실패 처리 로직 (예: 에러 메시지 표시 등)
