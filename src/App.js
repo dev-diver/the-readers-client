@@ -32,6 +32,11 @@ function App() {
 				palette: {
 					mode,
 				},
+				typography: {
+					allVariants: {
+						fontSize: 10,
+					},
+				},
 			}),
 		[mode]
 	);

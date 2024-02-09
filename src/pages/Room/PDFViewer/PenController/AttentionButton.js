@@ -4,7 +4,7 @@ import { useRecoilState } from "recoil";
 import { isLeadState, isTrailState, userState, scrollerRefState } from "recoil/atom";
 import socket from "socket";
 import { Button } from "@mui/material";
-import { smoothScrollTo } from "./util";
+import { smoothScrollTo } from "../PdfScroller/util";
 
 export default function AttentionButton() {
 	const { roomId, bookId } = useParams();

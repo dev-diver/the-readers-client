@@ -6,13 +6,14 @@ import PageCanvasGroup from "./PageCanvasGroup";
 import Chart from "components/Chart";
 import VideoChat from "components/VideoChat";
 import PdfScroller from "./PdfScroller/index";
-import AttentionButton from "./PdfScroller/AttentionButton";
+import AttentionButton from "./PenController/AttentionButton";
 import CursorCanvasController from "./PageCanvasGroup/CursorCanvasController";
 import DrawingCanvasController from "./PageCanvasGroup/DrawingCanvasController";
 import { useRecoilState } from "recoil";
 import { scrollYState, scrollerRefState, viewerScaleState, htmlContentState } from "recoil/atom";
 import { Box, Grid } from "@mui/material";
 import PenController from "./PenController";
+import SwitchController from "./SwitchController";
 import { DraggableElement } from "components/DragNDrop/DraggableElement";
 
 const VIEWER_WIDTH = 800;
@@ -150,7 +151,12 @@ function PDFViewer({ book }) {
 					</Grid>
 					{notes.map((note) => (
 						<Grid item style={{ flex: 1 }} key={note.id}>
-							<DraggableElement>{/* <PenController /> */}</DraggableElement>
+							<DraggableElement>
+								<SwitchController />
+							</DraggableElement>
+							<DraggableElement>
+								<PenController />
+							</DraggableElement>
 							<Highlights bookId={book.id} renderContent={renderContent} />
 						</Grid>
 					))}

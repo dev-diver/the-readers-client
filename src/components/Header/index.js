@@ -91,8 +91,10 @@ export default function Header({ children }) {
 								</Button>
 							))}
 						</Box>
-						<SideDrawer />
-						{children}
+						<p>
+							{children}
+							<SideDrawer />
+						</p>
 					</Toolbar>
 				</Container>
 			</AppBar>
