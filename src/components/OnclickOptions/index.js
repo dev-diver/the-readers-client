@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Box, Button } from "@mui/material";
-import InsertHighlight from "./InsertHighlight";
 import { InfoToRange, drawHighlight } from "pages/Room/PDFViewer/Highlights/util";
 import api from "api";
 import { logger } from "logger";
 import socket from "socket.js";
 
-import InsertMemo from "./InsertMemo";
-import InsertLink from "./InsertLink";
+import InsertLink from "./InsertMemo";
 
-// 세 가지의 옵션 제공 : 하이라이트 생성, 메모 삽입, 링크 삽입
-function OptionsModal({
+function OnclickOptions({
 	isOpen,
 	onClose,
 	user,
@@ -141,7 +138,7 @@ function OptionsModal({
 				</Box>
 
 				{activeModal === "Memo" && (
-					<InsertMemo
+					<InsertLink
 						isOpen={true}
 						onClose={closeModal}
 						userId={userId}
@@ -161,4 +158,4 @@ function OptionsModal({
 	);
 }
 
-export default OptionsModal;
+export default OnclickOptions;
