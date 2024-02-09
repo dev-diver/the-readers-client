@@ -10,10 +10,12 @@ import AttentionButton from "./PdfScroller/AttentionButton";
 import CursorCanvasController from "./PageCanvasGroup/CursorCanvasController";
 import DrawingCanvasController from "./PageCanvasGroup/DrawingCanvasController";
 import { useRecoilState } from "recoil";
-import { scrollYState, scrollerRefState, viewerScaleState, htmlContentState } from "recoil/atom";
+import { scrollYState, viewerScaleState, htmlContentState } from "recoil/atom";
 import { Box, Grid } from "@mui/material";
 import PenController from "./PenController";
 import { DraggableElement } from "components/DragNDrop/DraggableElement";
+import api from "api";
+import { baseURL } from "config/config";
 
 const VIEWER_WIDTH = 800;
 
@@ -28,39 +30,93 @@ function PDFViewer({ book }) {
 			},
 		},
 	];
-	const [htmlContent, setHtmlContent] = useRecoilState(htmlContentState);
+	const [pageContainerHTML, setPageContainerHTML] = useRecoilState(htmlContentState);
 	const [renderContent, setRenderContent] = useState(false);
 	const [canvasComponents, setCanvasComponents] = useState([]);
-	const [cssLoaded, setCssLoaded] = useState(false);
 	const [scroll, setScroll] = useRecoilState(scrollYState);
 	const [originalWidth, setOriginalWidth] = useState(0);
 	const [scale, setScale] = useRecoilState(viewerScaleState);
 	const [notes, setNotes] = useState(notesData);
-	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
 
 	const pdfContentsRef = useRef(null);
 
 	useEffect(() => {
 		setRenderContent(false);
-		book.url &&
-			fetch(book.url)
-				.then((response) => {
-					response.text().then((text) => {
-						setHtmlContent(text);
-					});
-				})
-				.catch((err) => {
-					logger.log(err);
-				});
-	}, [book.url]);
+		if (!book?.urlName) {
+			return;
+		}
+		const HTMLurl = `/storage/pdfs/${book.urlName}`;
+		api(HTMLurl)
+			.then((response) => {
+				const parser = new DOMParser();
+				const doc = parser.parseFromString(response.data, "text/html");
+				const pageContainer = doc.querySelector("#page-container");
+				const htmlContent = pageContainer ? pageContainer.outerHTML : "";
+				setPageContainerHTML(htmlContent);
+			})
+			.catch((err) => {
+				logger.log(err);
+			});
+
+		const CSSurl = `${baseURL}/api/storage/pdfCss/${book.urlName}`;
+		const linkId = `css-${book.urlName}`;
+
+		const link = document.createElement("link");
+		link.href = CSSurl;
+		link.type = "text/css";
+		link.rel = "stylesheet";
+		link.id = linkId;
+		document.head.appendChild(link);
+
+		return () => {
+			const link = document.getElementById(linkId);
+			if (link) {
+				link.remove();
+			}
+		};
+	}, [book]);
 
 	useEffect(() => {
-		if (htmlContent && scrollerRef) {
+		if (pageContainerHTML && !renderContent) {
 			console.log("htmlContent rerender");
-			const pageContainer = scrollerRef.querySelector("#page-container");
+			const pageContainer = pdfContentsRef.current.querySelector("#page-container");
 			if (!pageContainer) return;
-			const pageDivs = pageContainer.querySelectorAll(":scope > div");
-			const mapCanvasContainer = Array.from(pageDivs).map((pageDiv, index) => {
+			mapContainer(pageContainer);
+		}
+	}, [pageContainerHTML]);
+
+	useEffect(() => {
+		if (renderContent && pdfContentsRef) {
+			setOriginalWidth(pdfContentsRef.current.getBoundingClientRect().width);
+		}
+	}, [renderContent, pdfContentsRef]);
+
+	useEffect(() => {
+		if (originalWidth) {
+			adjustScaleToWidth(VIEWER_WIDTH);
+		}
+	}, [originalWidth]);
+
+	function adjustScaleToWidth(targetWidth) {
+		const scale = originalWidth / targetWidth;
+		setScale(scale);
+	}
+
+	async function mapContainer(pageContainer) {
+		const pageDivs = pageContainer.querySelectorAll(".pf"); //페이지 div
+		const mapCanvasContainer = await Promise.all(
+			Array.from(pageDivs).map(async (pageDiv, index) => {
+				const fileName = pageDiv.getAttribute("data-page-url");
+				console.log(fileName, "fileName");
+				const url = `/storage/pdfPages/${book.urlName}/pages/${fileName}`;
+				const pageDivLoad = await api(url).then((response) => {
+					const parser = new DOMParser();
+					const doc = parser.parseFromString(response.data, "text/html");
+					const div = doc.querySelector(".pf");
+					return div;
+				});
+				console.log(pageDivLoad, "pageDivLoad");
+
 				const container = document.createElement("div");
 				container.classList.add("page-wrapper");
 				container.style.display = "inline-block"; //content에 크기 맞추기
@@ -82,50 +138,21 @@ function PDFViewer({ book }) {
 				pageDiv.parentNode.replaceChild(container, pageDiv);
 				container.appendChild(canvasLayer);
 				container.appendChild(textLayer);
-				textLayer.appendChild(pageDivClone);
+				textLayer.appendChild(pageDivLoad);
 
 				return {
 					component: <PageCanvasGroup pageNum={index + 1} pageWrapper={container} />,
 					container: canvasLayer,
 				};
-			});
-			setCanvasComponents(mapCanvasContainer);
-			setRenderContent(true);
-		}
-	}, [htmlContent]);
-
-	useEffect(() => {
-		if (renderContent && pdfContentsRef) {
-			setOriginalWidth(pdfContentsRef.current.getBoundingClientRect().width);
-		}
-	}, [renderContent, pdfContentsRef]);
-
-	useEffect(() => {
-		if (originalWidth) {
-			adjustScaleToWidth(VIEWER_WIDTH);
-		}
-	}, [originalWidth]);
-
-	// useEffect(() => {
-	//     const link = document.createElement('link');
-	//     link.rel = "stylesheet"
-	//     link.href = `${baseURL}/src/example.css`
-	//     link.onload = () => setCssLoaded(true);
-	//     document.head.appendChild(link);
-
-	//     return() =>{
-	//         document.head.removeChild(link);
-	//     }
-	// }, []);
-
-	function adjustScaleToWidth(targetWidth) {
-		const scale = originalWidth / targetWidth;
-		setScale(scale);
+			})
+		);
+		setCanvasComponents(mapCanvasContainer);
+		setRenderContent(true);
 	}
 
 	return (
 		<div>
-			<VideoChat />
+			{/* <VideoChat /> */}
 			{/* <DrawingCanvas /> */}
 			<AttentionButton />
 			<Box className="pdf-chart-container">
@@ -138,7 +165,7 @@ function PDFViewer({ book }) {
 							<Box
 								ref={pdfContentsRef}
 								className="pdf-contents"
-								dangerouslySetInnerHTML={{ __html: htmlContent }}
+								dangerouslySetInnerHTML={{ __html: pageContainerHTML }}
 								sx={{
 									width: "100%",
 									transform: `scale(${scale})`,

@@ -9,6 +9,7 @@ import { useToggleDrawer } from "recoil/handler";
 const LogInForm = ({ setUser }) => {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
+	const [isChecked, setIsChecked] = useState(false);
 	const [errorMessage, setErrorMessage] = useState("");
 	const toggleDrawer = useToggleDrawer();
 
@@ -19,7 +20,9 @@ const LogInForm = ({ setUser }) => {
 			.post(`${baseURL}/auth/login`, { email: email, password: password })
 			.then((response) => {
 				const user = response.data.data;
-				localStorage.setItem("user", JSON.stringify(user));
+				if (isChecked) {
+					localStorage.setItem("user", JSON.stringify(user));
+				}
 				setUser(user);
 				toggleDrawer("none")(e);
 				setErrorMessage("");
@@ -74,8 +77,17 @@ const LogInForm = ({ setUser }) => {
 				<Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
 					로그인
 				</Button>
-				{/* <FormControlLabel control={<Checkbox value="remember" color="primary" />} label="Remember me" /> */}
-
+				<FormControlLabel
+					control={
+						<Checkbox
+							value="remember"
+							color="primary"
+							checked={isChecked}
+							onChange={(e) => setIsChecked(e.target.checked)}
+						/>
+					}
+					label="로그인 유지"
+				/>
 				<Grid container>
 					<Grid item xs></Grid>
 					<Grid item>
