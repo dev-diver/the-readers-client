@@ -1,9 +1,26 @@
 .book {
-  background-image: url(https://c.animaapp.com/yGFj865V/img/-book-5.png);
-  background-position: 50% 50%;
-  background-size: cover;
-  border-radius: 20px;
-  box-shadow: 0px 4px 4px #00000040;
-  height: 267px;
-  width: 244px;
+	background-image: url(https://c.animaapp.com/yGFj865V/img/-book-5.png);
+	background-position: 50% 50%;
+	background-size: cover;
+	border-radius: 20px;
+	box-shadow: 0px 4px 4px #00000040;
+	height: 267px;
+	width: 244px;
+}
+
+.book-card {
+	width: 100%;
+	cursor: pointer;
+	transition: background-color 0.1s ease; /* 부드러운 색상 전환 효과 */
+	padding: 0 5px;
+}
+
+.book-card:hover {
+	background-color: #ccc; /* 원하는 더 진한 배경색 코드로 변경 */
+}
+
+.book-card-container {
+	width: 100%;
+	padding: 0;
+	list-style: none;
 }

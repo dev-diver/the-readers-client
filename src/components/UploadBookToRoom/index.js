@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import FormFile from "./Formfile";
 import api from "api";
 import { logger } from "logger";
+import { Button } from "@mui/material";
 
 export default function UploadBookToRoom({ roomId, refresher, setPop }) {
 	const [file, setFile] = useState(null);
@@ -25,13 +26,13 @@ export default function UploadBookToRoom({ roomId, refresher, setPop }) {
 			<h3>책 추가</h3>
 			<div>
 				<span>책 이름</span>
-				<input type="text" value={fileName} onChange={(e) => setFileName(e.target.value)} />
+				<input accept="application/pdf" type="text" value={fileName} onChange={(e) => setFileName(e.target.value)} />
 			</div>
 			<div>
 				<span>파일 업로드</span>
 				<FormFile setFile={setFile} />
 			</div>
-			<button
+			<Button
 				type="button"
 				onClick={() => {
 					const formData = new FormData();
@@ -41,7 +42,7 @@ export default function UploadBookToRoom({ roomId, refresher, setPop }) {
 				}}
 			>
 				업로드!
-			</button>
+			</Button>
 		</>
 	);
 }

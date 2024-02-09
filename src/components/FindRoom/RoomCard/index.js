@@ -7,6 +7,8 @@ import { baseURL } from "config/config";
 
 import Masonry from "@mui/lab/Masonry";
 import { styled } from "@mui/material/styles";
+import { useRecoilState } from "recoil";
+import { roomUsersState } from "recoil/atom";
 
 const Label = styled(Paper)(({ theme }) => ({
 	backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -23,6 +25,7 @@ export default function RoomCard({ room }) {
 	const baseHeight = 100; // 기본 높이
 	const additionalHeightPerUser = 30; // 사용자당 추가 높이
 	const totalHeight = baseHeight + room.usermax * additionalHeightPerUser;
+	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
 
 	return (
 		// // <Container
@@ -86,34 +89,32 @@ export default function RoomCard({ room }) {
 				// style={{
 				// 	backgroundColor: "#adbec4",
 				// }}
+				sx={{ textDecoration: "none" }}
 			>
-				{/* <Box sx={{ width: 500 }}> */}
-				<div>
-					<Label>
-						{room.title}
-						<br />
-						{room.usermax}
-					</Label>
-					<img
-						srcSet={`${randomImage.img}?w=162&auto=format&dpr=2 2x`}
-						src={`${randomImage.img}?w=162&auto=format`}
-						alt={randomImage.title}
-						loading="lazy"
-						style={{
-							borderBottomLeftRadius: 4,
-							borderBottomRightRadius: 4,
-							display: "block",
-							width: "100%",
-							maxHeight: `${totalHeight}px`,
-							height: "auto",
-						}}
-					/>
-				</div>
-				<Label style={{ textAlign: "center" }}>
-					<Link to={`/room/${room.id}`}>
-						<LogIn color="#000000" />
-					</Link>
-				</Label>
+				<Link style={{ textDecoration: "none" }} to={`/room/${room.id}`}>
+					<div>
+						<Label>
+							방 이름: {room.title}
+							<br />
+							현재 인원/최대 인원: {roomUsers.length}/{room.usermax}
+						</Label>
+						{/* <Box sx={{ width: 500 }}> */}
+						<img
+							srcSet={`${randomImage.img}?w=162&auto=format&dpr=2 2x`}
+							src={`${randomImage.img}?w=162&auto=format`}
+							alt={randomImage.title}
+							loading="lazy"
+							style={{
+								borderBottomLeftRadius: 4,
+								borderBottomRightRadius: 4,
+								display: "block",
+								width: "100%",
+								maxHeight: `${totalHeight}px`,
+								height: "auto",
+							}}
+						/>
+					</div>
+				</Link>
 				{/* </Box> */}
 			</Container>
 		</>

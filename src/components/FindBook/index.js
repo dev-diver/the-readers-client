@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import api from "api";
 import BookCard from "components/BookShelf/BookCard";
+import { TextField, Button } from "@mui/material";
+import { Search } from "lucide-react";
 
 function FindBook({ bookClickHandler }) {
 	const [bookName, setBookName] = useState("");
@@ -28,8 +30,13 @@ function FindBook({ bookClickHandler }) {
 				handleSearch();
 			}}
 		>
-			<input type="text" value={bookName} onChange={(e) => setBookName(e.target.value)} placeholder="책 검색" />
-			<button type="submit">Search</button>
+			<div>
+				<TextField type="text" value={bookName} onChange={(e) => setBookName(e.target.value)} placeholder="책 검색" />
+				<Button variant="contained" type="submit">
+					{/* 검색 아이콘 */}
+					<Search />
+				</Button>
+			</div>
 			<div>
 				{searchResults.map((book, index) => (
 					<BookCard key={index} book={book} handler={() => bookClickHandler(book)} />

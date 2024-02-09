@@ -11,10 +11,11 @@ import CursorCanvasController from "./PageCanvasGroup/CursorCanvasController";
 import DrawingCanvasController from "./PageCanvasGroup/DrawingCanvasController";
 import { useRecoilState } from "recoil";
 import { scrollYState, scrollerRefState, viewerScaleState, htmlContentState } from "recoil/atom";
-import { Box, Grid } from "@mui/material";
+import { Box, Grid, Hidden } from "@mui/material";
 import PenController from "./PenController";
 import SwitchController from "./SwitchController";
 import { DraggableElement } from "components/DragNDrop/DraggableElement";
+import RoomUserList from "components/RoomUserList";
 
 const VIEWER_WIDTH = 800;
 
@@ -38,7 +39,6 @@ function PDFViewer({ book }) {
 	const [scale, setScale] = useRecoilState(viewerScaleState);
 	const [notes, setNotes] = useState(notesData);
 	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
-
 	const pdfContentsRef = useRef(null);
 
 	useEffect(() => {
@@ -125,43 +125,63 @@ function PDFViewer({ book }) {
 	}
 
 	return (
-		<div>
-			<VideoChat />
+		<div
+			style={{
+				display: "flex",
+				justifyContent: "center",
+				alignItems: "flex-start",
+				minHeight: "100vh",
+				paddingTop: 25,
+			}}
+		>
+			{/* <VideoChat /> */}
 			{/* <DrawingCanvas /> */}
-			<AttentionButton />
-			<Box className="pdf-chart-container">
-				<Grid container>
-					<Grid item style={{ flex: 1 }}>
+			<Grid container spacing={2}>
+				<Hidden mdDown>
+					<Grid item xs={7} sm={7} md={7} lg={7}>
 						<Chart scroll={scroll} />
 					</Grid>
-					<Grid item style={{ flex: 4 }}>
-						<PdfScroller renderContent={renderContent}>
-							<Box
-								ref={pdfContentsRef}
-								className="pdf-contents"
-								dangerouslySetInnerHTML={{ __html: htmlContent }}
-								sx={{
-									width: "100%",
-									transform: `scale(${scale})`,
-									transformOrigin: "top left",
-									boxSizing: "border-box",
-								}}
-							/>
-						</PdfScroller>
-					</Grid>
-					{notes.map((note) => (
-						<Grid item style={{ flex: 1 }} key={note.id}>
-							<DraggableElement>
-								<SwitchController />
-							</DraggableElement>
-							<DraggableElement>
-								<PenController />
-							</DraggableElement>
-							<Highlights bookId={book.id} renderContent={renderContent} />
-						</Grid>
-					))}
+				</Hidden>
+				<Grid item style={{ flex: 4 }}>
+					<PdfScroller renderContent={renderContent}>
+						<Box
+							ref={pdfContentsRef}
+							className="pdf-contents"
+							dangerouslySetInnerHTML={{ __html: htmlContent }}
+							sx={{
+								width: "100%",
+								transform: `scale(${scale})`,
+								transformOrigin: "top left",
+								boxSizing: "border-box",
+							}}
+						/>
+					</PdfScroller>
 				</Grid>
-			</Box>
+				{notes.map((note) => (
+					<Grid item style={{ flex: 1 }} key={note.id}>
+						<DraggableElement>
+							<SwitchController />
+						</DraggableElement>
+						<DraggableElement>
+							<PenController />
+						</DraggableElement>
+						<Highlights bookId={book.id} renderContent={renderContent} />
+					</Grid>
+				))}
+				<Hidden smDown>
+					<Grid item xs={false} sm={false} md={1} lg={3}>
+						<RoomUserList />
+						<Highlights bookId={book.id} renderContent={renderContent} />
+					</Grid>
+				</Hidden>
+				{notes.map((note) => (
+					<Grid item style={{ flex: 1 }} key={note.id}>
+						<DraggableElement>
+							<PenController />
+						</DraggableElement>
+					</Grid>
+				))}
+			</Grid>
 			{canvasComponents.map(({ component, container }) => {
 				return createPortal(component, container);
 			})}
