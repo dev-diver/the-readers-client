@@ -4,6 +4,7 @@ import FindBook from "components/FindBook";
 import PopUp from "components/PopUp";
 import { useState } from "react";
 import api from "api";
+import { Button, Grid } from "@mui/material";
 
 const AddBook = ({ room, refresher }) => {
 	const [pop, setPop] = useState(false);
@@ -21,15 +22,24 @@ const AddBook = ({ room, refresher }) => {
 				console.log(error);
 			});
 	};
+	const togglePop = () => {
+		setPop(!pop);
+	};
 
 	return (
-		<>
-			<button onClick={() => setPop(true)}>책 추가</button>
-			<PopUp isOpen={pop} onClose={() => setPop(false)}>
-				<FindBook bookClickHandler={bookClickHandler} />
-				<UploadBookToRoom roomId={room.id} setPop={setPop} refresher={refresher} />
-			</PopUp>
-		</>
+		<Grid container direction="column" spacing={2} cursor="auto">
+			<Grid item>
+				<Button variant="contained" onClick={togglePop}>
+					{pop ? "닫기" : "책 추가"}
+				</Button>
+			</Grid>
+			<Grid item>
+				<PopUp isOpen={pop} onClose={() => setPop(false)}>
+					<FindBook bookClickHandler={bookClickHandler} />
+					<UploadBookToRoom roomId={room.id} setPop={setPop} refresher={refresher} />
+				</PopUp>
+			</Grid>
+		</Grid>
 	);
 };
 

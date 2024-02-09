@@ -17,18 +17,18 @@ export default function RoomJoinController({ roomId }) {
 	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
 	// const uuid = createUuid();
 
-	// useEffect(() => {
-	// 	socket.on("message", (data) => {
-	// 		alert(data.message);
-	// 		// toast.info(data.message);
-	// 	});
-	// 	return () => {
-	// 		socket.off("message");
-	// 	};
-	// }, []);
+	useEffect(() => {
+		socket.on("message", (data) => {
+			alert(data.message);
+			// toast.info(data.message);
+		});
+		return () => {
+			socket.off("message");
+		};
+	}, []);
 
 	useEffect(() => {
-		if (user) {
+		if (user && roomId) {
 			const myRoomUser = {
 				roomId: roomId,
 				userId: user.id,
@@ -40,7 +40,7 @@ export default function RoomJoinController({ roomId }) {
 		return () => {
 			socket.off("room-joined");
 		};
-	}, [user]);
+	}, [user, roomId]);
 
 	useEffect(() => {
 		socket.on("room-users-changed", (data) => {
@@ -60,10 +60,5 @@ export default function RoomJoinController({ roomId }) {
 		};
 	}, [user]);
 
-	return (
-		<div>
-			<ToastContainer />
-			RoomJoinController
-		</div>
-	);
+	return <div></div>;
 }

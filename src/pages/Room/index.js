@@ -9,16 +9,17 @@ import { Link } from "react-router-dom";
 import api from "api";
 import { Box } from "@mui/material";
 import { useRecoilState } from "recoil";
-import { userState, isLeadState, isTrailState } from "recoil/atom";
+import { userState, isLeadState, isTrailState, roomState } from "recoil/atom";
+import Info from "components/Header/Info";
 
 function Room() {
 	const { bookId, roomId } = useParams();
-	const [room, setRoom] = useState({ Books: [] });
 	const [book, setBook] = useState({});
 	const [roomRefresh, setRoomRefresh] = useState(false);
 	const [isTrail, setTrail] = useRecoilState(isTrailState);
 	const [isLead, setLead] = useRecoilState(isLeadState);
 	const [user, setUser] = useRecoilState(userState);
+	const [room, setRoom] = useRecoilState(roomState);
 
 	const navigate = useNavigate();
 
@@ -26,7 +27,6 @@ function Room() {
 		api.get(`/rooms/${roomId}`).then((response) => {
 			setRoom(response.data.data);
 		});
-		socket.emit("join-room", roomId);
 	}, [roomId]);
 
 	useEffect(() => {
@@ -64,16 +64,12 @@ function Room() {
 	};
 
 	return (
-		<Box className="container">
+		<Box className="container" sx={{ display: "grid", gridTemplateColumns: "1fr", gridTemplateRows: "auto 1fr" }}>
 			{/* <RtcViewer/> */}
-			{room && (
-				<>
-					<Link to={`/room/${room.id}`}>{room.title}</Link>
-					<BookShelf books={room.Books} bookClickhandler={bookClickHandler} />
-					<AddBook key="book" room={room} refresher={setRoomRefresh} />
-				</>
-			)}
-			{book && <PDFViewer book={book} />}
+			<Box sx={{ gridColumn: "1", gridRow: "1", justifySelf: "end" }}>
+				<Info room={room} bookClickHandler={bookClickHandler} setRoomRefresh={setRoomRefresh} bookId={bookId} />
+			</Box>
+			<Box sx={{ gridColumn: "1", gridRow: "2" }}>{book && <PDFViewer book={book} />}</Box>
 		</Box>
 	);
 }

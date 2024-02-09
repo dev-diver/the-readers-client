@@ -37,7 +37,6 @@ function PDFViewer({ book }) {
 	const [scale, setScale] = useRecoilState(viewerScaleState);
 	const [notes, setNotes] = useState(notesData);
 	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
-
 	const pdfContentsRef = useRef(null);
 
 	useEffect(() => {
@@ -125,7 +124,7 @@ function PDFViewer({ book }) {
 
 	return (
 		<div>
-			<VideoChat />
+			{/* <VideoChat /> */}
 			{/* <DrawingCanvas /> */}
 			<AttentionButton />
 			<Box className="pdf-chart-container">
