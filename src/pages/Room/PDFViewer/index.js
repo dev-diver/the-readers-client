@@ -150,9 +150,7 @@ function PDFViewer({ book }) {
 					</Grid>
 					{notes.map((note) => (
 						<Grid item style={{ flex: 1 }} key={note.id}>
-							<DraggableElement>
-								<PenController />
-							</DraggableElement>
+							<DraggableElement>{/* <PenController /> */}</DraggableElement>
 							<Highlights bookId={book.id} renderContent={renderContent} />
 						</Grid>
 					))}

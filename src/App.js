@@ -26,35 +26,32 @@ function App() {
 		[]
 	);
 
-	// const theme = React.useMemo(
-	// 	() =>
-	// 		createTheme({
-	// 			palette: {
-	// 				mode,
-	// 			},
-	// 			radius: {
-	// 				sm: "4px",
-	// 			},
-	// 		}),
-	// 	[mode]
-	// );
+	const theme = React.useMemo(
+		() =>
+			createTheme({
+				palette: {
+					mode,
+				},
+			}),
+		[mode]
+	);
 
-	const theme = useMemo(() => {
-		const simpleTheme = createTheme({
-			palette: {
-				mode,
-			},
-		});
+	// const theme = useMemo(() => {
+	// 	const simpleTheme = createTheme({
+	// 		palette: {
+	// 			mode,
+	// 		},
+	// 	});
 
-		simpleTheme.vars = {
-			radius: {
-				sm: "4px",
-				md: "8px",
-				lg: "12px",
-			},
-		};
-		return simpleTheme;
-	}, [mode]);
+	// 	simpleTheme.vars = {
+	// 		radius: {
+	// 			sm: "4px",
+	// 			md: "8px",
+	// 			lg: "12px",
+	// 		},
+	// 	};
+	// 	return simpleTheme;
+	// }, [mode]);
 
 	return (
 		<ColorModeContext.Provider value={colorMode}>
