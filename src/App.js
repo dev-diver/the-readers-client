@@ -37,6 +37,26 @@ function App() {
 						fontSize: 10,
 					},
 				},
+				components: {
+					// Menu에 대한 스타일 오버라이드
+					MuiMenu: {
+						styleOverrides: {
+							// Menu의 기본 커서 스타일을 auto로 설정
+							list: {
+								cursor: "auto",
+							},
+						},
+					},
+					// MenuItem에 대한 스타일 오버라이드 (선택적)
+					MuiMenuItem: {
+						styleOverrides: {
+							root: {
+								// MenuItem 내부의 커서 스타일을 auto로 설정
+								cursor: "auto",
+							},
+						},
+					},
+				},
 			}),
 		[mode]
 	);

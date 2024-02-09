@@ -12,36 +12,11 @@ import { Link } from "react-router-dom";
 import BookShelf from "components/BookShelf";
 import AddBook from "pages/RoomLobby/Addbook";
 import { BookOpen, LampDeskIcon, LibrarySquare } from "lucide-react";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
-
-// Info 컴포넌트는 사용자가 Book에 들어가면 나타나는 메뉴를 담당함
-// Room으로 이동하는 버튼 기능, 책 간 이동 기능, 책 추가 기능이 있음
-// mui의 Menu는 항상 커서가 포인터로 설정되어 있어서, 커서를 auto로 설정하는 테마를 적용함
-const theme = createTheme({
-	components: {
-		// Menu에 대한 스타일 오버라이드
-		MuiMenu: {
-			styleOverrides: {
-				// Menu의 기본 커서 스타일을 auto로 설정
-				list: {
-					cursor: "auto",
-				},
-			},
-		},
-		// MenuItem에 대한 스타일 오버라이드 (선택적)
-		MuiMenuItem: {
-			styleOverrides: {
-				root: {
-					// MenuItem 내부의 커서 스타일을 auto로 설정
-					cursor: "auto",
-				},
-			},
-		},
-	},
-});
+import { ThemeProvider, useTheme } from "@mui/material/styles";
 
 export default function Info({ room, bookId, bookClickHandler, setRoomRefresh }) {
 	const [anchorEl, setAnchorEl] = React.useState(null);
+	const theme = useTheme();
 
 	const open = Boolean(anchorEl);
 

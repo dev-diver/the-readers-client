@@ -138,11 +138,11 @@ function PDFViewer({ book }) {
 			{/* <DrawingCanvas /> */}
 			<Grid container spacing={2}>
 				<Hidden mdDown>
-					<Grid item xs={7} sm={7} md={7} lg={7}>
+					<Grid item xs={false} sm={false} md={1.5} lg={2}>
 						<Chart scroll={scroll} />
 					</Grid>
 				</Hidden>
-				<Grid item style={{ flex: 4 }}>
+				<Grid item xs={7} sm={7} md={7} lg={7}>
 					<PdfScroller renderContent={renderContent}>
 						<Box
 							ref={pdfContentsRef}
@@ -157,17 +157,6 @@ function PDFViewer({ book }) {
 						/>
 					</PdfScroller>
 				</Grid>
-				{notes.map((note) => (
-					<Grid item style={{ flex: 1 }} key={note.id}>
-						<DraggableElement>
-							<SwitchController />
-						</DraggableElement>
-						<DraggableElement>
-							<PenController />
-						</DraggableElement>
-						<Highlights bookId={book.id} renderContent={renderContent} />
-					</Grid>
-				))}
 				<Hidden smDown>
 					<Grid item xs={false} sm={false} md={1} lg={3}>
 						<RoomUserList />
@@ -176,6 +165,9 @@ function PDFViewer({ book }) {
 				</Hidden>
 				{notes.map((note) => (
 					<Grid item style={{ flex: 1 }} key={note.id}>
+						<DraggableElement>
+							<SwitchController />
+						</DraggableElement>
 						<DraggableElement>
 							<PenController />
 						</DraggableElement>
