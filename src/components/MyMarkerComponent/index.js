@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import api from "api";
 import { Box, Button, Typography, Modal } from "@mui/material";
 import ViewMyMarker from "components/ViewMyMarker";
+import "./style.css";
 
-function MyMarkerComponent({ isOpen, onClose, pageNum, userId, highlightId, bookId, children }) {
+function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, userId, highlightId, bookId, children }) {
 	const [highlights, setHighlights] = useState([]);
 	const [showViewMyMarker, setShowViewMyMarker] = useState(false); // ViewMyMarker 컴포넌트 표시 상태
 
@@ -21,6 +22,15 @@ function MyMarkerComponent({ isOpen, onClose, pageNum, userId, highlightId, book
 		}
 	};
 
+	const handleComponentEnter = async () => {
+		try {
+			const response = await api.get(`/highlights/${highlightId}`);
+			console.log("메모", response.data.data.memo);
+		} catch (error) {
+			console.error("Failed to fetch highlights", error);
+		}
+	};
+
 	return (
 		<>
 			<mark
@@ -28,8 +38,10 @@ function MyMarkerComponent({ isOpen, onClose, pageNum, userId, highlightId, book
 				data-page-num={pageNum}
 				data-user-id={userId}
 				onClick={() => handleComponentClick()}
+				onMouseEnter={() => handleComponentEnter()}
 			>
 				{children}
+				{IsMemoOpen && <button className="memobutton">✅</button>}
 			</mark>
 			{showViewMyMarker && (
 				<ViewMyMarker

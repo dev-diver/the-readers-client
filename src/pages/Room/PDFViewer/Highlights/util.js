@@ -148,8 +148,7 @@ export function drawHighlight(range, highlightInfo) {
 		// marker.setAttribute("data-user-id", highlightInfo.userId);
 		parentElement.replaceChild(marker, currentNode);
 
-		// // 하이라이트에 클릭 이벤트 부여
-		// marker.addEventListener("click", (e) => handleHighlightClick(e, highlightInfo.id));
+		const IsMemoOpen = !nextNode;
 
 		// marker 요소에 대한 새로운 root를 생성하고, MyMarkerComponent를 렌더링합니다.
 		const markerRoot = createRoot(marker); // marker 요소에 대한 root 생성
@@ -163,6 +162,7 @@ export function drawHighlight(range, highlightInfo) {
 				userId={highlightInfo.userId}
 				color={highlightInfo.color}
 				text={currentNode.textContent}
+				IsMemoOpen={IsMemoOpen}
 			>
 				{currentNode.textContent}
 			</MyMarkerComponent>
