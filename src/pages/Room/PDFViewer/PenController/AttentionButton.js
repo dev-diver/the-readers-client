@@ -48,8 +48,6 @@ export default function AttentionButton() {
 			sx={{
 				borderRadius: 0,
 				color: "#f44336",
-				borderLeft: "1px solid",
-				borderColor: "divider",
 			}}
 		>
 			<CampaignIcon />

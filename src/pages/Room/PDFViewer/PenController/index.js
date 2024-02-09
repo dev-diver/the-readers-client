@@ -1,11 +1,13 @@
 import React, { useEffect, useRef } from "react";
 import Box from "@mui/joy/Box";
-import Radio, { radioClasses } from "@mui/joy/Radio";
-import RadioGroup from "@mui/joy/RadioGroup";
 import { useRecoilState } from "recoil";
 import { penModeState, widthState } from "recoil/atom";
 import { Pointer, Highlighter, PencilLine, MousePointerClick, Eraser } from "lucide-react";
 import AttentionButton from "./AttentionButton";
+
+// import * as React from 'react';
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 // import FormatAlignLeftIcon from "@mui/icons-material/FormatAlignLeft";
 // import PageCanvasGroup from "./PageCanvasGroup";
 // import { ConnectingAirportsOutlined } from "@mui/icons-material";
@@ -16,6 +18,10 @@ export default function PenController() {
 	// 펜 컨트롤러의 길이를 계산해 브라우저 가운데 넣기 위하여 추가한 코드
 	const [width, setWidth] = useRecoilState(widthState); // 요소의 너비를 저장할 상태
 	const ref = useRef(null); // 요소에 대한 참조를 생성
+
+	const handleChange = (event, newMode) => {
+		setMode(newMode);
+	};
 
 	useEffect(() => {
 		// ref.current는 참조된 DOM 요소를 가리킵니다. 요소가 마운트된 후에 너비를 읽어옵니다.
@@ -45,65 +51,23 @@ export default function PenController() {
 			ref={ref}
 			sx={{ backgroundColor: "#f7f7f7", borderRadius: "8px", border: "1px solid #ddd", overflow: "hidden" }}
 		>
-			<RadioGroup
-				orientation="horizontal"
-				aria-label="Mode"
-				name="mode"
-				variant="outlined"
-				value={mode}
-				onChange={(event) => {
-					setMode(event.target.value);
-				}}
-			>
-				{["pointer", "highlight", "draw", "click"].map((item) => (
-					<Box
-						key={item}
-						sx={(theme) => ({
-							position: "relative",
-							display: "flex",
-							justifyContent: "center",
-							alignItems: "center",
-							width: 48,
-							height: 48,
-							"&:not([data-first-child])": {
-								borderLeft: "1px solid",
-								borderColor: "divider",
-							},
-							[`&[data-first-child] .${radioClasses.action}`]: {
-								borderTopLeftRadius: `calc(${theme.vars.radius.sm} - 1px)`,
-								borderBottomLeftRadius: `calc(${theme.vars.radius.sm} - 1px)`,
-							},
-							[`&[data-last-child] .${radioClasses.action}`]: {
-								borderTopRightRadius: `calc(${theme.vars.radius.sm} - 1px)`,
-								borderBottomRightRadius: `calc(${theme.vars.radius.sm} - 1px)`,
-							},
-						})}
-					>
-						<Radio
-							value={item}
-							disableIcon
-							overlay
-							label={
-								{
-									pointer: <Pointer color="#000000" />,
-									highlight: <Highlighter color="#000000" />,
-									draw: <PencilLine color="#000000" />,
-									click: <Eraser color="#000000" />,
-								}[item]
-							}
-							variant={mode === item ? "solid" : "plain"}
-							slotProps={{
-								input: { "aria-label": item },
-								action: {
-									sx: { borderRadius: 0, transition: "none" },
-								},
-								label: { sx: { lineHeight: 0 } },
-							}}
-						/>
-					</Box>
-				))}
-				<AttentionButton />
-			</RadioGroup>
+			<ToggleButtonGroup orientation="horizontal" value={mode} exclusive onChange={handleChange} aria-label="Mode">
+				<ToggleButton value="pointer" aria-label="pointer">
+					<Pointer />
+				</ToggleButton>
+				<ToggleButton value="highlight" aria-label="highlight">
+					<Highlighter />
+				</ToggleButton>
+				<ToggleButton value="draw" aria-label="draw">
+					<PencilLine />
+				</ToggleButton>
+				<ToggleButton value="click" aria-label="click">
+					<Eraser />
+				</ToggleButton>
+				<ToggleButton value="attention" aria-label="attention">
+					<AttentionButton />
+				</ToggleButton>
+			</ToggleButtonGroup>
 		</Box>
 	);
 }
