@@ -27,7 +27,7 @@ function FindRoom() {
 	return (
 		<>
 			<Box sx={{ width: 450 }} component="form" id="searchForm" onSubmit={(e) => handleSearch(e)}>
-				<Grid container>
+				<Grid container columnSpacing={{ xs: 1 }}>
 					<Grid item>
 						<MakeRoom />
 					</Grid>
@@ -53,7 +53,7 @@ function FindRoom() {
 					</Grid>
 				</Grid>
 			</Box>
-			<Grid sx={{ width: 800 }}>
+			<Grid sx={{ width: 800, marginTop: 5 }}>
 				<Masonry columns={3} spacing={2}>
 					{searchResults.map((room, index) => (
 						<RoomCard key={index} room={room} />

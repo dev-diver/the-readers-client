@@ -4,13 +4,13 @@ import { useRecoilState } from "recoil";
 import { canvasMouse, clearCanvas } from "./CursorCanvasController/util";
 import { getCanvasRef } from "./DrawingCanvasController/util";
 import {
-	cursorCanvasRefsState,
-	drawingCanvasRefsState,
-	bookChangedState,
-	penModeState,
 	userState,
 	roomUserState,
 	roomUsersState,
+	cursorCanvasRefsState,
+	drawingCanvasRefsState,
+	penModeState,
+	bookChangedState,
 } from "recoil/atom";
 import rough from "roughjs/bundled/rough.esm";
 import socket from "socket";
@@ -19,8 +19,8 @@ function PageCanvasGroup({ pageNum, pageWrapper }) {
 	const { bookId, roomId } = useParams();
 	// 여기에서 추가하기
 	const [canvasItems, setCanvasItems] = useState([]);
-
 	const [roomUser, setRoomUser] = useRecoilState(roomUserState);
+
 	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
 	const [bookChanged, setBookChanged] = useRecoilState(bookChangedState);
 	const [cursorCanvasRefs, setCursorCanvasRefs] = useRecoilState(cursorCanvasRefsState);
@@ -38,11 +38,11 @@ function PageCanvasGroup({ pageNum, pageWrapper }) {
 	const setRef = useCallback(
 		(el) => {
 			setCursorCanvasRefs((oldRefs) => {
-				const newRefs = oldRefs.map((ref) => {
-					if (ref.page === pageNum) {
-						return { ...ref, ref: el };
+				const newRefs = oldRefs.map((pageRef) => {
+					if (pageRef.page === pageNum) {
+						return { ...pageRef, ref: el };
 					}
-					return ref;
+					return pageRef;
 				});
 				return newRefs;
 			});
@@ -63,9 +63,7 @@ function PageCanvasGroup({ pageNum, pageWrapper }) {
 		(el, userId) => {
 			setDrawingCanvasRefs((oldRefs) => {
 				let flag = isAllRefSet(oldRefs);
-				// console.log("length", oldRefs.length, "flag", flag);
 				if (flag && oldRefs.length > 0) {
-					// console.log(oldRefs);
 					console.log("All refs are set");
 					return oldRefs;
 				}
@@ -84,8 +82,6 @@ function PageCanvasGroup({ pageNum, pageWrapper }) {
 					// 조건에 맞지 않는 요소는 그대로 반환합니다.
 					return pageRef;
 				});
-				// console.log("newRefs", el, pageNum, userId);
-				// console.log("newRefs", newRefs);
 				return newRefs;
 			});
 		},
@@ -129,13 +125,15 @@ const generator = rough.generator();
 const tool = "pencil";
 const color = "black";
 function DrawingCanvases({ pageNum, roomUsers, pageWrapper, setDrawingRef }) {
-	const [drawingCanvasRefs, setDrawingCanvasRefs] = useRecoilState(drawingCanvasRefsState);
 	const [bookChanged, setBookChanged] = useRecoilState(bookChangedState);
-	const [penMode, setPenMode] = useRecoilState(penModeState);
-	const [user, setUser] = useRecoilState(userState);
-	const [isDrawing, setIsDrawing] = useState(false);
-	const [elements, setElements] = useState([]);
 	const { bookId, roomId } = useParams();
+	const [user, setUser] = useRecoilState(userState);
+	const [penMode, setPenMode] = useRecoilState(penModeState);
+
+	const [isDrawing, setIsDrawing] = useState(false);
+	const [drawingCanvasRefs, setDrawingCanvasRefs] = useRecoilState(drawingCanvasRefsState);
+	const [elements, setElements] = useState([]);
+
 	const location = {
 		bookId: bookId,
 		roomId: roomId,

@@ -114,7 +114,7 @@ export default function PdfScroller({ renderContent, children }) {
 			ref={setRef}
 			sx={{
 				position: "relative",
-				width: "800px",
+				width: "100%",
 				height: "100vh",
 				margin: "0 auto",
 				overflowY: "auto",

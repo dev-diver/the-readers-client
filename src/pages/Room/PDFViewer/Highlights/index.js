@@ -216,7 +216,7 @@ function Highlighter({ bookId, renderContent }) {
 	};
 
 	return (
-		<>
+		<div>
 			<HighlightList highlights={highlightList} deleteHandler={deleteHighlightListItem} />
 			{/* 조건부 랜더링 : optionsModalOpen이 true되면 OptionsModal이 화면에 랜더링됨. */}
 			{optionsModalOpen && (
@@ -235,7 +235,7 @@ function Highlighter({ bookId, renderContent }) {
 					selectedHighlightInfo={highlightInfos} // selectedHighlightInfo를 OptionsModal에 전달
 				/>
 			)}
-		</>
+		</div>
 	);
 }
 

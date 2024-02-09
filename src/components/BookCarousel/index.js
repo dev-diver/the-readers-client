@@ -41,7 +41,7 @@ function BookCarousel({ initialItems, initialActive }) {
 	// 캐러셀을 렌더링
 	// 왼쪽, 오른쪽 화살표와 책 커버 이미지를 포함함
 	return (
-		<div id="carousel" className="noselect">
+		<div id="carousel" className="noselect" style={{ margin: "30px" }}>
 			<div className="arrow arrow-left" onClick={moveLeft}>
 				&lt;
 			</div>

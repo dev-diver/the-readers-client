@@ -33,5 +33,5 @@ export default function CursorCanvasController({ totalPage }) {
 		};
 	}, [cursorCanvasRefs]);
 
-	return <div>CanvasController</div>;
+	return <></>;
 }
