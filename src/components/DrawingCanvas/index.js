@@ -14,7 +14,7 @@ const DrawingCanvas = () => {
 		<div className="home">
 			{/* <UtilButton /> */}
 			{users.map((user, index) => (
-				<ClientRoom key={index} canvasId={user.canvasId} setUsers={setUsers} />
+				<ClientRoom key={index} canvasId={user.id} setUsers={setUsers} />
 			))}
 		</div>
 	);

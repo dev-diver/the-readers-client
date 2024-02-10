@@ -108,7 +108,6 @@ export function rangeToInfo(range, additionalInfo) {
 export function drawHighlight(range, highlightInfo) {
 	// console.log("drawHighlight", range, highlightInfo);
 	let passNode = false;
-	console.log("김진태", highlightInfo.bookId);
 	const filterFunction = function (node) {
 		if (node.hasChildNodes() || node.nodeType !== Node.TEXT_NODE) {
 			return NodeFilter.FILTER_SKIP;

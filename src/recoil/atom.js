@@ -82,3 +82,18 @@ export const scrollerRefState = atom({
 	key: "scrollerRefState",
 	default: null,
 });
+
+export const isMainState = atom({
+	key: "isMain",
+	default: false,
+});
+
+export const roomState = atom({
+	key: "room",
+	default: { Books: [] },
+});
+
+export const widthState = atom({
+	key: "width",
+	default: 0,
+});
