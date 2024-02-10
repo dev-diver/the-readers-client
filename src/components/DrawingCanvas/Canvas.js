@@ -166,7 +166,7 @@ const Canvas = ({ canvasRef, canvasId, ctx, color, setElements, elements, tool }
 
 	return (
 		<div>
-			{canvasId === roomUser.userId ? (
+			{canvasId === roomUser.id ? (
 				<div
 					className="col-md-8 overflow-hidden border border-dark px-0 mx-auto mt-3"
 					style={{ height: "100px" }}

@@ -30,9 +30,8 @@ export default function RoomJoinController({ roomId }) {
 	useEffect(() => {
 		if (user && roomId) {
 			const myRoomUser = {
+				user: user,
 				roomId: roomId,
-				userId: user.id,
-				userName: user.nick,
 			};
 			setRoomUser(myRoomUser);
 			socket.emit("room-joined", myRoomUser);
@@ -44,16 +43,8 @@ export default function RoomJoinController({ roomId }) {
 
 	useEffect(() => {
 		socket.on("room-users-changed", (data) => {
-			console.log("room-users-changed", data);
-			// 각 사용자의 userId와 bookId를 조합하여 canvasId를 생성
-			const updatedUsers = data.map((user) => {
-				console.log("user", user);
-				return {
-					...user,
-					canvasId: `${user.userId}`, // userId와 bookId를 결합하여 canvasId 생성
-				};
-			});
-			setRoomUsers(updatedUsers); // 상태 업데이트
+			console.log("room-users-changed", data.roomUsers);
+			setRoomUsers(data.roomUsers);
 		});
 		return () => {
 			socket.off("room-users-changed");
