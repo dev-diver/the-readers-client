@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Box, Button } from "@mui/material";
 import InsertHighlight from "./InsertHighlight";
 import { InfoToRange, drawHighlight } from "pages/Room/PDFViewer/Highlights/util";
@@ -13,86 +13,79 @@ import InsertLink from "./InsertLink";
 function OptionsModal({
 	isOpen,
 	onClose,
+	user,
 	userId,
 	highlightId,
 	bookId,
 	roomId,
+	setHighlightId,
 	selectedHighlightInfo,
 	appendHighlightListItem,
 	color = "yellow", // 하이라이트 색상 기본값 설정
 }) {
-	// activeModal 상태를 통해 어떤 모달을 띄울지 결정함
-	// 선택지 : "Highlight", "Memo", "Link", null(아무 것도 띄우지 않음)
-	const [activeModal, setActiveModal] = useState(null);
+	const [InsertMemoOpen, setInsertMemoOpen] = useState(false);
 
-	// 모달 열기 : activeModal에 선택지 중 하나의 modalType을 줌
-	const openModal = (modalType) => {
-		setActiveModal(modalType);
-	};
+	const sendHighlightToServer = async (highlightInfo) => {
+		console.log("user", user, "하이라이트 정보", highlightInfo);
+		if (!user) {
+			return null; // 세미콜론은 여기서 선택적이지만, 명확성을 위해 사용할 수 있습니다.
+		}
 
-	// 모달 닫기 : activeModal에 null을 줌
-	const closeModal = () => {
-		setActiveModal(null);
+		// ER_DATA_TOO_LONG 에러 방지를 위해 텍스트 길이 제한
+		// WARN_DATA_TRUNCATED 에러 방지를 위해 텍스트 길이 제한
+		const MAX_TEXT_LENGTH = 255; // 서버에서 허용하는 최대 길이
+		if (highlightInfo.text && highlightInfo.text.length > MAX_TEXT_LENGTH) {
+			highlightInfo.text = highlightInfo.text.substring(0, MAX_TEXT_LENGTH);
+		}
+
+		return api
+			.post(`/highlights/user/${userId}`, highlightInfo)
+			.then((response) => {
+				logger.log(response);
+				const highlightId = response.data.data[0].HighlightId;
+				setHighlightId(highlightId);
+				return highlightId;
+			})
+			.catch((err) => {
+				logger.log(err);
+				return null; // 에러 처리 후, 명시적으로 null 반환
+			}); // Promise 체인이 끝나는 곳에 세미콜론 사용
 	};
 
 	// 하이라이트 생성 버튼 클릭 핸들러
-	const handleCreateHighlight = () => {
+	const handleCreateHighlight = (event, memo) => {
+		event.preventDefault();
 		if (selectedHighlightInfo) {
-			// 화면에 하이라이트 그리기
-			drawHighlight(InfoToRange(selectedHighlightInfo), {
-				id: new Date().getTime(), // 예시로 유니크 ID 생성, 실제 구현에서는 서버에서 받은 ID 사용
-				userId: userId,
-				color: "yellow", // 색상은 상황에 맞게 설정
-			});
+			selectedHighlightInfo.forEach(async (highlightInfo) => {
+				const newRange = InfoToRange(highlightInfo);
+				highlightInfo = {
+					...highlightInfo,
+					memo: memo,
+				};
+				const highlightId = await sendHighlightToServer(highlightInfo); // 형광펜 서버로 전송
+				console.log("하이라이트 아이디입니다.", highlightId);
+				highlightInfo = {
+					...highlightInfo,
+					id: highlightId,
+					roomId: roomId,
+					userId: userId,
+					bookId: bookId,
+				};
+				socket.emit("insert-highlight", highlightInfo); //소켓에 전송
+				const drawHighlightInfo = {
+					id: highlightId,
+					userId: userId,
+					color: color,
+					bookId: bookId,
+				};
 
-			// 하이라이트 목록에 추가
-			appendHighlightListItem({
-				...selectedHighlightInfo,
-				id: new Date().getTime(), // 실제 구현에서는 서버에서 받은 ID 사용
+				drawHighlight(newRange, drawHighlightInfo); // 형관펜 화면에 그림
+				appendHighlightListItem(highlightInfo); //형광펜 리스트 생성
 			});
 
 			onClose(); // 모달 닫기
 		}
 	};
-
-	// const handleCreateHighlight = async () => {
-	// 	console.log("핸들핸들");
-	// 	if (selectedHighlightInfo && userId && bookId) {
-	// 		try {
-	// 			const response = await api.post(`/highlights/user/${userId}`, {
-	// 				...selectedHighlightInfo,
-	// 				bookId: bookId,
-	// 				color: color,
-	// 			});
-	// 			const highlightId = response.data.highlightId; // 서버에서 반환한 하이라이트 ID
-
-	// 			const highlightInfoWithId = {
-	// 				...selectedHighlightInfo,
-	// 				id: highlightId,
-	// 			};
-
-	// 			// 화면에 하이라이트 그리기 (정확한 highlightId 사용)
-	// 			drawHighlight(InfoToRange(highlightInfoWithId), {
-	// 				id: highlightId,
-	// 				userId: userId,
-	// 				color: color,
-	// 			});
-
-	// 			// 하이라이트 목록에 추가
-	// 			appendHighlightListItem(highlightInfoWithId);
-
-	// 			// 소켓을 통해 다른 클라이언트에 하이라이트 생성 정보 전송
-	// 			socket.emit("insert-highlight", {
-	// 				...highlightInfoWithId,
-	// 				roomId: roomId,
-	// 			});
-
-	// 			onClose(); // 모달 닫기, 올바른 위치에 있음
-	// 		} catch (error) {
-	// 			console.error("Failed to create highlight:", error);
-	// 		}
-	// 	}
-	// };
 
 	// 모달 스타일 : 그냥 챗지피티에서 따옴
 	const modalStyle = {
@@ -118,35 +111,21 @@ function OptionsModal({
 					닫기
 				</Button>
 				<Box sx={{ display: "flex", justifyContent: "center", gap: 2, marginBottom: 2 }}>
-					<Button variant="contained" onClick={handleCreateHighlight}>
+					<Button variant="contained" onClick={(e) => handleCreateHighlight(e, null)}>
 						하이라이트 생성
 					</Button>
-					<Button variant="contained" onClick={() => openModal("Memo")}>
+					<Button variant="contained" onClick={() => setInsertMemoOpen(true)}>
 						메모 삽입
-					</Button>
-					<Button variant="contained" onClick={() => openModal("Link")}>
-						링크 삽입
 					</Button>
 				</Box>
 
-				{activeModal === "Highlight" && (
-					<InsertHighlight
-						isOpen={true}
-						onClose={closeModal}
+				{InsertMemoOpen && (
+					<InsertMemo
+						isOpen={InsertMemoOpen}
+						onClose={() => setInsertMemoOpen(false)}
 						userId={userId}
-						highlightId={highlightId}
-						drawHighlight={drawHighlight}
-						appendHighlightListItem={appendHighlightListItem}
-						selectedHighlightInfo={selectedHighlightInfo}
+						handleCreateHighlight={handleCreateHighlight}
 					/>
-				)}
-
-				{activeModal === "Memo" && (
-					<InsertMemo isOpen={true} onClose={closeModal} userId={userId} highlightId={highlightId} />
-				)}
-
-				{activeModal === "Link" && (
-					<InsertLink isOpen={true} onClose={closeModal} userId={userId} highlightId={highlightId} bookId={bookId} />
 				)}
 			</Box>
 		</Modal>

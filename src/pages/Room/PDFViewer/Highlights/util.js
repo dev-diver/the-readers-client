@@ -1,3 +1,7 @@
+import { createRoot } from "react-dom/client";
+import React from "react";
+import MyMarkerComponent from "components/MyMarkerComponent";
+
 function getElemPageNum(elem) {
 	// console.log("elemPageNum", container);
 	return getElemPageContainer(elem).getAttribute("data-page-no");
@@ -104,7 +108,6 @@ export function rangeToInfo(range, additionalInfo) {
 export function drawHighlight(range, highlightInfo) {
 	// console.log("drawHighlight", range, highlightInfo);
 	let passNode = false;
-
 	const filterFunction = function (node) {
 		if (node.hasChildNodes() || node.nodeType !== Node.TEXT_NODE) {
 			return NodeFilter.FILTER_SKIP;
@@ -139,14 +142,37 @@ export function drawHighlight(range, highlightInfo) {
 
 		const marker = document.createElement("mark");
 		marker.classList.add(highlightInfo.color);
-		marker.setAttribute("data-highlight-id", highlightInfo.id);
-		marker.setAttribute("data-page-num", getElemPageNum(range.startContainer));
-		marker.setAttribute("data-user-id", highlightInfo.userId);
+		// marker.setAttribute("data-highlight-id", highlightInfo.id);
+		// marker.setAttribute("data-page-num", getElemPageNum(range.startContainer));
+		// marker.setAttribute("data-user-id", highlightInfo.userId);
 		parentElement.replaceChild(marker, currentNode);
-		marker.appendChild(currentNode);
+
+		const IsMemoOpen = !nextNode;
+
+		// marker 요소에 대한 새로운 root를 생성하고, MyMarkerComponent를 렌더링합니다.
+		const markerRoot = createRoot(marker); // marker 요소에 대한 root 생성
+		markerRoot.render(
+			<MyMarkerComponent
+				isOpen={false}
+				onClose={() => {}}
+				highlightId={highlightInfo.id}
+				pageNum={getElemPageNum(range.startContainer)}
+				bookId={highlightInfo.bookId}
+				userId={highlightInfo.userId}
+				color={highlightInfo.color}
+				text={currentNode.textContent}
+				IsMemoOpen={IsMemoOpen}
+			>
+				{currentNode.textContent}
+			</MyMarkerComponent>
+		);
 		currentNode = nextNode;
 	}
 }
+// // 클릭 이벤트에서 활용할 함수 정의
+// const handleHighlightClick = (event, highlightId) => {
+// 	console.log("클릭된 하이라이트 ID:", highlightId);
+// };
 
 export function eraseHighlight(highlightId) {
 	const highlightMarks = document.querySelectorAll(`[data-highlight-id="${highlightId}"]`);
