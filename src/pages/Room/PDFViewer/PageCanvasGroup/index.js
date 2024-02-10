@@ -99,15 +99,11 @@ function PageCanvasGroup({ pageNum, pageWrapper }) {
 				height={pageWrapper.scrollHeight}
 				style={{
 					border: "1px solid black",
-					// pointerEvents: "none",
 					pointerEvents: penMode == "pointer" ? "auto" : " none",
 					position: "absolute",
 					left: 0,
 					top: 0,
 				}}
-				// onMouseMove={(e) => {
-				// 	canvasMouse(e, roomUser, location);
-				// }}
 				onMouseMove={(e) => canvasMouse(e, info)}
 				onMouseOut={(e) => clearCanvas(e.target)}
 			></canvas>
@@ -266,13 +262,17 @@ function DrawingCanvases({ pageNum, roomUsers, pageWrapper, setDrawingRef }) {
 		setIsDrawing(false);
 	};
 
+	useEffect(() => {
+		console.log("penMode", penMode, "user", user?.id);
+	}, [penMode, user]);
+
 	return (
 		<>
-			{roomUsers.map((roomUser, i) => (
+			{roomUsers?.map((roomUser, i) => (
 				<canvas
 					key={`drawing-canvas-${i}`}
-					id={`drawing-canvas-${pageNum}-${roomUser.userId}`}
-					ref={(el) => setDrawingRef(el, roomUser.userId)}
+					id={`drawing-canvas-${pageNum}-${roomUser.id}`}
+					ref={(el) => setDrawingRef(el, roomUser.id)}
 					width={pageWrapper.scrollWidth}
 					height={pageWrapper.scrollHeight}
 					style={{
@@ -281,7 +281,7 @@ function DrawingCanvases({ pageNum, roomUsers, pageWrapper, setDrawingRef }) {
 						// pointerEvents: penMode =="draw" && user id랑 같은지
 						// pointerEvents: penMode == "draw" ? "auto" : " none",
 						// TODO: 본인 id가 아니면 mouseEvent 없애야 함.
-						pointerEvents: penMode == "draw" && roomUser.userId == user.id ? "auto" : "none",
+						pointerEvents: penMode == "draw" && roomUser.id == user.id ? "auto" : "none",
 						position: "absolute",
 						left: 0,
 						top: 0,
@@ -290,7 +290,7 @@ function DrawingCanvases({ pageNum, roomUsers, pageWrapper, setDrawingRef }) {
 					onMouseMove={drawMouseMove}
 					onMouseUp={drawMouseUp}
 				></canvas>
-			))}
+			)) || []}
 		</>
 	);
 }

@@ -42,7 +42,7 @@ function Highlighter({ bookId, renderContent }) {
 
 	const selectionToHighlight = () => {
 		const selectedRange = window.getSelection();
-		if (selectedRange.rangeCount > 0 && !selectedRange.isCollapsed) {
+		if (selectedRange.rangeCount != 0 && !selectedRange.isCollapsed) {
 			if (!user) {
 				alert("하이라이팅은 로그인이 필요합니다.");
 				return;
@@ -52,6 +52,7 @@ function Highlighter({ bookId, renderContent }) {
 
 			for (let i = 0; i < selectedRange.rangeCount; i++) {
 				const range = selectedRange.getRangeAt(i);
+				console.log(range);
 				const additionalInfo = { bookId: bookId, text: selectedRange.toString() };
 				const highlightInfo = rangeToInfo(range, additionalInfo);
 				console.log("highlightInfo", highlightInfo);

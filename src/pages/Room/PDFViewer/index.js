@@ -117,7 +117,7 @@ function PDFViewer({ book }) {
 					const div = doc.querySelector(".pf");
 					return div;
 				});
-				console.log(pageDivLoad, "pageDivLoad");
+				// console.log(pageDivLoad, "pageDivLoad");
 
 				const container = document.createElement("div");
 				container.classList.add("page-wrapper");
@@ -127,19 +127,22 @@ function PDFViewer({ book }) {
 
 				const canvasLayer = document.createElement("div");
 				canvasLayer.classList.add("canvasLayer");
+				canvasLayer.style.display = "inline-block";
+				canvasLayer.style.height = "auto";
 
 				const textLayer = document.createElement("div");
 				textLayer.classList.add("textLayer"); //content에 크기 맞추기
 				textLayer.style.display = "inline-block";
 				textLayer.style.height = "auto";
+
 				// textLayer.addEventListener("mousemove", (e) => canvasMouse(e, index));
 				// textLayer.addEventListener("mouseout", (e) => clearCanvas(index));
 
 				const pageDivClone = pageDiv.cloneNode(true);
 
 				pageDiv.parentNode.replaceChild(container, pageDiv);
-				container.appendChild(canvasLayer);
 				container.appendChild(textLayer);
+				container.appendChild(canvasLayer);
 				textLayer.appendChild(pageDivLoad);
 
 				return {
@@ -187,7 +190,7 @@ function PDFViewer({ book }) {
 				</Grid>
 				<Hidden smDown>
 					<Grid item xs={false} sm={false} md={1} lg={3}>
-						<RoomUserList />
+						{/* <RoomUserList /> */}
 						<Highlights bookId={book.id} renderContent={renderContent} />
 					</Grid>
 				</Hidden>

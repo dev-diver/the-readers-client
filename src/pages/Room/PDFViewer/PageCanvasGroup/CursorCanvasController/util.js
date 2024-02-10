@@ -2,6 +2,7 @@ import socket from "socket";
 
 // export const canvasMouse = (event, roomUser, location, info) => {
 export const canvasMouse = (event, info) => {
+	if (!info.user) return;
 	event.stopPropagation();
 	const canvas = event.target;
 	const rect = canvas.getBoundingClientRect();
@@ -19,18 +20,11 @@ export const canvasMouse = (event, info) => {
 		element = element.offsetParent;
 	}
 
-	console.log("info.userId", info.userId);
-	console.log("info.bookId", info.bookId);
-	console.log("info.pageNum", info.pageNum);
-	// console.log(`pagenum ${pageNum} x: ${offsetX}, y: ${offsetY}`);
+	// console.log("info", info);
 	socket.emit("move-pointer", {
-		userId: info.user.id, // 로그인해야 userId.id가 존재.
-		// user: roomUser,
-		// roomId: location.roomId,
-		// bookId: location.bookId,
+		user: info.user, // 로그인해야 userId.id가 존재.
 		bookId: info.bookId,
 		pageNum: info.pageNum,
-		// page: location.pageNum,
 		x: offsetX,
 		y: offsetY,
 	});
@@ -38,7 +32,7 @@ export const canvasMouse = (event, info) => {
 
 export const updatePointers = (pointers, data) => {
 	// 새로운 포인터 데이터 추가 또는 업데이트
-	const index = pointers.findIndex((p) => p.id === data.id);
+	const index = pointers.findIndex((p) => p.user.id === data.user.id);
 	if (index >= 0) {
 		pointers[index] = data;
 	} else {
@@ -47,7 +41,7 @@ export const updatePointers = (pointers, data) => {
 };
 
 export const redrawCanvas = (canvas, pointers) => {
-	if (!canvas.current) return;
+	if (!canvas) return;
 	clearCanvas(canvas);
 	pointers.forEach((p) => {
 		drawOnCanvas(canvas, p.x, p.y, p.color);
@@ -55,7 +49,7 @@ export const redrawCanvas = (canvas, pointers) => {
 };
 
 export const clearCanvas = (canvas) => {
-	if (!canvas.current) return;
+	if (!canvas) return;
 	const ctx = canvas.getContext("2d");
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 };
