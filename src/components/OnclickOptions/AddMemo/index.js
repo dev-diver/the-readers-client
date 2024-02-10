@@ -2,8 +2,23 @@ import React, { useState } from "react";
 import api from "api";
 import { Box, Button, TextField, Typography, Modal, FormControl } from "@mui/material";
 
-function InsertMemo({ isOpen, onClose, handleCreateHighlight }) {
+function AddMemo({ isOpen, onClose, highlightId, userId, handleCreateHighlight }) {
 	const [memo, setMemo] = useState("");
+
+	// 메모 추가
+	const addMemo = async (e) => {
+		e.preventDefault(); // 폼 제출의 기본 동작 방지
+		try {
+			const response = await api.put(`/highlights/user/${userId}/memo`, {
+				highlightId,
+				memo,
+			});
+			console.log("메모 생성 성공:", response.data);
+			onClose(); // 모달 닫기
+		} catch (error) {
+			console.error("Failed to create highlight", error);
+		}
+	};
 
 	const modalStyle = {
 		position: "absolute",
@@ -24,7 +39,7 @@ function InsertMemo({ isOpen, onClose, handleCreateHighlight }) {
 			aria-labelledby="modal-modal-title"
 			aria-describedby="modal-modal-description"
 		>
-			<Box sx={modalStyle} component="form" onSubmit={(e) => handleCreateHighlight(e, memo)} noValidate>
+			<Box sx={modalStyle} component="form" onSubmit={(e) => addMemo(e, memo)} noValidate>
 				<Typography id="modal-modal-title" variant="h6" component="h2">
 					메모 삽입
 				</Typography>
@@ -54,4 +69,4 @@ function InsertMemo({ isOpen, onClose, handleCreateHighlight }) {
 	);
 }
 
-export default InsertMemo;
+export default AddMemo;

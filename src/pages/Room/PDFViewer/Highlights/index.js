@@ -11,9 +11,6 @@ import "./styles.css";
 import HighlightList from "./HighlightList";
 // 진태 추가 코드
 import OptionsModal from "components/OptionsModal";
-import InsertLink from "components/OptionsModal/InsertLink";
-import InsertMemo from "components/OptionsModal/InsertMemo";
-import InsertHighlight from "components/OptionsModal/InsertHighlight";
 
 function Highlighter({ bookId, renderContent }) {
 	const { roomId } = useParams();
@@ -24,7 +21,7 @@ function Highlighter({ bookId, renderContent }) {
 	const [optionsModalOpen, setOptionsModalOpen] = useState(false);
 	const [highlightId, setHighlightId] = useState(null);
 	const [userId, setUserId] = useState(null);
-	const [highlightInfos, setHighlightInfo] = useState(null);
+	const [highlightInfos, setHighlightInfos] = useState(null);
 
 	const [highlightList, setHighlightList] = useRecoilState(highlightState);
 	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
@@ -62,11 +59,11 @@ function Highlighter({ bookId, renderContent }) {
 			// mouseup 이벤트가 발생하면 selectionToHighlight 함수가 실행되고
 			// setOptionsModalOpen(true)로 모달이 열림.
 			setOptionsModalOpen(true);
-			setHighlightInfo(highlightInfos[0]);
+			setHighlightInfos(highlightInfos);
 
 			highlightInfos.forEach(async (highlightInfo) => {
 				const newRange = InfoToRange(highlightInfo);
-				const highlightId = await sendHighlightToServer(highlightInfo); // 형광펜 서버로 전송
+				// const highlightId = await sendHighlightToServer(highlightInfo); // 형광펜 서버로 전송
 				console.log("highlightId", highlightId);
 				highlightInfo = {
 					...highlightInfo,
@@ -80,9 +77,6 @@ function Highlighter({ bookId, renderContent }) {
 					userId: user.id,
 					color: color,
 				};
-
-				// drawHighlight(newRange, drawHighlightInfo); // 형관펜 화면에 그림
-				// appendHighlightListItem(highlightInfo); //형광펜 리스트 생성
 			});
 		}
 
@@ -179,6 +173,7 @@ function Highlighter({ bookId, renderContent }) {
 			.post(`/highlights/user/${user.id}`, highlightInfo)
 			.then((response) => {
 				logger.log(response);
+				// 유저가 칠한 하이라이트에 아이디가 생성되는 부분 (서버에서 받아옴)
 				const highlightId = response.data.data[0].HighlightId;
 				setHighlightId(highlightId);
 				return highlightId;
@@ -234,6 +229,7 @@ function Highlighter({ bookId, renderContent }) {
 					color={color}
 					drawHighlight={drawHighlight}
 					appendHighlightListItem={appendHighlightListItem}
+					sendHighlightToServer={sendHighlightToServer}
 					selectedHighlightInfo={highlightInfos} // selectedHighlightInfo를 OptionsModal에 전달
 				/>
 			)}
