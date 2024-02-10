@@ -41,13 +41,13 @@ function Highlighter({ bookId, renderContent }) {
 	}, [bookId]);
 
 	const selectionToHighlight = () => {
-		if (!user) {
-			alert("하이라이팅은 로그인이 필요합니다.");
-			return;
-		}
 		const selectedRange = window.getSelection();
-
 		if (selectedRange.rangeCount > 0 && !selectedRange.isCollapsed) {
+			if (!user) {
+				alert("하이라이팅은 로그인이 필요합니다.");
+				return;
+			}
+
 			const highlightInfos = [];
 
 			for (let i = 0; i < selectedRange.rangeCount; i++) {
