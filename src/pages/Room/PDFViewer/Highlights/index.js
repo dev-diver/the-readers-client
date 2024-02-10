@@ -91,11 +91,12 @@ function Highlighter({ bookId, renderContent }) {
 	useEffect(() => {
 		if (user) {
 			socket.on("room-users-changed", (data) => {
-				console.log("room-users-changed", data);
-				data.forEach((roomUser) => {
+				console.log("room-users-changed", data.roomUsers);
+				const roomUsers = data.roomUsers;
+				roomUsers.forEach((roomUser) => {
 					const pageNum = 1; //레이지로드 전까지는 1로 해도 전체 가져옴
-					if (roomUser.userId !== user.id) {
-						applyServerHighlight(roomUser.userId, bookId, pageNum, "pink");
+					if (roomUser.id !== user.id) {
+						applyServerHighlight(roomUser.id, bookId, pageNum, "pink");
 					}
 				});
 			});

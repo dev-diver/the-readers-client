@@ -48,9 +48,13 @@ export default function AttentionButton() {
 			sx={{
 				borderRadius: 0,
 				color: "#f44336",
+				width: "50px",
+				height: "50px",
+				padding: 0,
+				margin: 0,
 			}}
 		>
-			<CampaignIcon />
+			<CampaignIcon sx={{ width: "30px", height: "30px" }} />
 		</Button>
 	);
 }
