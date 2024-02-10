@@ -2,47 +2,67 @@ import React, { useState, useEffect } from "react";
 import FormFile from "./Formfile";
 import api from "api";
 import { logger } from "logger";
-import { Button } from "@mui/material";
+import { PDF_UPLOAD_URL } from "config/config";
+import { LoadingButton } from "@mui/lab";
+import { TextField, Typography, Box, Button } from "@mui/material";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 export default function UploadBookToRoom({ roomId, refresher, setPop }) {
 	const [file, setFile] = useState(null);
-	const [fileName, setFileName] = useState("");
+	const [title, setTitle] = useState("");
+	const [loading, setLoading] = useState(false);
 
-	const uploadBook = (formData) => {
+	const uploadBook = (e) => {
+		setLoading(true);
+		e.preventDefault();
+		const formData = new FormData();
+		formData.append("file", file);
+		formData.append("title", title);
+		const timestamp = Date.now();
+		formData.append("fileName", `_${timestamp}`);
 		api
-			.post(`/rooms/${roomId}/books`, formData)
+			.post(`${PDF_UPLOAD_URL}/api/pdf`, formData)
 			.then((response) => {
-				logger.log(response.data.url);
-				refresher((prev) => !prev);
-				setPop(false);
+				logger.log(response.data);
+				api
+					.post(`/rooms/${roomId}/books`, {
+						title: title || "제목없음",
+						// location: response.data.location,
+						fileName: response.data.fileName,
+					})
+					.then((response) => {
+						logger.log(response.data.url);
+						refresher((prev) => !prev);
+						setPop(false);
+					})
+					.catch((err) => {
+						logger.error(err);
+						throw Error();
+					})
+					.finally(() => {
+						setLoading(false);
+					});
 			})
 			.catch((err) => {
 				logger.error(err);
+				setLoading(false);
 			});
 	};
 
 	return (
 		<>
-			<h3>책 추가</h3>
-			<div>
-				<span>책 이름</span>
-				<input accept="application/pdf" type="text" value={fileName} onChange={(e) => setFileName(e.target.value)} />
-			</div>
-			<div>
-				<span>파일 업로드</span>
-				<FormFile setFile={setFile} />
-			</div>
-			<Button
-				type="button"
-				onClick={() => {
-					const formData = new FormData();
-					formData.append("file", file);
-					formData.append("fileName", fileName);
-					uploadBook(formData);
-				}}
-			>
-				업로드!
-			</Button>
+			<Box component="form" onSubmit={uploadBook}>
+				<Typography component="h3">책 추가</Typography>
+				<TextField fullWidth label="책 이름" type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
+				<TextField disabled fullWidth label="책 파일" value={file?.name || ""} />
+				<Button type="button" component="label" variant="contained" startIcon={<CloudUploadIcon />}>
+					파일 추가
+					<FormFile setFile={setFile} />
+				</Button>
+				<LoadingButton loading={loading} type="submit" variant="contained">
+					업로드
+				</LoadingButton>
+			</Box>
 		</>
 	);
 }
