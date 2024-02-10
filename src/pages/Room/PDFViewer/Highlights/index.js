@@ -11,9 +11,6 @@ import "./styles.css";
 import HighlightList from "./HighlightList";
 // 진태 추가 코드
 import OptionsModal from "components/OptionsModal";
-import InsertLink from "components/OptionsModal/InsertLink";
-import InsertMemo from "components/OptionsModal/InsertMemo";
-import InsertHighlight from "components/OptionsModal/InsertHighlight";
 
 function Highlighter({ bookId, renderContent }) {
 	const { roomId } = useParams();
@@ -63,7 +60,6 @@ function Highlighter({ bookId, renderContent }) {
 			setOptionsModalOpen(true);
 			setHighlightInfos(highlightInfos);
 
-			// 형한테 확인 받기
 			highlightInfos.forEach(async (highlightInfo) => {
 				const newRange = InfoToRange(highlightInfo);
 				// const highlightId = await sendHighlightToServer(highlightInfo); // 형광펜 서버로 전송
@@ -80,9 +76,6 @@ function Highlighter({ bookId, renderContent }) {
 					userId: user.id,
 					color: color,
 				};
-
-				// drawHighlight(newRange, drawHighlightInfo); // 형관펜 화면에 그림
-				// appendHighlightListItem(highlightInfo); //형광펜 리스트 생성
 			});
 		}
 
@@ -178,6 +171,7 @@ function Highlighter({ bookId, renderContent }) {
 			.post(`/highlights/user/${user.id}`, highlightInfo)
 			.then((response) => {
 				logger.log(response);
+				// 유저가 칠한 하이라이트에 아이디가 생성되는 부분 (서버에서 받아옴)
 				const highlightId = response.data.data[0].HighlightId;
 				setHighlightId(highlightId);
 				return highlightId;

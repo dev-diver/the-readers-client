@@ -23,24 +23,7 @@ function OptionsModal({
 	appendHighlightListItem,
 	color = "yellow", // 하이라이트 색상 기본값 설정
 }) {
-	// activeModal 상태를 통해 어떤 모달을 띄울지 결정함
-	// 선택지 : "Highlight", "Memo", "Link", null(아무 것도 띄우지 않음)
-	const [activeModal, setActiveModal] = useState(null);
-
-	// 모달 열기 : activeModal에 선택지 중 하나의 modalType을 줌
-	const openModal = (modalType) => {
-		setActiveModal(modalType);
-	};
-
-	// 모달 닫기 : activeModal에 null을 줌
-	const closeModal = () => {
-		setActiveModal(null);
-	};
-
-	useEffect(() => {
-		// drawHighlight 함수나 다른 로직에서 handleHighlightClick을 사용할 수 있도록 설정
-		// 이 부분은 컴포넌트의 다른 부분과 연동되어야 합니다.
-	}, []);
+	const [InsertMemoOpen, setInsertMemoOpen] = useState(false);
 
 	const sendHighlightToServer = async (highlightInfo) => {
 		console.log("user", user, "하이라이트 정보", highlightInfo);
@@ -56,7 +39,7 @@ function OptionsModal({
 		}
 
 		return api
-			.post(`/highlights/user/${user.id}`, highlightInfo)
+			.post(`/highlights/user/${userId}`, highlightInfo)
 			.then((response) => {
 				logger.log(response);
 				const highlightId = response.data.data[0].HighlightId;
@@ -73,7 +56,6 @@ function OptionsModal({
 	const handleCreateHighlight = (event, memo) => {
 		event.preventDefault();
 		if (selectedHighlightInfo) {
-			// 화면에 하이라이트 그리기
 			selectedHighlightInfo.forEach(async (highlightInfo) => {
 				const newRange = InfoToRange(highlightInfo);
 				highlightInfo = {
@@ -86,13 +68,13 @@ function OptionsModal({
 					...highlightInfo,
 					id: highlightId,
 					roomId: roomId,
-					userId: user.id,
+					userId: userId,
 					bookId: bookId,
 				};
 				socket.emit("insert-highlight", highlightInfo); //소켓에 전송
 				const drawHighlightInfo = {
 					id: highlightId,
-					userId: user.id,
+					userId: userId,
 					color: color,
 					bookId: bookId,
 				};
@@ -132,29 +114,18 @@ function OptionsModal({
 					<Button variant="contained" onClick={(e) => handleCreateHighlight(e, null)}>
 						하이라이트 생성
 					</Button>
-					<Button variant="contained" onClick={() => openModal("Memo")}>
+					<Button variant="contained" onClick={() => setInsertMemoOpen(true)}>
 						메모 삽입
 					</Button>
-					{/* <Button variant="contained" onClick={() => openModal("Link")}>
-						링크 삽입
-					</Button> */}
 				</Box>
 
-				{activeModal === "Memo" && (
+				{InsertMemoOpen && (
 					<InsertMemo
-						isOpen={true}
-						onClose={closeModal}
+						isOpen={InsertMemoOpen}
+						onClose={() => setInsertMemoOpen(false)}
 						userId={userId}
-						highlightId={highlightId}
-						sendHighlightToServer={sendHighlightToServer}
-						selectedHighlightInfo={selectedHighlightInfo}
-						appendHighlightListItem={appendHighlightListItem}
 						handleCreateHighlight={handleCreateHighlight}
 					/>
-				)}
-
-				{activeModal === "Link" && (
-					<InsertLink isOpen={true} onClose={closeModal} userId={userId} highlightId={highlightId} bookId={bookId} />
 				)}
 			</Box>
 		</Modal>

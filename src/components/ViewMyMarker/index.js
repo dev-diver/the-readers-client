@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import api from "api";
 import { Box, Button, Typography, Modal } from "@mui/material";
 
-function ViewMyMarker({ isOpen, onClose, bookId, MyMarkers, fromHighlightId }) {
+function ViewMyMarker({ isOpen, onClose, bookId, fromHighlightId, MyMarkers }) {
 	// 클릭 이벤트 핸들러
 	const handleComponentClick = async () => {
 		try {

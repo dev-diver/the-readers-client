@@ -3,12 +3,13 @@ import api from "api";
 import { Box, Button, Typography, Modal } from "@mui/material";
 import ViewMyMarker from "components/ViewMyMarker";
 import "./style.css";
+import OnclickOptions from "components/OnclickOptions";
 
 function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, userId, highlightId, bookId, children }) {
 	const [highlights, setHighlights] = useState([]);
 	const [showViewMyMarker, setShowViewMyMarker] = useState(false); // ViewMyMarker 컴포넌트 표시 상태
-
-	// 클릭 이벤트 핸들러
+	const [onClickOptions, setOnClickOptions] = useState(false);
+	const [links, setLinks] = useState([]);
 	const handleComponentClick = async () => {
 		try {
 			const response = await api.get(`/highlights/book/${bookId}`);
@@ -16,7 +17,8 @@ function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, userId, highl
 			console.log("하이라이트아이디", highlightId);
 			console.log("데이터 입니다", response);
 			setHighlights(response.data.data); // 상태 업데이트
-			setShowViewMyMarker(true); // ViewMyMarker 컴포넌트를 표시하기 위해 상태 업데이트
+			// setShowViewMyMarker(true); // ViewMyMarker 컴포넌트를 표시하기 위해 상태 업데이트
+			setOnClickOptions(true);
 		} catch (error) {
 			console.error("Failed to fetch highlights", error);
 		}
@@ -31,6 +33,23 @@ function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, userId, highl
 		}
 	};
 
+	const handleCreateHighlight = async (e, memo) => {
+		e.preventDefault(); // 폼 제출의 기본 동작 방지
+		try {
+			const response = await api.put(`/highlights/user/${userId}/memo`, {
+				memo,
+			});
+			console.log("메모 생성 성공:", response.data);
+			onClose(); // 모달 닫기
+		} catch (error) {
+			console.error("Failed to create highlight", error);
+		}
+	};
+
+	const viewInnerLink = async () => {
+		console.log("안녕하세요");
+	};
+
 	return (
 		<>
 			<mark
@@ -41,15 +60,28 @@ function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, userId, highl
 				onMouseEnter={() => handleComponentEnter()}
 			>
 				{children}
-				{IsMemoOpen && <button className="memobutton">✅</button>}
+				{IsMemoOpen && (
+					<button className="memobutton" onClick={() => viewInnerLink()}>
+						✅
+					</button>
+				)}
 			</mark>
-			{showViewMyMarker && (
+			{/* {showViewMyMarker && (
 				<ViewMyMarker
 					isOpen={showViewMyMarker}
 					onClose={() => setShowViewMyMarker(false)} // ViewMyMarker 컴포넌트 닫기
 					bookId={bookId}
 					MyMarkers={highlights}
 					fromHighlightId={highlightId}
+				/>
+			)} */}
+			{onClickOptions && (
+				<OnclickOptions
+					isOpen={onClickOptions}
+					onClose={() => setOnClickOptions(false)}
+					highlightId={highlightId}
+					handleCreateHighlight={handleCreateHighlight}
+					bookId={bookId}
 				/>
 			)}
 		</>
