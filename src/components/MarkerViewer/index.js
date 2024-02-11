@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import api from "api";
 import { Box, Button, Typography, Modal } from "@mui/material";
 
-function MarkerViewer({ isOpen, onClose, bookId, fromHighlightId, MyMarkers }) {
+function MarkerViewer({ isOpen, onClose, bookId, fromHighlightId, MyMarkers, onCloseEntire }) {
 	// 클릭 이벤트 핸들러
 	const handleComponentClick = async () => {
 		try {
@@ -26,6 +26,7 @@ function MarkerViewer({ isOpen, onClose, bookId, fromHighlightId, MyMarkers }) {
 			console.log("링크 생성 성공:", response.data);
 			// 성공 처리 로직 (예: 상태 업데이트, 사용자에게 알림 등)
 			onClose();
+			onCloseEntire();
 		} catch (error) {
 			console.error("링크 생성 실패:", error);
 			// 실패 처리 로직 (예: 에러 메시지 표시 등)

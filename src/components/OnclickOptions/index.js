@@ -75,7 +75,14 @@ function OnclickOptions({
 				)}
 
 				{activeModal === "Link" && (
-					<InsertLink isOpen={true} onClose={closeModal} userId={userId} highlightId={highlightId} bookId={bookId} />
+					<InsertLink
+						isOpen={true}
+						onClose={closeModal}
+						onCloseEntire={onClose}
+						userId={userId}
+						highlightId={highlightId}
+						bookId={bookId}
+					/>
 				)}
 			</Box>
 		</Modal>

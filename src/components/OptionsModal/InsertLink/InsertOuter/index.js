@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import api from "api";
 import { Box, Button, TextField, Typography, Modal, FormControl } from "@mui/material";
 
-function InsertOuter({ isOpen, onClose, userId, highlightId }) {
+function InsertOuter({ isOpen, onClose, userId, highlightId, onCloseEntire }) {
 	const [OuterLink, setOuterLink] = useState("");
 	const [note, setNote] = useState("");
+
 	const handleSubmit = async (e) => {
 		e.preventDefault(); // 폼 제출 시 페이지 새로고침 방지
 		try {
@@ -15,6 +16,7 @@ function InsertOuter({ isOpen, onClose, userId, highlightId }) {
 			});
 			console.log("외부 링크 삽입 성공", response.data.data);
 			onClose();
+			onCloseEntire();
 			setOuterLink("");
 		} catch (error) {
 			console.error("외부 링크 삽입 실패", error);
