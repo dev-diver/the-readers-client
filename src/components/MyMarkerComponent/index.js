@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import api from "api";
-import { Box, Button, Typography, Modal } from "@mui/material";
+import { Tooltip, Box, Button, Typography, Modal } from "@mui/material";
 import ViewMyMarker from "components/MarkerViewer";
 import "./style.css";
 import OnclickOptions from "components/OnclickOptions";
-import Alert from "@mui/material/Alert";
 
 function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, userId, highlightId, bookId, children }) {
 	const [highlights, setHighlights] = useState([]);
 	const [onClickOptions, setOnClickOptions] = useState(false);
+	const [memoData, setMemoData] = useState("");
+	const [isTooltipOpen, setIsTooltipOpen] = useState(false); // Tooltip을 제어하기 위한 상태
 
 	const handleComponentClick = async () => {
 		try {
@@ -23,11 +24,16 @@ function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, userId, highl
 		}
 	};
 
+	const handleComponentLeave = () => {
+		setIsTooltipOpen(false); // 마우스가 떠나면 Tooltip을 숨김
+	};
+
 	const handleComponentEnter = async () => {
 		try {
 			const response = await api.get(`/highlights/${highlightId}`);
-			console.log("메모", response.data.data.memo);
-			// <Alert severity="success">This is a success Alert.</Alert>;
+			setMemoData(response.data.data.memo); // 메모 데이터를 상태에 저장
+			console.log(response.data.data.memo);
+			setIsTooltipOpen(true); // Tooltip을 표시
 		} catch (error) {
 			console.error("Failed to fetch highlights", error);
 		}
@@ -37,6 +43,7 @@ function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, userId, highl
 		e.preventDefault(); // 폼 제출의 기본 동작 방지
 		try {
 			const response = await api.put(`/highlights/user/${userId}/memo`, {
+				highlightId,
 				memo,
 			});
 			console.log("메모 생성 성공:", response.data);
@@ -46,9 +53,7 @@ function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, userId, highl
 		}
 	};
 
-	const viewInnerLink = async () => {
-		console.log("안녕하세요");
-	};
+	const viewInnerLink = async () => {};
 
 	return (
 		<>
@@ -57,13 +62,32 @@ function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, userId, highl
 				data-page-num={pageNum}
 				data-user-id={userId}
 				onClick={() => handleComponentClick()}
-				onMouseEnter={() => handleComponentEnter()}
 			>
 				{children}
 				{IsMemoOpen && (
-					<button className="memobutton" onClick={() => viewInnerLink()}>
-						✅
-					</button>
+					<>
+						<Tooltip
+							title={memoData || "No memo available"} // Tooltip에 표시할 텍스트
+							open={isTooltipOpen} // Tooltip 표시 여부
+							disableFocusListener // 포커스 시 Tooltip이 표시되지 않도록 함
+							disableHoverListener // 호버 시 Tooltip이 자동으로 표시되지 않도록 함
+							disableTouchListener // 터치 시 Tooltip이 표시되지 않도록 함
+						>
+							<Button
+								className="memobutton"
+								onMouseEnter={handleComponentEnter} // 마우스 오버 시 메모 데이터 로드
+								onMouseLeave={handleComponentLeave} // 마우스 아웃 시 Tooltip 숨김
+							>
+								🔴{/* 메모 확인 버튼 */}
+							</Button>
+						</Tooltip>
+						<button className="memobutton" onClick={() => viewInnerLink()}>
+							🟠{/* 내부 링크 확인 버튼 */}
+						</button>
+						<button className="memobutton" onClick={() => viewInnerLink()}>
+							🟡{/* 외부 링크 확인 버튼 */}
+						</button>
+					</>
 				)}
 			</mark>
 			{onClickOptions && (

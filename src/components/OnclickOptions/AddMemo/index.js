@@ -7,6 +7,7 @@ function AddMemo({ isOpen, onClose, highlightId, userId, onCloseEntire }) {
 	// 메모 추가
 	const addMemo = async (e, memo) => {
 		e.preventDefault(); // 폼 제출의 기본 동작 방지
+		console.log(highlightId, memo);
 		try {
 			const response = await api.put(`/highlights/user/${userId}/memo`, {
 				highlightId,
