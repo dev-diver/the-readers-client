@@ -19,7 +19,7 @@ import RoomUserList from "components/RoomUserList";
 import api from "api";
 import { baseURL } from "config/config";
 
-const VIEWER_WIDTH = 800;
+const VIEWER_WIDTH = 800; //650;
 
 function PDFViewer({ book }) {
 	const notesData = [
@@ -99,6 +99,7 @@ function PDFViewer({ book }) {
 
 	function adjustScaleToWidth(targetWidth) {
 		const scale = originalWidth / targetWidth;
+		console.log("originalWidth", originalWidth, "targetWidth", targetWidth, "scale", scale);
 		setScale(scale);
 	}
 
@@ -108,6 +109,11 @@ function PDFViewer({ book }) {
 			Array.from(pageDivs).map(async (pageDiv, index) => {
 				const fileName = pageDiv.getAttribute("data-page-url");
 				console.log(fileName, "fileName");
+				if (!fileName)
+					return {
+						component: null,
+						container: null,
+					};
 				const url = `/storage/pdfPages/${book.urlName}/pages/${fileName}`;
 				const pageDivLoad = await api(url).then((response) => {
 					const parser = new DOMParser();
@@ -115,7 +121,7 @@ function PDFViewer({ book }) {
 					const div = doc.querySelector(".pf");
 					return div;
 				});
-				console.log(pageDivLoad, "pageDivLoad");
+				// console.log(pageDivLoad, "pageDivLoad");
 
 				const container = document.createElement("div");
 				container.classList.add("page-wrapper");
@@ -125,23 +131,24 @@ function PDFViewer({ book }) {
 
 				const canvasLayer = document.createElement("div");
 				canvasLayer.classList.add("canvasLayer");
+				canvasLayer.style.display = "inline-block";
+				canvasLayer.style.height = "auto";
 
 				const textLayer = document.createElement("div");
 				textLayer.classList.add("textLayer"); //content에 크기 맞추기
 				textLayer.style.display = "inline-block";
 				textLayer.style.height = "auto";
+
 				// textLayer.addEventListener("mousemove", (e) => canvasMouse(e, index));
 				// textLayer.addEventListener("mouseout", (e) => clearCanvas(index));
 
-				const pageDivClone = pageDiv.cloneNode(true);
-
 				pageDiv.parentNode.replaceChild(container, pageDiv);
-				container.appendChild(canvasLayer);
 				container.appendChild(textLayer);
+				container.appendChild(canvasLayer);
 				textLayer.appendChild(pageDivLoad);
 
 				return {
-					component: <PageCanvasGroup pageNum={index + 1} pageWrapper={container} />,
+					component: <PageCanvasGroup pageNum={index + 1} canvasFrame={textLayer} />,
 					container: canvasLayer,
 				};
 			})
@@ -185,23 +192,23 @@ function PDFViewer({ book }) {
 				</Grid>
 				<Hidden smDown>
 					<Grid item xs={false} sm={false} md={1} lg={3}>
-						<RoomUserList />
+						{/* <RoomUserList /> */}
 						<Highlights bookId={book.id} renderContent={renderContent} />
 					</Grid>
 				</Hidden>
 				{notes.map((note) => (
 					<Grid item style={{ flex: 1 }} key={note.id}>
-						<DraggableElement>
+						<DraggableElement startX={window.innerWidth - 300} startY={120}>
 							<SwitchController />
 						</DraggableElement>
-						<DraggableElement>
+						<DraggableElement startX={window.innerWidth - 300} startY={60}>
 							<PenController />
 						</DraggableElement>
 					</Grid>
 				))}
 			</Grid>
 			{canvasComponents.map(({ component, container }) => {
-				return createPortal(component, container);
+				return component && createPortal(component, container);
 			})}
 			<CursorCanvasController totalPage={canvasComponents.length} />
 			<DrawingCanvasController totalPage={canvasComponents.length} />
