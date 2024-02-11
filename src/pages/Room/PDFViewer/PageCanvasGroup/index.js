@@ -15,7 +15,7 @@ import {
 import rough from "roughjs/bundled/rough.esm";
 import socket from "socket";
 
-function PageCanvasGroup({ pageNum, pageWrapper }) {
+function PageCanvasGroup({ pageNum, canvasFrame }) {
 	const { bookId, roomId } = useParams();
 	// 여기에서 추가하기
 	const [canvasItems, setCanvasItems] = useState([]);
@@ -64,7 +64,7 @@ function PageCanvasGroup({ pageNum, pageWrapper }) {
 			setDrawingCanvasRefs((oldRefs) => {
 				let flag = isAllRefSet(oldRefs);
 				if (flag && oldRefs.length > 0) {
-					console.log("All refs are set");
+					// console.log("All refs are set");
 					return oldRefs;
 				}
 				// oldRefs 배열을 순회하며, 조건에 맞는 요소를 찾아 업데이트합니다.
@@ -95,8 +95,8 @@ function PageCanvasGroup({ pageNum, pageWrapper }) {
 			<canvas
 				id={`pointer-canvas-${pageNum}`}
 				ref={setRef}
-				width={pageWrapper.scrollWidth}
-				height={pageWrapper.scrollHeight}
+				width={canvasFrame.scrollWidth}
+				height={canvasFrame.scrollHeight}
 				style={{
 					border: "1px solid black",
 					pointerEvents: penMode == "pointer" ? "auto" : " none",
@@ -113,7 +113,7 @@ function PageCanvasGroup({ pageNum, pageWrapper }) {
 			<DrawingCanvases
 				pageNum={pageNum}
 				roomUsers={roomUsers}
-				pageWrapper={pageWrapper}
+				canvasFrame={canvasFrame}
 				setDrawingRef={setDrawingRef}
 			/>
 		</div>
@@ -123,7 +123,7 @@ function PageCanvasGroup({ pageNum, pageWrapper }) {
 const generator = rough.generator();
 const tool = "pencil";
 const color = "black";
-function DrawingCanvases({ pageNum, roomUsers, pageWrapper, setDrawingRef }) {
+function DrawingCanvases({ pageNum, roomUsers, canvasFrame, setDrawingRef }) {
 	const [bookChanged, setBookChanged] = useRecoilState(bookChangedState);
 	const { bookId, roomId } = useParams();
 	const [user, setUser] = useRecoilState(userState);
@@ -177,13 +177,13 @@ function DrawingCanvases({ pageNum, roomUsers, pageWrapper, setDrawingRef }) {
 		});
 		const canvasImage = canvasRef.toDataURL();
 		const data = {
-			userId: user.id,
+			user: user,
 			location,
 			canvasImage,
 		};
 		// console.log("location", location.roomId);
 		// console.log("data", data);
-		socket.emit("drawing", data);
+		socket.emit("draw-canvas", data);
 	}, [drawingCanvasRefs.length, elements, user]);
 
 	const drawMouseDown = (e) => {
@@ -275,8 +275,8 @@ function DrawingCanvases({ pageNum, roomUsers, pageWrapper, setDrawingRef }) {
 					key={`drawing-canvas-${i}`}
 					id={`drawing-canvas-${pageNum}-${roomUser.id}`}
 					ref={(el) => setDrawingRef(el, roomUser.id)}
-					width={pageWrapper.scrollWidth}
-					height={pageWrapper.scrollHeight}
+					width={canvasFrame.scrollWidth}
+					height={canvasFrame.scrollHeight}
 					style={{
 						border: "1px solid black",
 						// pointerEvents: "none",

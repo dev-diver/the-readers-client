@@ -41,7 +41,7 @@ function Highlighter({ bookId, renderContent }) {
 
 	const selectionToHighlight = () => {
 		const selectedRange = window.getSelection();
-		console.log("penMode", penMode);
+		// console.log("penMode", penMode);
 		if (penMode == "highlight" && selectedRange.rangeCount != 0 && !selectedRange.isCollapsed) {
 			if (!user) {
 				alert("하이라이팅은 로그인이 필요합니다.");

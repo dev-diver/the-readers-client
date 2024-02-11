@@ -35,13 +35,13 @@ export default function DrawingCanvasController({ totalPage }) {
 	}, [totalPage, roomUsers, initialize]);
 
 	useEffect(() => {
-		socket.on("canvasImage", (data) => {
+		socket.on("share-canvas", (data) => {
 			// data 객체에서 canvasId와 이미지 URL을 추출
 			if (data) {
-				const { userId, canvasImage, location } = data;
+				const { user, canvasImage, location } = data;
 				// console.log("canvasImage event", data);
-				const canvas = getCanvasRef(drawingCanvasRefs, location.pageNum, userId);
-				// console.log("canvas", canvas);
+				const canvas = getCanvasRef(drawingCanvasRefs, location.pageNum, user.id);
+				console.log("canvas", canvas);
 				if (canvas) {
 					const context = canvas.getContext("2d");
 					const image = new Image();
