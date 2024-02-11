@@ -3,36 +3,29 @@ import socket from "socket";
 import { useRecoilState } from "recoil";
 import { getCanvasRef } from "./util";
 import { bookChangedState, roomUserState, roomUsersState, drawingCanvasRefsState } from "recoil/atom";
-import {} from "./util";
 
 export default function DrawingCanvasController({ totalPage }) {
-	const pointers = useRef([]);
 	const [drawingCanvasRefs, setDrawingCanvasRefs] = useRecoilState(drawingCanvasRefsState);
 	const [bookChanged, setBookChanged] = useRecoilState(bookChangedState);
 	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
-	const [roomUser, setRoomUser] = useRecoilState(roomUserState);
 	const [initialize, setInitialize] = useState(false);
 
 	useEffect(() => {
-		if (totalPage === 0) return;
-		console.log("roomUsers", roomUsers);
-		if (roomUsers?.length == 0) return;
-		if (initialize) return;
+		console.log("totalPage", totalPage, "roomUsers", roomUsers, "initialize", initialize);
+		if (totalPage === 0 || roomUsers?.length == 0 || initialize) return;
 		// console.log("roomUsers", roomUsers);
 		const newRefs = new Array(totalPage).fill(null).map((e, i) => {
-			// 각 페이지에 대해 roomUsers 배열을 순회하여 유저 ID별로 React.createRef() 생성
-			const userRefs =
-				roomUsers?.reduce((acc, user) => {
-					acc[user.id] = React.createRef();
-					return acc;
-				}, {}) || {};
-			return { page: i + 1, userRefs: userRefs };
+			return { page: i + 1, userRefs: {} };
 		});
 		console.log("newRefs", newRefs);
 		setInitialize(true);
 		setBookChanged((prev) => !prev);
 		setDrawingCanvasRefs(newRefs);
-	}, [totalPage, roomUsers, initialize]);
+	}, [roomUsers, initialize]);
+
+	useEffect(() => {
+		setInitialize(false);
+	}, [totalPage, roomUsers]);
 
 	useEffect(() => {
 		socket.on("share-canvas", (data) => {
@@ -41,7 +34,7 @@ export default function DrawingCanvasController({ totalPage }) {
 				const { user, canvasImage, location } = data;
 				// console.log("canvasImage event", data);
 				const canvas = getCanvasRef(drawingCanvasRefs, location.pageNum, user.id);
-				console.log("canvas", canvas);
+				// console.log("canvas", canvas);
 				if (canvas) {
 					const context = canvas.getContext("2d");
 					const image = new Image();

@@ -38,11 +38,11 @@ export default function RoomJoinController({ roomId }) {
 			socket.emit("room-joined", myRoomUser);
 		}
 		return () => {
-			socket.emit("room-leaved", { user: roomUser });
+			socket.emit("room-leaved", roomUser);
 			socket.off("room-joined");
 			if (!user) {
-				// setRoomUser(null);
-				// setRoomUsers(null);
+				setRoomUser(null);
+				setRoomUsers(null);
 			}
 		};
 	}, [user, roomId]);

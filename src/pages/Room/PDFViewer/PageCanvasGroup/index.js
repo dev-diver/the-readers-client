@@ -5,7 +5,6 @@ import { canvasMouse, clearCanvas } from "./CursorCanvasController/util";
 import { getCanvasRef } from "./DrawingCanvasController/util";
 import {
 	userState,
-	roomUserState,
 	roomUsersState,
 	cursorCanvasRefsState,
 	drawingCanvasRefsState,
@@ -14,26 +13,18 @@ import {
 } from "recoil/atom";
 import rough from "roughjs/bundled/rough.esm";
 import socket from "socket";
+import { produce } from "immer";
 
 function PageCanvasGroup({ pageNum, canvasFrame }) {
 	const { bookId, roomId } = useParams();
 	// 여기에서 추가하기
-	const [canvasItems, setCanvasItems] = useState([]);
-	const [roomUser, setRoomUser] = useRecoilState(roomUserState);
-
+	const [user, setUser] = useRecoilState(userState);
 	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
 	const [bookChanged, setBookChanged] = useRecoilState(bookChangedState);
 	const [cursorCanvasRefs, setCursorCanvasRefs] = useRecoilState(cursorCanvasRefsState);
 	const [drawingCanvasRefs, setDrawingCanvasRefs] = useRecoilState(drawingCanvasRefsState);
 
 	const [penMode, setPenMode] = useRecoilState(penModeState);
-	const [user, setUser] = useRecoilState(userState);
-
-	const location = {
-		bookId: bookId,
-		roomId: roomId,
-		pageNum: pageNum,
-	};
 
 	const setRef = useCallback(
 		(el) => {
@@ -50,38 +41,41 @@ function PageCanvasGroup({ pageNum, canvasFrame }) {
 		[pageNum, bookChanged, setCursorCanvasRefs]
 	);
 
-	const isAllRefSet = (refs) =>
-		refs.every((pageRef) => {
-			// console.log(pageRef);
+	const isAllRefSet = (refs) => {
+		// console.log("refs", refs);
+		if (refs.length === 0) return false;
+		return refs.every((pageRef) => {
+			// console.log("page ref", pageRef);
+			if (Object.keys(pageRef.userRefs).length === 0) return false;
 			return Object.values(pageRef.userRefs).every((userRef) => {
-				// console.log(userRef.current);
-				return userRef.current != null;
+				console.log(!!userRef.current);
+				return !!userRef.current;
 			});
 		});
+	};
 
 	const setDrawingRef = useCallback(
 		(el, userId) => {
+			let flag = isAllRefSet(drawingCanvasRefs);
+			// console.log("isAllRefset", flag);
+			if (flag) {
+				// console.log("All refs are set");
+				return;
+			}
 			setDrawingCanvasRefs((oldRefs) => {
-				let flag = isAllRefSet(oldRefs);
-				if (flag && oldRefs.length > 0) {
-					// console.log("All refs are set");
-					return oldRefs;
-				}
-				// oldRefs 배열을 순회하며, 조건에 맞는 요소를 찾아 업데이트합니다.
-				const newRefs = oldRefs.map((pageRef) => {
-					if (pageRef.page === pageNum) {
-						let newUserRefs = { ...pageRef.userRefs };
-						if (!newUserRefs[userId].current) {
-							newUserRefs[userId] = { current: el };
+				const newRefs = produce(oldRefs, (draftRefs) => {
+					draftRefs.forEach((pageRef) => {
+						if (pageRef.page === pageNum) {
+							let userRefs = pageRef.userRefs[userId];
+							// console.log("userRefs", userRefs);
+							if (!userRefs?.current) {
+								pageRef.userRefs[userId] = { current: el };
+							}
 						}
-						// pageNum과 일치하는 page 속성을 가진 요소를 찾았을 때,
-						// userId와 일치하는 user 속성을 가진 요소를 찾았을 때,
-						// 해당 요소의 ref를 업데이트합니다.
-						return { ...pageRef, userRefs: newUserRefs };
-					}
-					// 조건에 맞지 않는 요소는 그대로 반환합니다.
-					return pageRef;
+					});
+					// console.log("draftRefs", draftRefs);
 				});
+				// console.log("newRefs", newRefs);
 				return newRefs;
 			});
 		},
@@ -263,10 +257,6 @@ function DrawingCanvases({ pageNum, roomUsers, canvasFrame, setDrawingRef }) {
 	const drawMouseUp = () => {
 		setIsDrawing(false);
 	};
-
-	useEffect(() => {
-		console.log("roomUsers", roomUsers);
-	}, [roomUsers]);
 
 	return (
 		<>
