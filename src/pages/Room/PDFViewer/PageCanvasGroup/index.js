@@ -183,7 +183,6 @@ function DrawingCanvases({ pageNum, roomUsers, canvasFrame, setDrawingRef }) {
 
 	const drawMouseDown = (e) => {
 		const { offsetX, offsetY } = e.nativeEvent;
-
 		if (tool === "pencil") {
 			setElements((prevElements) => [
 				...prevElements,

@@ -2,7 +2,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import socket from "socket";
 import { useRecoilState } from "recoil";
 import { getCanvasRef } from "./util";
-import { bookChangedState, roomUserState, roomUsersState, drawingCanvasRefsState } from "recoil/atom";
+import { bookChangedState, roomUsersState, drawingCanvasRefsState } from "recoil/atom";
 
 export default function DrawingCanvasController({ totalPage }) {
 	const [drawingCanvasRefs, setDrawingCanvasRefs] = useRecoilState(drawingCanvasRefsState);

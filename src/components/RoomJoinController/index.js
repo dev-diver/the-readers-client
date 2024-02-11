@@ -42,7 +42,7 @@ export default function RoomJoinController({ roomId }) {
 			socket.off("room-joined");
 			if (!user) {
 				setRoomUser(null);
-				setRoomUsers(null);
+				setRoomUsers([]);
 			}
 		};
 	}, [user, roomId]);
