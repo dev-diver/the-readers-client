@@ -5,12 +5,8 @@ import { penModeState, widthState } from "recoil/atom";
 import { Pointer, Highlighter, PencilLine, MousePointerClick, Eraser } from "lucide-react";
 import AttentionButton from "./AttentionButton";
 
-// import * as React from 'react';
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
-// import FormatAlignLeftIcon from "@mui/icons-material/FormatAlignLeft";
-// import PageCanvasGroup from "./PageCanvasGroup";
-// import { ConnectingAirportsOutlined } from "@mui/icons-material";
 
 export default function PenController() {
 	const [mode, setMode] = useRecoilState(penModeState);
@@ -20,7 +16,9 @@ export default function PenController() {
 	const ref = useRef(null); // 요소에 대한 참조를 생성
 
 	const handleChange = (event, newMode) => {
-		setMode(newMode);
+		if (newMode !== null) {
+			setMode(newMode);
+		}
 	};
 
 	useEffect(() => {
@@ -64,13 +62,7 @@ export default function PenController() {
 				<ToggleButton value="click" aria-label="click" sx={{ padding: 0, width: "50px", height: "50px" }}>
 					<Eraser />
 				</ToggleButton>
-				<ToggleButton
-					value="attention"
-					aria-label="attention"
-					sx={{ width: "50px", height: "50px", overflow: "hidden" }}
-				>
-					<AttentionButton />
-				</ToggleButton>
+				<AttentionButton />
 			</ToggleButtonGroup>
 		</Box>
 	);
