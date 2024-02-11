@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import api from "api";
 import { Box, Button, Typography, Modal } from "@mui/material";
 
-function ViewMyMarker({ isOpen, onClose, bookId, fromHighlightId, MyMarkers }) {
+function MarkerViewer({ isOpen, onClose, bookId, fromHighlightId, MyMarkers }) {
 	// 클릭 이벤트 핸들러
 	const handleComponentClick = async () => {
 		try {
@@ -65,4 +65,4 @@ function ViewMyMarker({ isOpen, onClose, bookId, fromHighlightId, MyMarkers }) {
 	);
 }
 
-export default ViewMyMarker;
+export default MarkerViewer;

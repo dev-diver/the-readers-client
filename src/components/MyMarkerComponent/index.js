@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import api from "api";
 import { Box, Button, Typography, Modal } from "@mui/material";
-import ViewMyMarker from "components/ViewMyMarker";
+import ViewMyMarker from "components/MarkerViewer";
 import "./style.css";
 import OnclickOptions from "components/OnclickOptions";
+import Alert from "@mui/material/Alert";
 
 function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, userId, highlightId, bookId, children }) {
 	const [highlights, setHighlights] = useState([]);
-	const [showViewMyMarker, setShowViewMyMarker] = useState(false); // ViewMyMarker 컴포넌트 표시 상태
 	const [onClickOptions, setOnClickOptions] = useState(false);
-	const [links, setLinks] = useState([]);
+
 	const handleComponentClick = async () => {
 		try {
 			const response = await api.get(`/highlights/book/${bookId}`);
@@ -17,7 +17,6 @@ function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, userId, highl
 			console.log("하이라이트아이디", highlightId);
 			console.log("데이터 입니다", response);
 			setHighlights(response.data.data); // 상태 업데이트
-			// setShowViewMyMarker(true); // ViewMyMarker 컴포넌트를 표시하기 위해 상태 업데이트
 			setOnClickOptions(true);
 		} catch (error) {
 			console.error("Failed to fetch highlights", error);
@@ -28,6 +27,7 @@ function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, userId, highl
 		try {
 			const response = await api.get(`/highlights/${highlightId}`);
 			console.log("메모", response.data.data.memo);
+			// <Alert severity="success">This is a success Alert.</Alert>;
 		} catch (error) {
 			console.error("Failed to fetch highlights", error);
 		}
@@ -66,15 +66,6 @@ function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, userId, highl
 					</button>
 				)}
 			</mark>
-			{/* {showViewMyMarker && (
-				<ViewMyMarker
-					isOpen={showViewMyMarker}
-					onClose={() => setShowViewMyMarker(false)} // ViewMyMarker 컴포넌트 닫기
-					bookId={bookId}
-					MyMarkers={highlights}
-					fromHighlightId={highlightId}
-				/>
-			)} */}
 			{onClickOptions && (
 				<OnclickOptions
 					isOpen={onClickOptions}

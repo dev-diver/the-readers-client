@@ -10,12 +10,9 @@ import AddMemo from "components/OnclickOptions/AddMemo";
 function OnclickOptions({
 	isOpen,
 	onClose,
-	user,
 	userId,
 	highlightId,
 	bookId,
-	roomId,
-	setHighlightId,
 	selectedHighlightInfo,
 	appendHighlightListItem,
 	sendHighlightToServer,
