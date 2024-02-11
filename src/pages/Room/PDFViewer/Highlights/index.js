@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { rangeToInfo, InfoToRange, eraseHighlight, drawHighlight } from "./util";
 import { useRecoilState } from "recoil";
-import { userState, scrollerRefState, highlightState } from "recoil/atom";
+import { penModeState, userState, scrollerRefState, highlightState } from "recoil/atom";
 import socket from "socket.js";
 import "./styles.css";
 
@@ -26,12 +26,14 @@ function Highlighter({ bookId, renderContent }) {
 	const [highlightList, setHighlightList] = useRecoilState(highlightState);
 	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
 
+	const [penMode, setPenMode] = useRecoilState(penModeState);
+
 	useEffect(() => {
 		scrollerRef?.addEventListener("mouseup", selectionToHighlight);
 		return () => {
 			scrollerRef?.removeEventListener("mouseup", selectionToHighlight);
 		};
-	}, [scrollerRef, user]);
+	}, [scrollerRef, user, penMode]);
 
 	useEffect(() => {
 		setHighlightList([]);
@@ -39,7 +41,8 @@ function Highlighter({ bookId, renderContent }) {
 
 	const selectionToHighlight = () => {
 		const selectedRange = window.getSelection();
-		if (selectedRange.rangeCount != 0 && !selectedRange.isCollapsed) {
+		console.log("penMode", penMode);
+		if (penMode == "highlight" && selectedRange.rangeCount != 0 && !selectedRange.isCollapsed) {
 			if (!user) {
 				alert("하이라이팅은 로그인이 필요합니다.");
 				return;

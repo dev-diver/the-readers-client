@@ -96,7 +96,7 @@ export default function RoomCard({ room }) {
 						<Label>
 							방 이름: {room.title}
 							<br />
-							현재 인원/최대 인원: {roomUsers.length}/{room.usermax}
+							현재 인원/최대 인원: {roomUsers?.length}/{room.usermax}
 						</Label>
 						{/* <Box sx={{ width: 500 }}> */}
 						<img

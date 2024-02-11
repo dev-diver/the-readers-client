@@ -19,7 +19,7 @@ import RoomUserList from "components/RoomUserList";
 import api from "api";
 import { baseURL } from "config/config";
 
-const VIEWER_WIDTH = 800;
+const VIEWER_WIDTH = 650;
 
 function PDFViewer({ book }) {
 	const notesData = [
@@ -101,6 +101,7 @@ function PDFViewer({ book }) {
 
 	function adjustScaleToWidth(targetWidth) {
 		const scale = originalWidth / targetWidth;
+		console.log("originalWidth", originalWidth, "targetWidth", targetWidth, "scale", scale);
 		setScale(scale);
 	}
 
@@ -196,10 +197,10 @@ function PDFViewer({ book }) {
 				</Hidden>
 				{notes.map((note) => (
 					<Grid item style={{ flex: 1 }} key={note.id}>
-						<DraggableElement>
+						<DraggableElement startX={window.innerWidth - 300} startY={120}>
 							<SwitchController />
 						</DraggableElement>
-						<DraggableElement>
+						<DraggableElement startX={window.innerWidth - 300} startY={60}>
 							<PenController />
 						</DraggableElement>
 					</Grid>

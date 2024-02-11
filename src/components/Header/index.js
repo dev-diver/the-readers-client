@@ -24,11 +24,19 @@ export default function Header({ children }) {
 	}, [isMain]);
 
 	return (
-		<div>
+		<div
+			onMouseOver={() => {
+				if (!isMain) setIsHovering(true);
+			}}
+			onMouseLeave={() => {
+				if (!isMain) setIsHovering(false);
+			}}
+			style={{ height: "25px", position: "absolute", top: 0, width: "100%" }}
+		>
 			<AppBar
 				position="absolute"
 				style={{
-					top: "0px",
+					top: isHovering ? "0" : "-64px",
 					transition: "top 0.5s",
 				}}
 			>

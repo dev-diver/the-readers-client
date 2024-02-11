@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 import { widthState } from "recoil/atom";
 
-export function DraggableElement({ children }) {
+export function DraggableElement({ children, startX, startY }) {
 	const [position, setPosition] = useState({ x: 0, y: 0 });
 	const [width, setWidth] = useRecoilState(widthState);
 	const [dragging, setDragging] = useState(false);
@@ -12,8 +12,8 @@ export function DraggableElement({ children }) {
 	useEffect(() => {
 		const updatePosition = () => {
 			// 브라우저 창의 너비를 기준으로 x 위치를 계산합니다.
-			const x = window.innerWidth / 2 - width / 2; // width는 펜 컨트롤러의 너비
-			const y = 120; // y 위치는 고정값 사용
+			const x = startX; //window.innerWidth / 2 - width / 2; // width는 펜 컨트롤러의 너비
+			const y = startY; // y 위치는 고정값 사용
 
 			setPosition({ x, y });
 		};

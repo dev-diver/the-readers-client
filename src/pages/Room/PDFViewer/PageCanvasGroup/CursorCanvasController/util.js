@@ -1,6 +1,5 @@
 import socket from "socket";
 
-// export const canvasMouse = (event, roomUser, location, info) => {
 export const canvasMouse = (event, info) => {
 	if (!info.user) return;
 	event.stopPropagation();
@@ -41,7 +40,7 @@ export const updatePointers = (pointers, data) => {
 };
 
 export const redrawCanvas = (canvas, pointers) => {
-	if (!canvas) return;
+	if (!canvas.current) return;
 	clearCanvas(canvas);
 	pointers.forEach((p) => {
 		drawOnCanvas(canvas, p.x, p.y, p.color);
@@ -49,14 +48,14 @@ export const redrawCanvas = (canvas, pointers) => {
 };
 
 export const clearCanvas = (canvas) => {
-	if (!canvas) return;
-	const ctx = canvas.getContext("2d");
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	if (!canvas.current) return;
+	const ctx = canvas.current.getContext("2d");
+	ctx.clearRect(0, 0, canvas.current.width, canvas.current.height);
 };
 
 export function drawOnCanvas(canvas, x, y, color) {
 	// console.log("draw", x, y, color);
-	const ctx = canvas.getContext("2d");
+	const ctx = canvas.current.getContext("2d");
 	ctx.fillStyle = color; // 서버로부터 받은 색상 사용
 	ctx.beginPath();
 	ctx.arc(x, y, 10, 0, Math.PI * 2, false);

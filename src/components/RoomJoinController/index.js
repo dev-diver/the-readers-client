@@ -28,6 +28,7 @@ export default function RoomJoinController({ roomId }) {
 	}, []);
 
 	useEffect(() => {
+		console.log("user", user, "roomId", roomId);
 		if (user && roomId) {
 			const myRoomUser = {
 				user: user,
@@ -39,8 +40,10 @@ export default function RoomJoinController({ roomId }) {
 		return () => {
 			socket.emit("room-leaved", { user: roomUser });
 			socket.off("room-joined");
-			setRoomUser(null);
-			setRoomUsers(null);
+			if (!user) {
+				// setRoomUser(null);
+				// setRoomUsers(null);
+			}
 		};
 	}, [user, roomId]);
 

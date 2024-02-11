@@ -40,7 +40,7 @@ function PageCanvasGroup({ pageNum, pageWrapper }) {
 			setCursorCanvasRefs((oldRefs) => {
 				const newRefs = oldRefs.map((pageRef) => {
 					if (pageRef.page === pageNum) {
-						return { ...pageRef, ref: el };
+						return { ...pageRef, ref: { current: el } };
 					}
 					return pageRef;
 				});
@@ -105,7 +105,10 @@ function PageCanvasGroup({ pageNum, pageWrapper }) {
 					top: 0,
 				}}
 				onMouseMove={(e) => canvasMouse(e, info)}
-				onMouseOut={(e) => clearCanvas(e.target)}
+				onMouseOut={(e) => {
+					//socket 신호가 더 늦게와서 다시 그려짐
+					clearCanvas(e.target);
+				}}
 			></canvas>
 			<DrawingCanvases
 				pageNum={pageNum}
@@ -141,7 +144,6 @@ function DrawingCanvases({ pageNum, roomUsers, pageWrapper, setDrawingRef }) {
 		if (!user) return;
 		const canvasRef = getCanvasRef(drawingCanvasRefs, pageNum, user.id);
 		if (!canvasRef) {
-			console.log("can't find canvasRef");
 			return;
 		}
 		const roughCanvas = rough.canvas(canvasRef);
@@ -263,8 +265,8 @@ function DrawingCanvases({ pageNum, roomUsers, pageWrapper, setDrawingRef }) {
 	};
 
 	useEffect(() => {
-		console.log("penMode", penMode, "user", user?.id);
-	}, [penMode, user]);
+		console.log("roomUsers", roomUsers);
+	}, [roomUsers]);
 
 	return (
 		<>

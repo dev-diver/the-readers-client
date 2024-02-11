@@ -15,6 +15,7 @@ export default function DrawingCanvasController({ totalPage }) {
 
 	useEffect(() => {
 		if (totalPage === 0) return;
+		console.log("roomUsers", roomUsers);
 		if (roomUsers?.length == 0) return;
 		if (initialize) return;
 		// console.log("roomUsers", roomUsers);
@@ -22,9 +23,9 @@ export default function DrawingCanvasController({ totalPage }) {
 			// 각 페이지에 대해 roomUsers 배열을 순회하여 유저 ID별로 React.createRef() 생성
 			const userRefs =
 				roomUsers?.reduce((acc, user) => {
-					acc[user.userId] = React.createRef();
+					acc[user.id] = React.createRef();
 					return acc;
-				}, {}) || [];
+				}, {}) || {};
 			return { page: i + 1, userRefs: userRefs };
 		});
 		console.log("newRefs", newRefs);
@@ -40,7 +41,7 @@ export default function DrawingCanvasController({ totalPage }) {
 				const { userId, canvasImage, location } = data;
 				// console.log("canvasImage event", data);
 				const canvas = getCanvasRef(drawingCanvasRefs, location.pageNum, userId);
-				console.log("canvas", canvas);
+				// console.log("canvas", canvas);
 				if (canvas) {
 					const context = canvas.getContext("2d");
 					const image = new Image();
