@@ -64,6 +64,7 @@ function OnclickOptions({
 					<AddMemo
 						isOpen={true}
 						onClose={closeModal}
+						onCloseEntire={onClose}
 						userId={userId}
 						highlightId={highlightId}
 						sendHighlightToServer={sendHighlightToServer}
