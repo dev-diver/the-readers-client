@@ -11,7 +11,7 @@ import CursorCanvasController from "./PageCanvasGroup/CursorCanvasController";
 import DrawingCanvasController from "./PageCanvasGroup/DrawingCanvasController";
 import { useRecoilState } from "recoil";
 import { scrollYState, scrollerRefState, viewerScaleState, htmlContentState } from "recoil/atom";
-import { Box, Grid, Hidden } from "@mui/material";
+import { Box, Button, Grid, Hidden } from "@mui/material";
 import PenController from "./PenController";
 import SwitchController from "./SwitchController";
 import { DraggableElement } from "components/DragNDrop/DraggableElement";
@@ -35,11 +35,9 @@ function PDFViewer({ book }) {
 	const [pageContainerHTML, setPageContainerHTML] = useRecoilState(htmlContentState);
 	const [renderContent, setRenderContent] = useState(false);
 	const [canvasComponents, setCanvasComponents] = useState([]);
-	const [scroll, setScroll] = useRecoilState(scrollYState);
 	const [originalWidth, setOriginalWidth] = useState(0);
 	const [scale, setScale] = useRecoilState(viewerScaleState);
 	const [notes, setNotes] = useState(notesData);
-	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
 	const pdfContentsRef = useRef(null);
 
 	useEffect(() => {
@@ -174,7 +172,7 @@ function PDFViewer({ book }) {
 			<Grid container spacing={2}>
 				<Hidden mdDown>
 					<Grid item xs={false} sm={false} md={1.5} lg={2}>
-						<Chart scroll={scroll} />
+						<Chart />
 					</Grid>
 				</Hidden>
 				<Grid item xs={7} sm={7} md={7} lg={7}>

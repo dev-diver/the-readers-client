@@ -5,6 +5,7 @@ import { canvasMouse, clearCanvas } from "./CursorCanvasController/util";
 import { getCanvasRef } from "./DrawingCanvasController/util";
 import {
 	userState,
+	roomUserState, //roomUser로 바꾸는 게 더 맞을 듯
 	roomUsersState,
 	cursorCanvasRefsState,
 	drawingCanvasRefsState,
