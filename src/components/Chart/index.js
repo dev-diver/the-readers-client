@@ -24,25 +24,44 @@ const original_data = new Array(31).fill(0).map((_, index) => ({
 	time: 0,
 }));
 
+// 미리 정의된 색상 배열
+const colors = ["#8884d8", "#82ca9d", "#ffc658", "#ff7300", "#ff3864"];
+
 let updatedData = {};
 
 function Chart() {
 	const [scroll, setScroll] = useRecoilState(scrollYState);
 	const [prevScroll, setPrevScroll] = useState(0);
-	const [data, setData] = useState(original_data);
+	const [data, setData] = useState([]);
 	const [count, setCount] = useState(0);
 	const [roomUser, setRoomUser] = useRecoilState(roomUserState);
 	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
 
 	useEffect(() => {
-		const handleUpdateChart = (userData) => {
-			console.log("**Received update-chart event**");
-			const { roomUser, updatedData } = userData;
-			const userNick = roomUser.user.nick;
-			const userUpdatedData = [...updatedData];
-			console.log(userNick, userUpdatedData);
+		// 페이지 객체를 초기화하는 함수
+		const initializePageData = () => {
+			return new Array(31).fill(null).map((_, index) => {
+				const pageObject = { page: `${index}` }; // 기본 page 설정
+				roomUsers.forEach((user) => {
+					const userIdKey = user?.id; // 각 사용자 ID에 대한 키 생성
+					pageObject[userIdKey] = 0; // 해당 사용자 ID 키를 객체에 추가하고 0으로 초기화
+				});
+				return pageObject;
+			});
 		};
 
+		const initializedData = initializePageData(); // 초기화된 페이지 데이터 생성
+		console.log("initializedData", initializedData);
+		setData(initializedData); // 생성된 데이터로 상태 업데이트
+	}, [roomUsers]); // roomUsers가 변경될 때마다 이 로직을 다시 실행
+
+	useEffect(() => {
+		const handleUpdateChart = (userData) => {
+			const { filteredData, room } = userData;
+			const userKey = filteredData[0].userKey;
+			console.log("userData", userData);
+			console.log("prevData", data);
+		};
 		socket.on("update-chart", handleUpdateChart);
 
 		return () => {
@@ -64,26 +83,50 @@ function Chart() {
 	// count는 스크롤 이벤트가 한 번 발생한 이후부터 시작. 그 전엔 카운트 안 셈.
 	// data에서 prevScroll에 해당하는 값이 time 키와 같을 때 그 값을 1초에 1씩 증가시킴
 	// count가 prevScroll 값이 바뀔 때마다 0으로 초기화되는 기능 포함
-
 	useEffect(() => {
+		// data가 {}일 때는 !data로 잡히지 않ㅇ므로 추가로 조건문을 걸어줌
+		if (!data || ("object" && Object.keys(data).length === 0)) return;
+		console.log("data", data);
+		const userKey = roomUser?.user?.id;
+		let page = 0;
 		updatedData = data.map((item) => {
 			if (Number(item.page) === prevScroll) {
 				// data의 parseInt(item.page)과 같은 값의 page를 찾아 time을 count만큼 증가시킴
 				const count_tmp = count;
 				setCount(0);
-
-				return {
+				// 사용자 ID에 해당하는 키의 값을 업데이트하거나 초기화
+				const newItem = {
 					...item,
-					time: item.time + count_tmp,
+					[userKey]: item[userKey] + count_tmp,
 				};
+				page = Number(item.page);
+
+				return newItem;
 			}
 			return item;
 		});
+		console.log("updatedData", updatedData);
 
 		setData(updatedData);
 
-		//request-chart updatedData and user info
-		socket.emit("send-chart", { roomUser, updatedData });
+		// socket
+		// const time = updatedData[page][userKey];
+		const filterDataByUserId = (updatedData, userKey) => {
+			return updatedData
+				.map((item) => {
+					// userId가 주어진 값과 일치하는 경우 해당 값으로 새 객체를 생성하고, 그렇지 않은 경우 undefined를 반환
+					const value = item[userKey];
+					if (value !== undefined) {
+						return { [userKey]: value, page: item.page };
+					}
+					return null; // userId가 2인 항목이 없는 경우 null 반환
+				})
+				.filter((item) => item !== null); // null 값을 제거하여 최종 배열 생성
+		};
+		console.log("filterDataByUserId", filterDataByUserId(updatedData, userKey));
+		const filteredData = filterDataByUserId(updatedData, userKey);
+		const room = roomUser.roomId;
+		socket.emit("send-chart", { filteredData, room });
 	}, [scroll]);
 
 	return (
@@ -114,7 +157,11 @@ function Chart() {
 					<YAxis dataKey="page" type="category" />
 					<CartesianGrid strokeDasharray="3 3" />
 					<Tooltip />
-					<Area type="monotone" dataKey="time" stroke="#8884d8" fillOpacity={1} fill="url(#colorUv)" />
+					{/* {roomUsers.map((user, index) => ( */}
+					{/* <Area key={index} type="monotone" dataKey={user.id} stroke="#8884d8" fillOpacity={1} fill="url(#colorUv)" /> */}
+					<Area type="monotone" dataKey="1" stroke="#8884d8" fillOpacity={1} fill="url(#colorUv)" />
+					<Area type="monotone" dataKey="2" stroke="#8884d8" fillOpacity={1} fill="url(#colorUv)" />
+					{/* ))} */}
 				</AreaChart>
 			</ResponsiveContainer>
 		</div>
