@@ -18,6 +18,7 @@ import { DraggableElement } from "components/DragNDrop/DraggableElement";
 import RoomUserList from "components/RoomUserList";
 import api from "api";
 import { baseURL } from "config/config";
+import HareAndTortoise from "components/HareAndTortoise";
 
 const VIEWER_WIDTH = 800; //650;
 
@@ -171,6 +172,9 @@ function PDFViewer({ book }) {
 			{/* <DrawingCanvas /> */}
 			<Grid container spacing={2}>
 				<Hidden mdDown>
+					<Grid item xs={false} sm={false} md={1} lg={21}>
+						<HareAndTortoise />
+					</Grid>
 					<Grid item xs={false} sm={false} md={1.5} lg={2}>
 						<Chart />
 					</Grid>

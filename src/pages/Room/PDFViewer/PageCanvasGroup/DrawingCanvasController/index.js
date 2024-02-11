@@ -21,7 +21,7 @@ export default function DrawingCanvasController({ totalPage }) {
 		setInitialize(true);
 		setBookChanged((prev) => !prev);
 		setDrawingCanvasRefs(newRefs);
-	}, [roomUsers, initialize]);
+	}, [totalPage, roomUsers, initialize]);
 
 	useEffect(() => {
 		setInitialize(false);
