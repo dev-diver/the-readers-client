@@ -1,23 +1,9 @@
 import React, { useState, useEffect, PureComponent } from "react";
-import {
-	LineChart,
-	Line,
-	XAxis,
-	YAxis,
-	CartesianGrid,
-	Tooltip,
-	Legend,
-	ResponsiveContainer,
-	AreaChart,
-	Area,
-} from "recharts";
-import { logger } from "logger";
+import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from "recharts";
 import { useRecoilState } from "recoil";
 import { roomUserState, roomUsersState, scrollYState } from "recoil/atom";
 import socket from "socket";
 import { Button } from "@mui/material";
-
-import { useImmer } from "use-immer";
 
 const original_data = new Array(31).fill(0).map((_, index) => ({
 	page: `${index}`,
@@ -36,6 +22,10 @@ function Chart() {
 	const [count, setCount] = useState(0);
 	const [roomUser, setRoomUser] = useRecoilState(roomUserState);
 	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
+	// useEffect(() => {
+	// 	console.log("roomUsers", roomUsers);
+	// 	console.log("roomUser", roomUser);
+	// }, []);
 
 	useEffect(() => {
 		// 페이지 객체를 초기화하는 함수
@@ -57,10 +47,26 @@ function Chart() {
 
 	useEffect(() => {
 		const handleUpdateChart = (userData) => {
-			const { filteredData, room } = userData;
-			const userKey = filteredData[0].userKey;
-			console.log("userData", userData);
-			console.log("prevData", data);
+			const { filteredData, userKey, room } = userData;
+			setData((prevData) => {
+				// prevData의 깊은 복사본을 생성합니다.
+				const updatedData = prevData.map((item) => {
+					// filteredUpdateData에서 현재 순회 중인 page와 일치하는 항목을 찾습니다.
+					const updateItem = filteredData.find((update) => update.page === item.page);
+
+					// 일치하는 항목이 있는 경우, 해당 userKey2의 값을 업데이트합니다.
+					if (updateItem) {
+						// 여기서는 'userKey2'가 업데이트 대상 키라고 가정합니다.
+						// 'userKey2'를 업데이트하고 나머지 항목(rest)은 그대로 유지합니다.
+						return { ...item, [userKey]: updateItem[userKey] ?? item[userKey] };
+					}
+
+					// 일치하는 항목이 없는 경우, 원본 항목을 반환합니다.
+					return item;
+				});
+				console.log("updatedData", updatedData);
+				return updatedData;
+			});
 		};
 		socket.on("update-chart", handleUpdateChart);
 
@@ -105,7 +111,7 @@ function Chart() {
 			}
 			return item;
 		});
-		console.log("updatedData", updatedData);
+		// console.log("updatedData", updatedData);
 
 		setData(updatedData);
 
@@ -126,7 +132,7 @@ function Chart() {
 		console.log("filterDataByUserId", filterDataByUserId(updatedData, userKey));
 		const filteredData = filterDataByUserId(updatedData, userKey);
 		const room = roomUser.roomId;
-		socket.emit("send-chart", { filteredData, room });
+		socket.emit("send-chart", { filteredData, userKey, room });
 	}, [scroll]);
 
 	return (
@@ -157,15 +163,22 @@ function Chart() {
 					<YAxis dataKey="page" type="category" />
 					<CartesianGrid strokeDasharray="3 3" />
 					<Tooltip />
-					{/* {roomUsers.map((user, index) => ( */}
-					{/* <Area key={index} type="monotone" dataKey={user.id} stroke="#8884d8" fillOpacity={1} fill="url(#colorUv)" /> */}
-					<Area type="monotone" dataKey="1" stroke="#8884d8" fillOpacity={1} fill="url(#colorUv)" />
-					<Area type="monotone" dataKey="2" stroke="#8884d8" fillOpacity={1} fill="url(#colorUv)" />
-					{/* ))} */}
+					{roomUsers.map((user, index) => (
+						<Area
+							key={user.id}
+							type="monotone"
+							dataKey={user.id}
+							stroke={colors[index % colors.length]} // 사용자별 고유 색상으로 stroke 설정
+							fillOpacity={1}
+							fill={colors[index % colors.length]} // 사용자별 고유 색상으로 fill 설정
+						/>
+					))}
 				</AreaChart>
 			</ResponsiveContainer>
 		</div>
 	);
 }
+
+function drawArea() {}
 
 export default Chart;
