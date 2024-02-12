@@ -4,6 +4,8 @@ import { OpenVidu } from "openvidu-browser";
 import axios from "axios";
 import UserVideoComponent from "./UserVideoComponent";
 import { Container, OutButton, StartButton, VideoBox, VideoContainer } from "./style";
+import { useRecoilState } from "recoil";
+import { userState } from "recoil/atom";
 
 const APPLICATION_SERVER_URL = process.env.NODE_ENV === "production" ? "" : "https://demos.openvidu.io/";
 
@@ -12,14 +14,29 @@ const VideoChat = () => {
 	const [subscribers, setSubscribers] = useState([]);
 	const [mainStreamManager, setMainStreamManager] = useState(undefined);
 	const [publisher, setPublisher] = useState(undefined);
-	const [mySessionId, setMySessionId] = useState("SessionA");
-	const [myUserName, setMyUserName] = useState(`Participant${Math.floor(Math.random() * 100)}`);
 	const [currentVideoDevice, setCurrentVideoDevice] = useState(undefined);
+	const [user, setUser] = useRecoilState(userState);
+	const { roomId } = useParams();
+	const [mySessionId, setMySessionId] = useState(roomId);
+	const [myUserName, setMyUserName] = useState(user.id);
+	// const mySessionId = roomId;
+	// const myUserName = user.id;
 
-	// const { roomId } = useParams();
 	const navigate = useNavigate();
 
 	const OV = new OpenVidu();
+
+	useEffect(() => {
+		// joinSession();
+		// console.log("user", user);
+		// console.log("roomId", roomId);
+		// console.log("mySessionId", myUserName);
+		// console.log("myUserName", myUserName);
+		// console.log("session", session);
+		// console.log("________subscribers", subscribers);
+		// console.log("__________mainStreamManager", mainStreamManager);
+		// console.log("_________publisher", publisher);
+	}, [user, roomId]);
 
 	useEffect(() => {
 		const onbeforeunload = (event) => {
@@ -32,26 +49,6 @@ const VideoChat = () => {
 			window.removeEventListener("beforeunload", onbeforeunload);
 		};
 	}, []);
-
-	useEffect(() => {
-		if (session) {
-			session.on("streamCreated", (event) => {
-				const subscriber = session.subscribe(event.stream, undefined);
-				setSubscribers((prev) => ({
-					...prev,
-					subscribers: [...prev.subscribers, subscriber],
-				}));
-			});
-
-			session.on("streamDestroyed", (event) => {
-				deleteSubscriber(event.stream.streamManager);
-			});
-
-			session.on("exception", (exception) => {
-				console.warn(exception);
-			});
-		}
-	}, [session]);
 
 	const handleChangeSessionId = (e) => {
 		setMySessionId({ ...mySessionId, mySessionId: e.target.value });
@@ -77,15 +74,19 @@ const VideoChat = () => {
 	};
 
 	const joinSession = async () => {
+		console.log("<--------------- joinSession ---------->");
 		const mySession = OV.initSession();
 		setSession(mySession);
 
 		mySession.on("streamCreated", (event) => {
+			console.log("<-------------Stream created----------->");
+			console.log("Stream created:", event.stream);
 			const subscriber = mySession.subscribe(event.stream, undefined);
 			setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber]);
 		});
 
 		mySession.on("streamDestroyed", (event) => {
+			console.log("<-------------StreamDestroyed----------->");
 			setSubscribers((prevSubscribers) =>
 				prevSubscribers.filter((subscriber) => subscriber !== event.stream.streamManager)
 			);
@@ -97,7 +98,7 @@ const VideoChat = () => {
 
 		try {
 			const token = await getToken();
-			await mySession.connect(token, { clientData: myUserName });
+			await mySession.connect(token, { clientData: user.id });
 
 			const publisher = await OV.initPublisherAsync(undefined, {
 				audioSource: undefined,
@@ -126,6 +127,7 @@ const VideoChat = () => {
 	};
 
 	const leaveSession = () => {
+		// redirect to room lobby
 		if (session) {
 			session.disconnect();
 		}
@@ -134,8 +136,8 @@ const VideoChat = () => {
 		setSubscribers([]);
 		setMainStreamManager(undefined);
 		setPublisher(undefined);
-		setMySessionId("SessionA");
-		setMyUserName(`Participant${Math.floor(Math.random() * 100)}`);
+		// setMySessionId(roomId);
+		// setMyUserName(user.id);
 	};
 
 	const switchCamera = async () => {
@@ -170,38 +172,53 @@ const VideoChat = () => {
 			console.error(e);
 		}
 	};
-	const createSession = async (sessionId) => {
-		try {
-			const response = await axios.post(
-				`${APPLICATION_SERVER_URL}api/sessions`,
-				{ customSessionId: sessionId },
-				{ headers: { "Content-Type": "application/json" } }
-			);
-			return response.data; // The sessionId
-		} catch (error) {
-			console.error(error);
-		}
-	};
+	// const createSession = async (sessionId) => {
+	// 	try {
+	// 		const response = await axios.post(
+	// 			`${APPLICATION_SERVER_URL}api/sessions`,
+	// 			{ customSessionId: sessionId },
+	// 			{ headers: { "Content-Type": "application/json" } }
+	// 		);
+	// 		return response.data; // The sessionId
+	// 	} catch (error) {
+	// 		console.error(error);
+	// 	}
+	// };
 
-	const createToken = async (sessionId) => {
+	// const createToken = async (sessionId) => {
+	// 	try {
+	// 		const response = await axios.post(
+	// 			`${APPLICATION_SERVER_URL}api/sessions/${sessionId}/connections`,
+	// 			{},
+	// 			{ headers: { "Content-Type": "application/json" } }
+	// 		);
+	// 		return response.data; // The token
+	// 	} catch (error) {
+	// 		console.error(error);
+	// 	}
+	// };
+
+	// const getToken = async () => {
+	// 	try {
+	// 		const sessionId = roomId;
+	// 		return await createToken(sessionId);
+	// 	} catch (error) {
+	// 		console.error(error);
+	// 	}
+	// };
+
+	// getToken 함수 수정
+	const getToken = async (sessionId) => {
 		try {
+			// 세션 ID를 사용하여 서버로부터 토큰 요청
 			const response = await axios.post(
 				`${APPLICATION_SERVER_URL}api/sessions/${sessionId}/connections`,
 				{},
 				{ headers: { "Content-Type": "application/json" } }
 			);
-			return response.data; // The token
+			return response.data; // 토큰 반환
 		} catch (error) {
-			console.error(error);
-		}
-	};
-
-	const getToken = async () => {
-		try {
-			const sessionId = await createSession(mySessionId);
-			return await createToken(sessionId);
-		} catch (error) {
-			console.error(error);
+			console.error("Error getting token:", error);
 		}
 	};
 
@@ -209,6 +226,9 @@ const VideoChat = () => {
 		<div className="container">
 			{session === undefined ? (
 				<div id="join">
+					<div id="img-div">
+						<img src="resources/images/openvidu_grey_bg_transp_cropped.png" alt="OpenVidu logo" />
+					</div>
 					<div id="join-dialog" className="jumbotron vertical-center">
 						<h1> Join a video session </h1>
 						<form className="form-group" onSubmit={joinSession}>
@@ -245,12 +265,12 @@ const VideoChat = () => {
 			{session !== undefined ? (
 				<div id="session">
 					<div id="session-header">
-						<h1 id="session-title">{mySessionId}</h1>
+						<h1 id="session-title">mysessionId: {mySessionId}</h1>
 						<input
 							className="btn btn-large btn-danger"
 							type="button"
 							id="buttonLeaveSession"
-							onClick={leaveSession}
+							onClick={leaveSession} // redirect to room lobby
 							value="Leave session"
 						/>
 						<input
@@ -269,7 +289,7 @@ const VideoChat = () => {
 					) : null}
 					<div id="video-container" className="col-md-6">
 						{publisher !== undefined ? (
-							<div className="stream-container col-md-6 col-xs-6" onClick={() => this.handleMainVideoStream(publisher)}>
+							<div className="stream-container col-md-6 col-xs-6" onClick={() => handleMainVideoStream(publisher)}>
 								<UserVideoComponent streamManager={publisher} />
 							</div>
 						) : null}
@@ -277,7 +297,7 @@ const VideoChat = () => {
 							<div
 								key={sub.id}
 								className="stream-container col-md-6 col-xs-6"
-								onClick={() => this.handleMainVideoStream(sub)}
+								onClick={() => handleMainVideoStream(sub)}
 							>
 								<span>{sub.id}</span>
 								<UserVideoComponent streamManager={sub} />

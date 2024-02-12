@@ -92,7 +92,7 @@ function App() {
 						p: 3,
 						flexDirection: "column",
 						// minHeight: "100vh", // 최소 높이를 뷰포트 높이의 100%로 설정
-						height: "250vh",
+						height: "100vh",
 					}}
 				>
 					<Router>

@@ -134,8 +134,8 @@
 // 	);
 // }
 
+// -----------클래스형------------ //
 import { OpenVidu } from "openvidu-browser";
-import { withRouter } from "react-router-dom";
 
 import axios from "axios";
 import React, { Component } from "react";
@@ -147,13 +147,12 @@ const APPLICATION_SERVER_URL = process.env.NODE_ENV === "production" ? "" : "htt
 class VideoChat extends Component {
 	constructor(props) {
 		super(props);
-		const { params } = this.props.match;
-		const roomId = params.roomId;
+		const { roomId, user } = this.props;
 
 		// These properties are in the state's component in order to re-render the HTML whenever their values change
 		this.state = {
 			mySessionId: roomId,
-			myUserName: "Participant" + Math.floor(Math.random() * 100),
+			myUserName: user,
 			session: undefined,
 			mainStreamManager: undefined, // Main video of the page. Will be the 'publisher' or one of the 'subscribers'
 			publisher: undefined,
@@ -493,4 +492,4 @@ class VideoChat extends Component {
 		return response.data; // The token
 	}
 }
-export default withRouter(VideoChat);
+export default VideoChat;

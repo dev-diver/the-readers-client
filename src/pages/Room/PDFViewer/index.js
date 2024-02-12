@@ -17,6 +17,9 @@ import SwitchController from "./SwitchController";
 import { DraggableElement } from "components/DragNDrop/DraggableElement";
 import RoomUserList from "components/RoomUserList";
 
+import { useParams } from "react-router-dom";
+import { userState } from "recoil/atom";
+
 const VIEWER_WIDTH = 800;
 
 function PDFViewer({ book }) {
@@ -40,6 +43,9 @@ function PDFViewer({ book }) {
 	const [notes, setNotes] = useState(notesData);
 	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
 	const pdfContentsRef = useRef(null);
+
+	const [user, setUser] = useRecoilState(userState);
+	const { roomId } = useParams();
 
 	useEffect(() => {
 		setRenderContent(false);
@@ -134,7 +140,7 @@ function PDFViewer({ book }) {
 				paddingTop: 25,
 			}}
 		>
-			<VideoChat />
+			<VideoChat roomId={roomId} user={user.id} />
 			{/* <DrawingCanvas /> */}
 			<Grid container spacing={2}>
 				<Hidden mdDown>
