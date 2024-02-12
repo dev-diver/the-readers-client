@@ -18,17 +18,21 @@ export default function RoomJoinController({ roomId }) {
 	// const uuid = createUuid();
 
 	useEffect(() => {
-		socket.on("message", (data) => {
-			alert(data.message);
-			// toast.info(data.message);
-		});
-		return () => {
-			socket.off("message");
+		if (!user || !roomId) return;
+
+		const onMessageHandler = (data) => {
+			console.log("message", data);
 		};
-	}, []);
+
+		socket.on("message", onMessageHandler);
+		return () => {
+			socket.off("message", onMessageHandler);
+		};
+	}, [user, roomId]);
 
 	useEffect(() => {
 		console.log("user", user, "roomId", roomId);
+
 		if (user && roomId) {
 			const myRoomUser = {
 				user: user,
@@ -36,26 +40,26 @@ export default function RoomJoinController({ roomId }) {
 			};
 			setRoomUser(myRoomUser);
 			socket.emit("room-joined", myRoomUser);
-		}
-		return () => {
+		} else {
 			socket.emit("room-leaved", roomUser);
-			socket.off("room-joined");
-			if (!user) {
-				setRoomUser(null);
-				setRoomUsers(null);
-			}
-		};
+			setRoomUser(null);
+			setRoomUsers([]);
+		}
 	}, [user, roomId]);
 
 	useEffect(() => {
-		socket.on("room-users-changed", (data) => {
+		if (!user || !roomId) return;
+
+		const roomUserChangeHandler = (data) => {
 			console.log("room-users-changed", data.roomUsers);
 			setRoomUsers(data.roomUsers);
-		});
-		return () => {
-			socket.off("room-users-changed");
 		};
-	}, [user]);
+
+		socket.on("room-users-changed", roomUserChangeHandler);
+		return () => {
+			socket.off("room-users-changed", roomUserChangeHandler);
+		};
+	}, [user, roomId]);
 
 	return <div></div>;
 }
