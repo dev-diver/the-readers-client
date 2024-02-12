@@ -4,11 +4,7 @@ import { useRecoilState } from "recoil";
 import { roomUserState, roomUsersState, scrollYState } from "recoil/atom";
 import socket from "socket";
 import { Button } from "@mui/material";
-
-const original_data = new Array(31).fill(0).map((_, index) => ({
-	page: `${index}`,
-	time: 0,
-}));
+import { set } from "lodash";
 
 // 미리 정의된 색상 배열
 const colors = ["#8884d8", "#82ca9d", "#ffc658", "#ff7300", "#ff3864"];
@@ -20,6 +16,7 @@ function Chart() {
 	const [count, setCount] = useState(0);
 	const [roomUser, setRoomUser] = useRecoilState(roomUserState);
 	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
+	const [currentUsersPage, setCurrentUsersPage] = useState([]);
 	// useEffect(() => {
 	// 	console.log("roomUsers", roomUsers);
 	// 	console.log("roomUser", roomUser);
@@ -28,8 +25,8 @@ function Chart() {
 	useEffect(() => {
 		// 페이지 객체를 초기화하는 함수
 		const initializePageData = () => {
-			return new Array(31).fill(null).map((_, index) => {
-				const pageObject = { page: `${index}` }; // 기본 page 설정
+			return new Array(30).fill(null).map((_, index) => {
+				const pageObject = { page: `${index + 1}` }; // 기본 page 설정
 				roomUsers.forEach((user) => {
 					const userIdKey = user?.id; // 각 사용자 ID에 대한 키 생성
 					pageObject[userIdKey] = 0; // 해당 사용자 ID 키를 객체에 추가하고 0으로 초기화
@@ -136,6 +133,78 @@ function Chart() {
 		socket.emit("send-chart", { filteredData, userKey, room });
 	}, [scroll]);
 
+	// Hare And Tortoise
+	useEffect(() => {
+		socket.emit("current-user-position", { scroll, user: roomUser.user, room: roomUser.roomId });
+	}, [scroll]);
+
+	useEffect(() => {
+		socket.on("other-user-position", (data) => {
+			const { user, scroll } = data;
+
+			setCurrentUsersPage((prev) => {
+				// 먼저, 이전 상태에서 현재 업데이트된 사용자를 찾습니다.
+				const userIndex = prev.findIndex((u) => u.id === user.id);
+
+				if (userIndex > -1) {
+					// 사용자가 이미 존재하면, 해당 사용자의 정보를 업데이트합니다.
+					const updatedUsers = [...prev];
+					updatedUsers[userIndex] = { ...updatedUsers[userIndex], scroll: scroll, profileImg: user.profileImg };
+					return updatedUsers;
+				} else {
+					// 새 사용자라면, 배열에 추가합니다.
+					return [...prev, { id: user.id, scroll: scroll, profileImg: user.profileImg }];
+				}
+			});
+		});
+
+		return () => {
+			socket.off("other-user-position");
+		};
+	}, []);
+
+	const CustomTick = React.memo(({ x, y, payload, currentUsersPage }) => {
+		let profileImgSrc = null;
+
+		// console.log(currentUsersPage);
+		// 페이지 활성화 상태를 나타내는 배열 생성, 초기값은 모두 0 (비활성화)
+		let isActiveArray = new Array(30).fill(0);
+
+		// currentUsers를 순회하면서, 각 사용자의 페이지를 확인
+		currentUsersPage.forEach((user) => {
+			if (Number(user.scroll) === Number(payload.value)) {
+				// 해당 사용자의 페이지가 현재 payload.value와 일치하면, 활성화 상태를 1로 설정
+				isActiveArray[Number(payload.value) - 1] = 1;
+				profileImgSrc = user.profileImg; // 사용자의 프로필 이미지 경로를 저장
+			}
+		});
+
+		// 현재 tick이 활성화된 페이지인지 확인
+		const isActive = isActiveArray[Number(payload.value) - 1] === 1;
+
+		// 활성화 상태에 따른 스타일 설정
+		const style = {
+			fill: isActive ? "red" : "black", // 현재 페이지에 있는 유저는 빨간색으로 표시
+			fontSize: isActive ? "16px" : "14px", // 현재 페이지에 있는 유저는 폰트 크기를 크게
+		};
+
+		return (
+			<g transform={`translate(${x},${y})`}>
+				{/* 사용자의 프로필 이미지가 있다면, foreignObject를 사용하여 이미지를 표시 */}
+				{profileImgSrc && (
+					<foreignObject x={-50} y={-5} width="30" height="30">
+						<img src={profileImgSrc} width="30" height="30" style={{ borderRadius: "50%" }} />
+					</foreignObject>
+				)}
+				{/* 텍스트 레이블을 계속 표시 */}
+				<text x={0} y={0} dy={16} textAnchor="end" fill={style.fill} fontSize={style.fontSize}>
+					{payload.value}
+				</text>
+			</g>
+		);
+	});
+	CustomTick.displayName = "CustomTick";
+
 	return (
 		// width="25%" height={650} style={{ position: "sticky", top: "20px" }}
 		<div style={{ height: "100vh", display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -161,10 +230,15 @@ function Chart() {
 						</linearGradient>
 					</defs>
 					<XAxis type="number" />
-					<YAxis dataKey="page" type="category" />
+					<YAxis
+						dataKey="page"
+						type="category"
+						interval={0}
+						tick={<CustomTick currentUsersPage={currentUsersPage} />}
+					/>
 					<CartesianGrid strokeDasharray="3 3" />
 					<Tooltip />
-					{roomUsers.map((user, index) => (
+					{roomUsers?.map((user, index) => (
 						<Area
 							key={user.id}
 							type="monotone"
@@ -173,7 +247,7 @@ function Chart() {
 							fillOpacity={1}
 							fill={colors[index % colors.length]} // 사용자별 고유 색상으로 fill 설정
 						/>
-					))}
+					)) || []}
 				</AreaChart>
 			</ResponsiveContainer>
 		</div>

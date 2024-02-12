@@ -196,7 +196,7 @@ function PDFViewer({ book }) {
 				</Grid>
 				<Hidden smDown>
 					<Grid item xs={false} sm={false} md={1} lg={3}>
-						{/* <RoomUserList /> */}
+						<RoomUserList />
 						<Highlights bookId={book.id} renderContent={renderContent} />
 					</Grid>
 				</Hidden>
