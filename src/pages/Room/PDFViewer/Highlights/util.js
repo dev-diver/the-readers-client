@@ -93,11 +93,7 @@ export function rangeToInfo(range, additionalInfo) {
 
 	const highlightInfo = {
 		bookId: additionalInfo.bookId,
-<<<<<<< HEAD
 		id: additionalInfo.id,
-=======
-		highlightId: additionalInfo.highlightId,
->>>>>>> upstream/dev
 		pageNum: pageNum,
 		text: additionalInfo.text, // 형광펜 칠해진 글자
 		startContainer: startContainerIdx, //range.startContainer,
