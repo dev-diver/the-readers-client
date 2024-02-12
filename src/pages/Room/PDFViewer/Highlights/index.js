@@ -20,7 +20,6 @@ function Highlighter({ bookId, renderContent }) {
 	// 진태 추가 코드
 	const [optionsModalOpen, setOptionsModalOpen] = useState(false);
 	const [highlightId, setHighlightId] = useState(null);
-	const [userId, setUserId] = useState(null);
 	const [highlightInfos, setHighlightInfos] = useState(null);
 
 	const [highlightList, setHighlightList] = useRecoilState(highlightState);
