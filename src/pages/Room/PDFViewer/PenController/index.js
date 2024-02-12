@@ -1,21 +1,28 @@
 import React, { useEffect, useRef } from "react";
 import Box from "@mui/joy/Box";
 import { useRecoilState } from "recoil";
-import { penModeState, widthState } from "recoil/atom";
+import { userState, penModeState, widthState, drawerFormState } from "recoil/atom";
 import { Pointer, Highlighter, PencilLine, MousePointerClick, Eraser } from "lucide-react";
 import AttentionButton from "./AttentionButton";
+import { offerLogin } from "components/Header/SideDrawer/utils";
 
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 
 export default function PenController() {
 	const [mode, setMode] = useRecoilState(penModeState);
+	const [user, setUser] = useRecoilState(userState);
+	const [drawerForm, setDrawerForm] = useRecoilState(drawerFormState);
 
 	// 펜 컨트롤러의 길이를 계산해 브라우저 가운데 넣기 위하여 추가한 코드
 	const [width, setWidth] = useRecoilState(widthState); // 요소의 너비를 저장할 상태
 	const ref = useRef(null); // 요소에 대한 참조를 생성
 
 	const handleChange = (event, newMode) => {
+		if (!user) {
+			offerLogin(user, setDrawerForm);
+			return;
+		}
 		if (newMode !== null) {
 			setMode(newMode);
 		}

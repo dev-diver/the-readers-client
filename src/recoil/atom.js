@@ -1,5 +1,10 @@
 import { atom } from "recoil";
 
+export const roomState = atom({
+	key: "room",
+	default: { Books: [] },
+});
+
 export const htmlContentState = atom({
 	key: "htmlContent",
 	default: "",
@@ -32,6 +37,11 @@ export const roomUsersState = atom({
 export const viewerScaleState = atom({
 	key: "viewerScale",
 	default: 1,
+});
+
+export const widthState = atom({
+	key: "width",
+	default: 0,
 });
 
 /* attenition feature */
@@ -83,17 +93,13 @@ export const scrollerRefState = atom({
 	default: null,
 });
 
+export const eachPageLoadingState = atom({
+	key: "eachPageLoading",
+	default: [],
+});
+
+/*main 여부. useLoation()으로 대체 가능 */
 export const isMainState = atom({
 	key: "isMain",
 	default: false,
-});
-
-export const roomState = atom({
-	key: "room",
-	default: { Books: [] },
-});
-
-export const widthState = atom({
-	key: "width",
-	default: 0,
 });
