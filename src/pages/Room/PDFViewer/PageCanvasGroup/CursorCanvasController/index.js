@@ -22,7 +22,7 @@ export default function CursorCanvasController({ totalPage }) {
 	useEffect(() => {
 		if (cursorCanvasRefs.length === 0) return;
 		socket.on("update-pointer", (data) => {
-			const canvasRefItem = cursorCanvasRefs.find((refItem) => refItem.page == data.page);
+			const canvasRefItem = cursorCanvasRefs.find((refItem) => refItem.page == data.pageNum);
 			const canvas = canvasRefItem ? canvasRefItem.ref : null;
 			if (!canvas) return;
 			updatePointers(pointers.current, data);

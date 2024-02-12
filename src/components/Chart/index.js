@@ -13,8 +13,6 @@ const original_data = new Array(31).fill(0).map((_, index) => ({
 // 미리 정의된 색상 배열
 const colors = ["#8884d8", "#82ca9d", "#ffc658", "#ff7300", "#ff3864"];
 
-let updatedData = {};
-
 function Chart() {
 	const [scroll, setScroll] = useRecoilState(scrollYState);
 	const [prevScroll, setPrevScroll] = useState(0);
@@ -48,6 +46,9 @@ function Chart() {
 	useEffect(() => {
 		const handleUpdateChart = (userData) => {
 			const { filteredData, userKey, room } = userData;
+			console.log("****received data from server****");
+			console.log("filteredData", filteredData);
+			console.log("userKey", userKey);
 			setData((prevData) => {
 				// prevData의 깊은 복사본을 생성합니다.
 				const updatedData = prevData.map((item) => {
@@ -69,7 +70,7 @@ function Chart() {
 			});
 		};
 		socket.on("update-chart", handleUpdateChart);
-
+		console.log("roomUsers", roomUsers);
 		return () => {
 			socket.off("update-chart", handleUpdateChart);
 		};
@@ -90,12 +91,11 @@ function Chart() {
 	// data에서 prevScroll에 해당하는 값이 time 키와 같을 때 그 값을 1초에 1씩 증가시킴
 	// count가 prevScroll 값이 바뀔 때마다 0으로 초기화되는 기능 포함
 	useEffect(() => {
-		// data가 {}일 때는 !data로 잡히지 않ㅇ므로 추가로 조건문을 걸어줌
+		// data가 {}일 때는 !data로 잡히지 않으므로 추가로 조건문을 걸어줌
 		if (!data || ("object" && Object.keys(data).length === 0)) return;
-		console.log("data", data);
 		const userKey = roomUser?.user?.id;
 		let page = 0;
-		updatedData = data.map((item) => {
+		const updatedData = data.map((item) => {
 			if (Number(item.page) === prevScroll) {
 				// data의 parseInt(item.page)과 같은 값의 page를 찾아 time을 count만큼 증가시킴
 				const count_tmp = count;
@@ -129,8 +129,9 @@ function Chart() {
 				})
 				.filter((item) => item !== null); // null 값을 제거하여 최종 배열 생성
 		};
-		console.log("filterDataByUserId", filterDataByUserId(updatedData, userKey));
 		const filteredData = filterDataByUserId(updatedData, userKey);
+		console.log("*****send data from client to server*****");
+		console.log("filteredData", filteredData);
 		const room = roomUser.roomId;
 		socket.emit("send-chart", { filteredData, userKey, room });
 	}, [scroll]);
@@ -146,7 +147,7 @@ function Chart() {
 					layout="vertical"
 					width={400}
 					height={800}
-					data={updatedData}
+					data={data}
 					margin={{
 						top: 20,
 						right: 30,

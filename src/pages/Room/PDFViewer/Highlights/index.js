@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { rangeToInfo, InfoToRange, eraseHighlight, drawHighlight } from "./util";
 import { useRecoilState } from "recoil";
-import { userState, scrollerRefState, highlightState } from "recoil/atom";
+import { penModeState, userState, scrollerRefState, highlightState } from "recoil/atom";
 import socket from "socket.js";
 import "./styles.css";
 
@@ -26,12 +26,14 @@ function Highlighter({ bookId, renderContent }) {
 	const [highlightList, setHighlightList] = useRecoilState(highlightState);
 	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
 
+	const [penMode, setPenMode] = useRecoilState(penModeState);
+
 	useEffect(() => {
 		scrollerRef?.addEventListener("mouseup", selectionToHighlight);
 		return () => {
 			scrollerRef?.removeEventListener("mouseup", selectionToHighlight);
 		};
-	}, [scrollerRef, user]);
+	}, [scrollerRef, user, penMode]);
 
 	useEffect(() => {
 		setHighlightList([]);
@@ -43,12 +45,20 @@ function Highlighter({ bookId, renderContent }) {
 			return;
 		}
 		const selectedRange = window.getSelection();
+		// console.log("penMode", penMode);
+		if (penMode == "highlight" && selectedRange.rangeCount != 0 && !selectedRange.isCollapsed) {
+			if (!user) {
+				alert("하이라이팅은 로그인이 필요합니다.");
+				return;
+			}
+		}
 
 		if (selectedRange.rangeCount > 0 && !selectedRange.isCollapsed) {
 			const highlightInfos = [];
 
 			for (let i = 0; i < selectedRange.rangeCount; i++) {
 				const range = selectedRange.getRangeAt(i);
+				console.log(range);
 				const additionalInfo = { bookId: bookId, text: selectedRange.toString() };
 				const highlightInfo = rangeToInfo(range, additionalInfo);
 				console.log("highlightInfo", highlightInfo);
@@ -85,8 +95,9 @@ function Highlighter({ bookId, renderContent }) {
 	useEffect(() => {
 		if (user) {
 			socket.on("room-users-changed", (data) => {
-				console.log("room-users-changed", data);
-				data.forEach((roomUser) => {
+				console.log("room-users-changed", data.roomUsers);
+				const roomUsers = data.roomUsers;
+				roomUsers?.forEach((roomUser) => {
 					const pageNum = 1; //레이지로드 전까지는 1로 해도 전체 가져옴
 					if (roomUser.userId !== user.id) {
 						applyServerHighlight(roomUser.userId, bookId, pageNum, "pink");

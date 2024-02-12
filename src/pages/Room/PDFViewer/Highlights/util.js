@@ -93,7 +93,11 @@ export function rangeToInfo(range, additionalInfo) {
 
 	const highlightInfo = {
 		bookId: additionalInfo.bookId,
+<<<<<<< HEAD
 		id: additionalInfo.id,
+=======
+		highlightId: additionalInfo.highlightId,
+>>>>>>> upstream/dev
 		pageNum: pageNum,
 		text: additionalInfo.text, // 형광펜 칠해진 글자
 		startContainer: startContainerIdx, //range.startContainer,
@@ -109,6 +113,15 @@ export function rangeToInfo(range, additionalInfo) {
 export function drawHighlight(range, highlightInfo) {
 	// console.log("drawHighlight", range, highlightInfo);
 	let passNode = false;
+
+	// if (range.startContainer === range.endContainer) {
+	// 	const part = range.startContainer.splitText(range.startOffset);
+	// 	part.splitText(range.endOffset - range.startOffset);
+	// 	marker.appendChild(part.cloneNode(true));
+	// 	part.parentNode.replaceChild(marker, part);
+	// 	return;
+	// }
+
 	const filterFunction = function (node) {
 		if (node.hasChildNodes() || node.nodeType !== Node.TEXT_NODE) {
 			return NodeFilter.FILTER_SKIP;
@@ -174,6 +187,18 @@ export function drawHighlight(range, highlightInfo) {
 // const handleHighlightClick = (event, highlightId) => {
 // 	console.log("클릭된 하이라이트 ID:", highlightId);
 // };
+
+const createMarkTag = (currentNode, highlightInfo, range) => {
+	let parentElement = currentNode.parentNode;
+
+	const marker = document.createElement("mark");
+	marker.classList.add(highlightInfo.color);
+	marker.setAttribute("data-highlight-id", highlightInfo.id);
+	marker.setAttribute("data-page-num", getElemPageNum(range.startContainer));
+	marker.setAttribute("data-user-id", highlightInfo.userId);
+	parentElement.replaceChild(marker, currentNode);
+	marker.appendChild(currentNode);
+};
 
 export function eraseHighlight(highlightId) {
 	const highlightMarks = document.querySelectorAll(`[data-highlight-id="${highlightId}"]`);
