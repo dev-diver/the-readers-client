@@ -7,7 +7,10 @@ import { Button } from "@mui/material";
 import { set } from "lodash";
 
 // 미리 정의된 색상 배열
-const colors = ["#8884d8", "#82ca9d", "#ffc658", "#ff7300", "#ff3864"];
+function coloringUser(userId) {
+	const colors = ["#8884d8", "#82ca9d", "#ffc658", "#ff7300", "#ff3864"];
+	return colors[(Number(userId) - 1) % colors.length];
+}
 
 function Chart() {
 	const [scroll, setScroll] = useRecoilState(scrollYState);
@@ -170,8 +173,12 @@ function Chart() {
 		// 페이지 활성화 상태를 나타내는 배열 생성, 초기값은 모두 0 (비활성화)
 		let isActiveArray = new Array(30).fill(0);
 
+		// 현재 페이지에 해당하는 사용자들을 필터링
+		const usersOnPage = currentUsersPage.filter((user) => Number(user.scroll) === Number(payload.value));
+		// 본인의 프로필을 배열의 첫 번째 요소로, 다른 사용자들은 그 뒤로 정렬
+		const sortedUsersOnPage = usersOnPage.sort((a, b) => (b.id === roomUser.user.id ? -1 : 1));
 		// currentUsers를 순회하면서, 각 사용자의 페이지를 확인
-		currentUsersPage.forEach((user) => {
+		sortedUsersOnPage.forEach((user) => {
 			if (Number(user.scroll) === Number(payload.value)) {
 				// 해당 사용자의 페이지가 현재 payload.value와 일치하면, 활성화 상태를 1로 설정
 				isActiveArray[Number(payload.value) - 1] = 1;
@@ -184,22 +191,34 @@ function Chart() {
 
 		// 활성화 상태에 따른 스타일 설정
 		const style = {
-			fill: isActive ? "red" : "black", // 현재 페이지에 있는 유저는 빨간색으로 표시
+			// fill: isActive ? "red" : "black", // 현재 페이지에 있는 유저는 빨간색으로 표시
 			fontSize: isActive ? "16px" : "14px", // 현재 페이지에 있는 유저는 폰트 크기를 크게
+			fontWeight: isActive ? 600 : 400, // 현재 페이지에 있는 유저는 폰트 굵기를 크게
 		};
 
 		return (
 			<g transform={`translate(${x},${y})`}>
-				{/* 사용자의 프로필 이미지가 있다면, foreignObject를 사용하여 이미지를 표시 */}
-				{profileImgSrc && (
-					<foreignObject x={-50} y={-5} width="30" height="30">
-						<img src={profileImgSrc} width="30" height="30" style={{ borderRadius: "50%" }} />
-					</foreignObject>
-				)}
 				{/* 텍스트 레이블을 계속 표시 */}
-				<text x={0} y={0} dy={16} textAnchor="end" fill={style.fill} fontSize={style.fontSize}>
+				<text x={0} y={0} dy={16} textAnchor="end" fontSize={style.fontSize} fontWeight={style.fontWeight}>
 					{payload.value}
 				</text>
+				{/* 사용자의 프로필 이미지가 있다면, foreignObject를 사용하여 이미지를 표시 */}
+				{sortedUsersOnPage.map((user, index) => (
+					// 본인은 가장 앞에, 나머지 사용자들은 x축으로 점점 뒤로 배치
+					<foreignObject key={user.id} x={-50 + 10 * index} y={-6} width="40" height="40">
+						<img
+							src={user.profileImg}
+							width="32"
+							height="32"
+							style={{
+								borderRadius: "50%",
+								border: `2px solid ${coloringUser(user.id)}`,
+								borderShadow: `0 0 0 3px ${coloringUser(user.id)}`,
+							}}
+							alt={`User ${user.id}`}
+						/>
+					</foreignObject>
+				))}
 			</g>
 		);
 	});
@@ -243,9 +262,9 @@ function Chart() {
 							key={user.id}
 							type="monotone"
 							dataKey={user.id}
-							stroke={colors[index % colors.length]} // 사용자별 고유 색상으로 stroke 설정
+							stroke={coloringUser(user.id)} // 사용자별 고유 색상으로 stroke 설정
 							fillOpacity={1}
-							fill={colors[index % colors.length]} // 사용자별 고유 색상으로 fill 설정
+							fill={coloringUser(user.id)} // 사용자별 고유 색상으로 fill 설정
 						/>
 					)) || []}
 				</AreaChart>
