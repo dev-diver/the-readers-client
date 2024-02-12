@@ -11,8 +11,6 @@ function InsertLink({ isOpen, onClose, userId, highlightId, bookId, onCloseEntir
 	const [showMarkerViewer, setMarkerViewer] = useState(false);
 	const [highlights, setHighlights] = useState([]); // highlights 상태 추가
 
-	// const { bookId } = useParams();
-
 	useEffect(() => {
 		console.log("useParams bookId", bookId);
 		const fetchHighlights = async () => {
