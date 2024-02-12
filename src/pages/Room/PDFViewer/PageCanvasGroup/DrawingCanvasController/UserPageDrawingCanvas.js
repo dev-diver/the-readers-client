@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useRecoilState } from "recoil";
-import { getCanvasRef } from "./util";
+import { getCanvasRef, imageToCanvas } from "./util";
 import { userState, drawingCanvasRefsState, penModeState } from "recoil/atom";
 import { debounce } from "lodash";
 
@@ -33,6 +33,25 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame, setDrawi
 		const canvasRef = getCanvasRef(drawingCanvasRefs, pageNum, roomUser.id);
 		setCanvasRef(canvasRef);
 	}, [drawingCanvasRefs]);
+
+	useEffect(() => {
+		if (!canvasRef) {
+			return;
+		}
+		console.log("load drawing", canvasRef, bookId, pageNum, roomUser.id);
+		api
+			.get(`/drawings/book/${bookId}/page/${pageNum}/user/${roomUser.id}`, { responseType: "blob" })
+			.then((response) => {
+				const canvasImage = URL.createObjectURL(response.data);
+				console.log("로드 성공", canvasImage);
+				imageToCanvas(canvasImage, canvasRef, () => {
+					URL.revokeObjectURL(canvasImage);
+				});
+			})
+			.catch((err) => {
+				console.log("기존 자료 없음", bookId, pageNum, roomUser.id);
+			});
+	}, [canvasRef]);
 
 	useLayoutEffect(() => {
 		if (!canvasRef || !user) return;
