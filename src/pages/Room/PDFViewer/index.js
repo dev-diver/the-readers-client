@@ -49,7 +49,7 @@ function PDFViewer({ book }) {
 		if (!book?.urlName) {
 			return;
 		}
-		const HTMLurl = `/storage/pdfs/${book.urlName}`;
+		const HTMLurl = `/storage/pdf/${book.urlName}`;
 		api(HTMLurl)
 			.then((response) => {
 				const parser = new DOMParser();
@@ -62,7 +62,7 @@ function PDFViewer({ book }) {
 				logger.log(err);
 			});
 
-		const CSSurl = `${baseURL}/api/storage/pdfCss/${book.urlName}`;
+		const CSSurl = `${baseURL}/api/storage/pdf/${book.urlName}/css`;
 		const linkId = `css-${book.urlName}`;
 
 		const link = document.createElement("link");
@@ -126,7 +126,7 @@ function PDFViewer({ book }) {
 						draft[index] = "loading";
 					})
 				);
-				const url = `/storage/pdfPages/${book.urlName}/pages/${fileName}`;
+				const url = `/storage/pdf/${book.urlName}/pages/${fileName}`;
 				const pageDivLoad = await api(url)
 					.then((response) => {
 						const parser = new DOMParser();
@@ -157,7 +157,6 @@ function PDFViewer({ book }) {
 
 				// textLayer.addEventListener("mousemove", (e) => canvasMouse(e, index));
 				// textLayer.addEventListener("mouseout", (e) => clearCanvas(index));
-				console.log("pageDiv", pageDiv, pageDiv.parentNode);
 				pageDiv.parentNode.replaceChild(container, pageDiv);
 				container.appendChild(textLayer);
 				container.appendChild(canvasLayer);
