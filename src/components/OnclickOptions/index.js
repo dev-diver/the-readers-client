@@ -10,12 +10,9 @@ import AddMemo from "components/OnclickOptions/AddMemo";
 function OnclickOptions({
 	isOpen,
 	onClose,
-	user,
 	userId,
 	highlightId,
 	bookId,
-	roomId,
-	setHighlightId,
 	selectedHighlightInfo,
 	appendHighlightListItem,
 	sendHighlightToServer,
@@ -67,6 +64,7 @@ function OnclickOptions({
 					<AddMemo
 						isOpen={true}
 						onClose={closeModal}
+						onCloseEntire={onClose}
 						userId={userId}
 						highlightId={highlightId}
 						sendHighlightToServer={sendHighlightToServer}
@@ -77,7 +75,14 @@ function OnclickOptions({
 				)}
 
 				{activeModal === "Link" && (
-					<InsertLink isOpen={true} onClose={closeModal} userId={userId} highlightId={highlightId} bookId={bookId} />
+					<InsertLink
+						isOpen={true}
+						onClose={closeModal}
+						onCloseEntire={onClose}
+						userId={userId}
+						highlightId={highlightId}
+						bookId={bookId}
+					/>
 				)}
 			</Box>
 		</Modal>

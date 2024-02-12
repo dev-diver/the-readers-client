@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import api from "api";
 import { Box, Button, Typography, Modal } from "@mui/material";
 import { View } from "lucide-react";
-import ViewMyMarker from "components/ViewMyMarker";
+import ViewMyMarker from "components/MarkerViewer";
 
 function InsertInner({ isOpen, onClose, userId, highlightId, bookId }) {
 	const [highlights, setHighlights] = useState([]);

@@ -4,14 +4,12 @@ import { Box, Button, TextField, Typography, Modal } from "@mui/material";
 import api from "api";
 import InsertInner from "./InsertInner";
 import InsertOuter from "./InsertOuter";
-import ViewMyMarker from "components/ViewMyMarker";
+import MarkerViewer from "components/MarkerViewer";
 
-function InsertLink({ isOpen, onClose, userId, highlightId, bookId }) {
+function InsertLink({ isOpen, onClose, userId, highlightId, bookId, onCloseEntire }) {
 	const [activeModal, setActiveModal] = useState(null);
-	const [showViewMyMarker, setShowViewMyMarker] = useState(false);
+	const [showMarkerViewer, setMarkerViewer] = useState(false);
 	const [highlights, setHighlights] = useState([]); // highlights 상태 추가
-
-	// const { bookId } = useParams();
 
 	useEffect(() => {
 		console.log("useParams bookId", bookId);
@@ -54,7 +52,7 @@ function InsertLink({ isOpen, onClose, userId, highlightId, bookId }) {
 		<Modal open={isOpen} onClose={onClose}>
 			<Box sx={modalStyle}>
 				<Box sx={{ display: "flex", justifyContent: "center", gap: 2, marginBottom: 2 }}>
-					<Button variant="contained" onClick={() => setShowViewMyMarker(true)}>
+					<Button variant="contained" onClick={() => setMarkerViewer(true)}>
 						내부 링크 생성
 					</Button>
 					<Button variant="contained" onClick={() => openModal("InsertOuter")}>
@@ -62,10 +60,11 @@ function InsertLink({ isOpen, onClose, userId, highlightId, bookId }) {
 					</Button>
 				</Box>
 
-				{showViewMyMarker && (
-					<ViewMyMarker
-						isOpen={showViewMyMarker}
-						onClose={() => setShowViewMyMarker(false)}
+				{showMarkerViewer && (
+					<MarkerViewer
+						isOpen={showMarkerViewer}
+						onClose={() => setMarkerViewer(false)}
+						onCloseEntire={onCloseEntire}
 						bookId={bookId}
 						userId={userId}
 						MyMarkers={highlights} // highlights 상태를 ViewMyMarker 컴포넌트에 전달
@@ -75,7 +74,13 @@ function InsertLink({ isOpen, onClose, userId, highlightId, bookId }) {
 				)}
 
 				{activeModal === "InsertOuter" && (
-					<InsertOuter isOpen={true} onClose={closeModal} userId={userId} highlightId={highlightId} />
+					<InsertOuter
+						isOpen={true}
+						onClose={closeModal}
+						userId={userId}
+						highlightId={highlightId}
+						onCloseEntire={onCloseEntire}
+					/>
 				)}
 			</Box>
 		</Modal>
