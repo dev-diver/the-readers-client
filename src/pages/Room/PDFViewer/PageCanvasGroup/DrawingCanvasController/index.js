@@ -15,7 +15,11 @@ export default function DrawingCanvasController({ totalPage }) {
 		if (totalPage === 0 || roomUsers?.length == 0 || initialize) return;
 		// console.log("roomUsers", roomUsers);
 		const newRefs = new Array(totalPage).fill(null).map((e, i) => {
-			return { page: i + 1, userRefs: {} };
+			const roomRefs = roomUsers.reduce((acc, user) => {
+				acc[user] = React.createRef();
+				return acc;
+			}, {});
+			return { page: i + 1, userRefs: roomRefs };
 		});
 		console.log("newRefs", newRefs);
 		setInitialize(true);

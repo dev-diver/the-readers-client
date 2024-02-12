@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import { canvasMouse, clearCanvas } from "./CursorCanvasController/util";
@@ -13,7 +13,7 @@ import {
 
 import { produce } from "immer";
 
-import DrawingCanvases from "./DrawingCanvasController/DrawingCanvases";
+import UserPageDrawingCanvas from "./DrawingCanvasController/UserPageDrawingCanvas";
 
 function PageCanvasGroup({ pageNum, canvasFrame }) {
 	const { bookId, roomId } = useParams();
@@ -48,7 +48,7 @@ function PageCanvasGroup({ pageNum, canvasFrame }) {
 			// console.log("page ref", pageRef);
 			if (Object.keys(pageRef.userRefs).length === 0) return false;
 			return Object.values(pageRef.userRefs).every((userRef) => {
-				console.log(!!userRef.current);
+				// console.log(!!userRef.current);
 				return !!userRef.current;
 			});
 		});
@@ -104,12 +104,16 @@ function PageCanvasGroup({ pageNum, canvasFrame }) {
 					clearCanvas(e.target);
 				}}
 			></canvas>
-			<DrawingCanvases
-				pageNum={pageNum}
-				roomUsers={roomUsers}
-				canvasFrame={canvasFrame}
-				setDrawingRef={setDrawingRef}
-			/>
+			{roomUsers?.map((roomUser, i) => (
+				<UserPageDrawingCanvas
+					key={i}
+					index={i}
+					pageNum={pageNum}
+					canvasFrame={canvasFrame}
+					setDrawingRef={setDrawingRef}
+					roomUser={roomUser}
+				/>
+			)) || []}
 		</div>
 	);
 }

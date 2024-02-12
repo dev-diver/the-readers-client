@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import { getCanvasRef } from "./util";
@@ -13,13 +13,14 @@ const generator = rough.generator();
 const tool = "pencil";
 const color = "black";
 
-function DrawingCanvases({ pageNum, roomUsers, canvasFrame, setDrawingRef }) {
+function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame, setDrawingRef }) {
 	const { bookId, roomId } = useParams();
 	const [user, setUser] = useRecoilState(userState);
 	const [penMode, setPenMode] = useRecoilState(penModeState);
 
 	const [isDrawing, setIsDrawing] = useState(false);
 	const [drawingCanvasRefs, setDrawingCanvasRefs] = useRecoilState(drawingCanvasRefsState);
+	const [canvasRef, setCanvasRef] = useState(null);
 	const [elements, setElements] = useState([]);
 
 	const location = {
@@ -28,13 +29,13 @@ function DrawingCanvases({ pageNum, roomUsers, canvasFrame, setDrawingRef }) {
 		pageNum: pageNum,
 	};
 
+	useEffect(() => {
+		const canvasRef = getCanvasRef(drawingCanvasRefs, pageNum, roomUser.id);
+		setCanvasRef(canvasRef);
+	}, [drawingCanvasRefs]);
+
 	useLayoutEffect(() => {
-		if (drawingCanvasRefs.length === 0) return;
-		if (!user) return;
-		const canvasRef = getCanvasRef(drawingCanvasRefs, pageNum, user.id);
-		if (!canvasRef) {
-			return;
-		}
+		if (!canvasRef || !user) return;
 		const roughCanvas = rough.canvas(canvasRef);
 		if (elements.length > 0) {
 			canvasRef.getContext("2d").clearRect(0, 0, canvasRef.width, canvasRef.height);
@@ -64,6 +65,7 @@ function DrawingCanvases({ pageNum, roomUsers, canvasFrame, setDrawingRef }) {
 				});
 			}
 		});
+
 		canvasRef.toBlob((blob) => {
 			const data = {
 				user: user,
@@ -72,8 +74,7 @@ function DrawingCanvases({ pageNum, roomUsers, canvasFrame, setDrawingRef }) {
 			};
 			socket.emit("draw-canvas", data);
 		}, "image/png");
-		// console.log("data", data);
-	}, [drawingCanvasRefs.length, elements, user]);
+	}, [elements, user]);
 
 	const drawMouseDown = (e) => {
 		const { offsetX, offsetY } = e.nativeEvent;
@@ -174,32 +175,24 @@ function DrawingCanvases({ pageNum, roomUsers, canvasFrame, setDrawingRef }) {
 	}, 1000);
 
 	return (
-		<>
-			{roomUsers?.map((roomUser, i) => (
-				<canvas
-					key={`drawing-canvas-${i}`}
-					id={`drawing-canvas-${pageNum}-${roomUser.id}`}
-					ref={(el) => setDrawingRef(el, roomUser.id)}
-					width={canvasFrame.scrollWidth}
-					height={canvasFrame.scrollHeight}
-					style={{
-						border: "1px solid black",
-						// pointerEvents: "none",
-						// pointerEvents: penMode =="draw" && user id랑 같은지
-						// pointerEvents: penMode == "draw" ? "auto" : " none",
-						// TODO: 본인 id가 아니면 mouseEvent 없애야 함.
-						pointerEvents: penMode == "draw" && roomUser.id == user.id ? "auto" : "none",
-						position: "absolute",
-						left: 0,
-						top: 0,
-					}}
-					onMouseDown={drawMouseDown}
-					onMouseMove={drawMouseMove}
-					onMouseUp={drawMouseUp}
-				></canvas>
-			)) || []}
-		</>
+		<canvas
+			key={`drawing-canvas-${index}`}
+			id={`drawing-canvas-${pageNum}-${roomUser.id}`}
+			ref={(el) => setDrawingRef(el, roomUser.id)}
+			width={canvasFrame.scrollWidth}
+			height={canvasFrame.scrollHeight}
+			style={{
+				border: "1px solid black",
+				pointerEvents: penMode == "draw" && roomUser.id == user?.id ? "auto" : "none",
+				position: "absolute",
+				left: 0,
+				top: 0,
+			}}
+			onMouseDown={drawMouseDown}
+			onMouseMove={drawMouseMove}
+			onMouseUp={drawMouseUp}
+		></canvas>
 	);
 }
 
-export default DrawingCanvases;
+export default UserPageDrawingCanvas;
