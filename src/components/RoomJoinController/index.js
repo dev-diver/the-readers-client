@@ -32,7 +32,6 @@ export default function RoomJoinController({ roomId }) {
 
 	useEffect(() => {
 		console.log("user", user, "roomId", roomId);
-
 		if (user && roomId) {
 			const myRoomUser = {
 				user: user,
@@ -49,7 +48,6 @@ export default function RoomJoinController({ roomId }) {
 
 	useEffect(() => {
 		if (!user || !roomId) return;
-
 		const roomUserChangeHandler = (data) => {
 			console.log("room-users-changed", data.roomUsers);
 			setRoomUsers(data.roomUsers);

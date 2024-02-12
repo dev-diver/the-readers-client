@@ -64,21 +64,17 @@ function OptionsModal({
 				};
 				const highlightId = await sendHighlightToServer(highlightInfo); // 형광펜 서버로 전송
 				console.log("하이라이트 아이디입니다.", highlightId);
-				highlightInfo = {
-					...highlightInfo,
-					id: highlightId,
-					roomId: roomId,
-					userId: userId,
-					bookId: bookId,
-				};
-				socket.emit("insert-highlight", highlightInfo); //소켓에 전송
 				const drawHighlightInfo = {
 					id: highlightId,
 					userId: userId,
 					color: color,
 					bookId: bookId,
 				};
-
+				highlightInfo = {
+					...highlightInfo,
+					...drawHighlightInfo,
+				};
+				socket.emit("insert-highlight", highlightInfo); //소켓에 전송
 				drawHighlight(newRange, drawHighlightInfo); // 형관펜 화면에 그림
 				appendHighlightListItem(highlightInfo); //형광펜 리스트 생성
 			});
