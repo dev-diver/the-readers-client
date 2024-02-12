@@ -5,6 +5,7 @@ import { DataGrid } from "@mui/x-data-grid";
 
 function MarkerViewer({ isOpen, onClose, bookId, fromHighlightId, MyMarkers, onCloseEntire }) {
 	const [selectionModel, setSelectionModel] = useState([]);
+	const [notes, setNotes] = useState({});
 
 	const handleSubmit = async () => {
 		// 선택된 행들의 ID를 사용하여 API 호출
@@ -42,11 +43,27 @@ function MarkerViewer({ isOpen, onClose, bookId, fromHighlightId, MyMarkers, onC
 		onCloseEntire(); // 전체 모달 닫기
 	};
 
+	// const handleNoteChange = (event, id) => {
+	// 	// 여기서 id는 행의 ID, event.target.value는 입력된 값
+	// 	console.log(`Note updated for ${id}: ${event.target.value}`);
+	// 	// 해당 노트를 상태에 저장하거나 처리하는 로직 추가
+	// };
+
 	const handleNoteChange = (event, id) => {
-		// 여기서 id는 행의 ID, event.target.value는 입력된 값
-		console.log(`Note updated for ${id}: ${event.target.value}`);
-		// 해당 노트를 상태에 저장하거나 처리하는 로직 추가
+		const newNote = event.target.value;
+		setNotes((prevNotes) => ({
+			...prevNotes,
+			[id]: newNote, // 특정 ID의 note 값을 업데이트
+		}));
 	};
+
+	const handleKeyDown = (event) => {
+		// 스페이스바가 눌렸을 때 이벤트 전파 방지
+		if (event.key === " ") {
+			event.stopPropagation();
+		}
+	};
+
 	const columns = [
 		{ field: "pageNum", headerName: "페이지", width: 70 },
 		{ field: "text", headerName: "텍스트", width: 450 }, // 너비 조정
@@ -57,12 +74,14 @@ function MarkerViewer({ isOpen, onClose, bookId, fromHighlightId, MyMarkers, onC
 			width: 150,
 			renderCell: (params) => (
 				<TextField
-					defaultValue={params.value}
+					// defaultValue={params.value}
+					value={notes[params.id] || params.value || ""}
 					variant="outlined"
 					size="small"
 					onChange={(event) => {
 						handleNoteChange(event, params.id);
 					}}
+					onKeyDown={handleKeyDown} // 이벤트 핸들러 추가
 				/>
 			),
 		},
@@ -73,7 +92,8 @@ function MarkerViewer({ isOpen, onClose, bookId, fromHighlightId, MyMarkers, onC
 		pageNum: marker.pageNum,
 		text: marker.text,
 		memo: marker.memo || "",
-		note: marker.note || "",
+		// note: marker.note || "",
+		note: notes[marker.id] || marker.note || "",
 	}));
 
 	const modalStyle = {
