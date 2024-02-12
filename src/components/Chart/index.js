@@ -202,9 +202,9 @@ function Chart() {
 				<text x={0} y={0} dy={16} textAnchor="end" fontSize={style.fontSize} fontWeight={style.fontWeight}>
 					{payload.value}
 				</text>
-				{/* 사용자의 프로필 이미지가 있다면, foreignObject를 사용하여 이미지를 표시 */}
-				{sortedUsersOnPage.map((user, index) => (
-					// 본인은 가장 앞에, 나머지 사용자들은 x축으로 점점 뒤로 배치
+				{/* foreignObject를 사용하여 이미지를 표시 */}
+				{sortedUsersOnPage.map((user, index, arr) => (
+					// 본인은 가장 앞에, 나머지 사용자들이 생기면 본인을 x축 점점 앞으로 배치
 					<foreignObject key={user.id} x={-50 + 10 * index} y={-6} width="40" height="40">
 						<img
 							src={user.profileImg}
@@ -214,6 +214,7 @@ function Chart() {
 								borderRadius: "50%",
 								border: `2px solid ${coloringUser(user.id)}`,
 								borderShadow: `0 0 0 3px ${coloringUser(user.id)}`,
+								filter: index === arr.length - 1 ? "none" : "grayscale(50%)", // 마지막 사용자(본인)는 필터 없음, 나머지는 그레이스케일
 							}}
 							alt={`User ${user.id}`}
 						/>
@@ -243,11 +244,11 @@ function Chart() {
 						bottom: 5,
 					}}
 				>
-					<defs>
+					{/* <defs>
 						<linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
 							<stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
 						</linearGradient>
-					</defs>
+					</defs> */}
 					<XAxis type="number" />
 					<YAxis
 						dataKey="page"
@@ -272,7 +273,5 @@ function Chart() {
 		</div>
 	);
 }
-
-function drawArea() {}
 
 export default Chart;
