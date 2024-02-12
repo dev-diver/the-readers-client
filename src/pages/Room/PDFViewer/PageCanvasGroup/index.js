@@ -64,7 +64,6 @@ function PageCanvasGroup({ pageNum, pageWrapper }) {
 			setDrawingCanvasRefs((oldRefs) => {
 				let flag = isAllRefSet(oldRefs);
 				if (flag && oldRefs.length > 0) {
-					console.log("All refs are set");
 					return oldRefs;
 				}
 				// oldRefs 배열을 순회하며, 조건에 맞는 요소를 찾아 업데이트합니다.
@@ -145,7 +144,7 @@ function DrawingCanvases({ pageNum, roomUsers, pageWrapper, setDrawingRef }) {
 		if (!user) return;
 		const canvasRef = getCanvasRef(drawingCanvasRefs, pageNum, user.id);
 		if (!canvasRef) {
-			console.log("can't find canvasRef");
+			// console.log("can't find canvasRef");
 			return;
 		}
 		const roughCanvas = rough.canvas(canvasRef);

@@ -23,22 +23,86 @@ const VideoChat = () => {
 	// const myUserName = user.id;
 
 	const navigate = useNavigate();
-
 	const OV = new OpenVidu();
 
 	useEffect(() => {
-		// joinSession();
-		// console.log("user", user);
-		// console.log("roomId", roomId);
-		// console.log("mySessionId", myUserName);
-		// console.log("myUserName", myUserName);
-		// console.log("session", session);
-		// console.log("________subscribers", subscribers);
-		// console.log("__________mainStreamManager", mainStreamManager);
-		// console.log("_________publisher", publisher);
+		console.log("---1---");
+		joinSession();
+		console.log("user", user);
+		console.log("roomId", roomId);
+		console.log("mySessionId", myUserName);
+		console.log("myUserName", myUserName);
+		console.log("session", session);
+		console.log("________subscribers", subscribers);
+		console.log("__________mainStreamManager", mainStreamManager);
+		console.log("_________publisher", publisher);
 	}, [user, roomId]);
 
 	useEffect(() => {
+		console.log("session_______", session);
+		if (!session) return;
+		session.on("streamCreated", (event) => {
+			console.log("<-------------Stream created----------->");
+			console.log("Stream created:", event.stream);
+			const subscriber = session.subscribe(event.stream, undefined);
+			setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber]);
+		});
+
+		session.on("streamDestroyed", (event) => {
+			console.log("<-------------StreamDestroyed----------->");
+			setSubscribers((prevSubscribers) =>
+				prevSubscribers.filter((subscriber) => subscriber !== event.stream.streamManager)
+			);
+		});
+
+		session.on("exception", (exception) => {
+			console.warn(exception);
+		});
+
+		const connectToSession = async () => {
+			try {
+				console.log("-----------connectToSession, sesseionId----------", mySessionId);
+				const token = await getToken(mySessionId);
+				await session.connect(token, { clientData: myUserName });
+
+				const publisher = await OV.initPublisherAsync(undefined, {
+					audioSource: undefined,
+					videoSource: undefined,
+					publishAudio: true,
+					publishVideo: true,
+					resolution: "640x480",
+					frameRate: 30,
+					insertMode: "APPEND",
+					mirror: false,
+				});
+
+				session.publish(publisher);
+
+				const devices = await OV.getDevices();
+				const videoDevices = devices.filter((device) => device.kind === "videoinput");
+				const videoDeviceId = publisher.stream.getMediaStream().getVideoTracks()[0].getSettings().deviceId;
+				const videoDevice = videoDevices.find((device) => device.deviceId === videoDeviceId);
+
+				setMainStreamManager(publisher);
+				setPublisher(publisher);
+				setCurrentVideoDevice(videoDevice);
+				console.log("-----------videoDevice----------");
+			} catch (error) {
+				console.log("There was an error connecting to the session:", error.code, error.message);
+			}
+		};
+
+		connectToSession();
+
+		return () => {
+			session.off("streamCreated");
+			session.off("streamDestroyed");
+			session.off("exception");
+		};
+	}, [session]);
+
+	useEffect(() => {
+		console.log("---2---");
 		const onbeforeunload = (event) => {
 			leaveSession();
 		};
@@ -77,53 +141,6 @@ const VideoChat = () => {
 		console.log("<--------------- joinSession ---------->");
 		const mySession = OV.initSession();
 		setSession(mySession);
-
-		mySession.on("streamCreated", (event) => {
-			console.log("<-------------Stream created----------->");
-			console.log("Stream created:", event.stream);
-			const subscriber = mySession.subscribe(event.stream, undefined);
-			setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber]);
-		});
-
-		mySession.on("streamDestroyed", (event) => {
-			console.log("<-------------StreamDestroyed----------->");
-			setSubscribers((prevSubscribers) =>
-				prevSubscribers.filter((subscriber) => subscriber !== event.stream.streamManager)
-			);
-		});
-
-		mySession.on("exception", (exception) => {
-			console.warn(exception);
-		});
-
-		try {
-			const token = await getToken();
-			await mySession.connect(token, { clientData: user.id });
-
-			const publisher = await OV.initPublisherAsync(undefined, {
-				audioSource: undefined,
-				videoSource: undefined,
-				publishAudio: true,
-				publishVideo: true,
-				resolution: "640x480",
-				frameRate: 30,
-				insertMode: "APPEND",
-				mirror: false,
-			});
-
-			mySession.publish(publisher);
-
-			const devices = await OV.getDevices();
-			const videoDevices = devices.filter((device) => device.kind === "videoinput");
-			const videoDeviceId = publisher.stream.getMediaStream().getVideoTracks()[0].getSettings().deviceId;
-			const videoDevice = videoDevices.find((device) => device.deviceId === videoDeviceId);
-
-			setMainStreamManager(publisher);
-			setPublisher(publisher);
-			setCurrentVideoDevice(videoDevice);
-		} catch (error) {
-			console.log("There was an error connecting to the session:", error.code, error.message);
-		}
 	};
 
 	const leaveSession = () => {
@@ -172,50 +189,19 @@ const VideoChat = () => {
 			console.error(e);
 		}
 	};
-	// const createSession = async (sessionId) => {
-	// 	try {
-	// 		const response = await axios.post(
-	// 			`${APPLICATION_SERVER_URL}api/sessions`,
-	// 			{ customSessionId: sessionId },
-	// 			{ headers: { "Content-Type": "application/json" } }
-	// 		);
-	// 		return response.data; // The sessionId
-	// 	} catch (error) {
-	// 		console.error(error);
-	// 	}
-	// };
-
-	// const createToken = async (sessionId) => {
-	// 	try {
-	// 		const response = await axios.post(
-	// 			`${APPLICATION_SERVER_URL}api/sessions/${sessionId}/connections`,
-	// 			{},
-	// 			{ headers: { "Content-Type": "application/json" } }
-	// 		);
-	// 		return response.data; // The token
-	// 	} catch (error) {
-	// 		console.error(error);
-	// 	}
-	// };
-
-	// const getToken = async () => {
-	// 	try {
-	// 		const sessionId = roomId;
-	// 		return await createToken(sessionId);
-	// 	} catch (error) {
-	// 		console.error(error);
-	// 	}
-	// };
 
 	// getToken 함수 수정
 	const getToken = async (sessionId) => {
+		console.log("<---------- getToken ---------->");
 		try {
 			// 세션 ID를 사용하여 서버로부터 토큰 요청
+			console.log("------try진입----sessionId", sessionId);
 			const response = await axios.post(
 				`${APPLICATION_SERVER_URL}api/sessions/${sessionId}/connections`,
 				{},
 				{ headers: { "Content-Type": "application/json" } }
 			);
+			console.log("Token", response.data);
 			return response.data; // 토큰 반환
 		} catch (error) {
 			console.error("Error getting token:", error);

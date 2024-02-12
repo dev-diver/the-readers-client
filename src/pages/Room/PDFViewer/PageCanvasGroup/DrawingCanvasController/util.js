@@ -6,7 +6,6 @@ const color = "black";
 export const getCanvasRef = (drawingCanvasRefs, pageNum, userId) => {
 	// console.log("drawingCanvasRefs", drawingCanvasRefs, pageNum, userId);
 	const thisPageRef = drawingCanvasRefs.find((pageRef) => pageRef.page === pageNum);
-	console.log("thisPageRef", thisPageRef, pageNum, userId);
 	if (!thisPageRef) {
 		return null;
 	}
