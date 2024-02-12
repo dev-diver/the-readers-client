@@ -140,7 +140,9 @@ function PDFViewer({ book }) {
 				paddingTop: 25,
 			}}
 		>
-			<VideoChat roomId={roomId} user={user.id} />
+			{/* <DraggableElement> */}
+			<VideoChat />
+			{/* </DraggableElement> */}
 			{/* <DrawingCanvas /> */}
 			<Grid container spacing={2}>
 				<Hidden mdDown>
