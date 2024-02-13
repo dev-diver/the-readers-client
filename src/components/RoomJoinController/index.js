@@ -21,7 +21,8 @@ export default function RoomJoinController({ roomId }) {
 		if (!user || !roomId) return;
 
 		const onMessageHandler = (data) => {
-			console.log("message", data);
+			// alert(data.message);
+			console.log("message", data.message);
 		};
 
 		socket.on("message", onMessageHandler);

@@ -88,9 +88,9 @@ export default function PdfScroller({ renderContent, children }) {
 
 	const onCtrlWheelHandler = useCallback(
 		(event) => {
-			console.log("ctrlWheel");
 			const ratio = 1.1;
 			if (event.ctrlKey) {
+				console.log("ctrlWheel");
 				event.preventDefault();
 				if (event.deltaY < 0) {
 					setScale((prev) => prev * ratio);

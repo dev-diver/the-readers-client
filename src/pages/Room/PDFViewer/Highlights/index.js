@@ -11,11 +11,13 @@ import "./styles.css";
 import HighlightList from "./HighlightList";
 // 진태 추가 코드
 import OptionsModal from "components/OptionsModal";
+import { set } from "react-hook-form";
 
 function Highlighter({ bookId, renderContent }) {
 	const { roomId } = useParams();
 	const [user, setUser] = useRecoilState(userState);
 	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
+	const [prevRoomUsers, setPrevRoomUsers] = useState([]);
 	const [color, setColor] = useState("yellow");
 
 	// 진태 추가 코드
@@ -64,27 +66,45 @@ function Highlighter({ bookId, renderContent }) {
 			if (user) {
 				console.log("my applyServerHighlight");
 				applyServerHighlight(user.id, bookId, pageNum, color, true);
+			} else {
+				console.log("로그아웃, 하이라이트 지움");
+				setHighlightList([]);
+				scrollerRef.querySelectorAll("mark").forEach((highlight) => {
+					const highlightId = highlight.getAttribute("data-highlight-id");
+					eraseHighlight(scrollerRef, highlightId);
+				});
 			}
 		}
 	}, [renderContent, user]);
 
 	useEffect(() => {
-		if (!user || !roomId) return;
-		console.log("other applyServerHighlight");
-		roomUsers?.forEach((roomUser) => {
+		console.log("prevUsers", prevRoomUsers, "roomUsers", roomUsers);
+		const leftUsers = prevRoomUsers.filter((prevUser) => !roomUsers.some((user) => user.id === prevUser.id));
+		const joinedUsers = roomUsers.filter((user) => !prevRoomUsers.some((prevUser) => prevUser.id === user.id));
+		setPrevRoomUsers(roomUsers);
+		console.log("leftUsers", leftUsers, "joinedUsers", joinedUsers);
+		if (!user) return;
+		joinedUsers?.forEach((roomUser) => {
 			const pageNum = 1; //레이지로드 전까지는 1로 해도 전체 가져옴
 			if (roomUser.id !== user.id) {
 				applyServerHighlight(roomUser.id, bookId, pageNum, "pink");
 			}
 		});
-	}, [user, roomUsers]);
+		leftUsers?.forEach((roomUser) => {
+			console.log("left", roomUser.id);
+			scrollerRef.querySelectorAll(`mark[data-user-id="${roomUser.id}"]`).forEach((highlight) => {
+				const highlightId = highlight.getAttribute("data-highlight-id");
+				eraseHighlight(scrollerRef, highlightId);
+			});
+		});
+	}, [roomUsers]);
 
 	useEffect(() => {
 		socket.on("draw-highlight", (data) => {
 			console.log("draw-highlight", data);
 			const newRange = InfoToRange(data);
 			const drawHighlightInfo = {
-				...drawHighlightInfo,
+				...data,
 				color: "pink",
 			};
 			drawHighlight(newRange, drawHighlightInfo);
@@ -97,7 +117,7 @@ function Highlighter({ bookId, renderContent }) {
 	useEffect(() => {
 		socket.on("erase-highlight", (data) => {
 			console.log("erase-highlight", data);
-			eraseHighlight(data.id);
+			eraseHighlight(scrollerRef, data.id);
 		});
 		return () => {
 			socket.off("erase-highlight");
@@ -177,7 +197,7 @@ function Highlighter({ bookId, renderContent }) {
 				logger.log(err);
 			});
 
-		eraseHighlight(highlightInfo.id);
+		eraseHighlight(scrollerRef, highlightInfo.id);
 		socket.emit("delete-highlight", { roomId: roomId, ...highlightInfo });
 	};
 

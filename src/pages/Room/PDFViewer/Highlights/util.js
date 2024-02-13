@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import React from "react";
 import MyMarkerComponent from "components/MyMarkerComponent";
+import { current } from "immer";
 
 function getElemPageNum(elem) {
 	// console.log("elemPageNum", container);
@@ -11,7 +12,7 @@ function getElemPageNum(elem) {
 function getElemPageContainer(elem) {
 	// console.log(container);
 	if (elem.nodeType === Node.TEXT_NODE) {
-		elem = elem.parentElement;
+		elem = elem.parentElement; //TEXT_NODE는 attribute가 없으므로
 	}
 	while (elem && !elem.hasAttribute("data-page-no")) {
 		elem = elem.parentElement;
@@ -223,6 +224,11 @@ export function drawHighlight(range, highlightInfo) {
 		createMarkTag(currentNode, highlightInfo, range, isEnd, isEnd ? 1 : 0);
 		currentNode = nextNode;
 	}
+	// let currentNode = walker.nextNode();
+	// while (currentNode) {
+	// 	console.log(currentNode, currentNode.nodeType);
+	// 	currentNode = walker.nextNode();
+	// }
 }
 
 const createMarkTag = (currentNode, highlightInfo, range, isEnd = false, split = 0) => {
@@ -248,27 +254,52 @@ const createMarkTag = (currentNode, highlightInfo, range, isEnd = false, split =
 	return marker;
 };
 
-export function eraseHighlight(highlightId) {
-	const highlightMarks = document.querySelectorAll(`[data-highlight-id="${highlightId}"]`);
+export function eraseHighlight(scrollerRef, highlightId) {
+	const highlightMarks = scrollerRef.querySelectorAll(`[data-highlight-id="${highlightId}"]`);
 	console.log("erase highlight", highlightMarks);
 	highlightMarks.forEach((mark) => {
-		const parent = mark.parentNode;
-		const textNode = getFirstTextNode(mark);
-		while (mark.firstChild) {
-			mark.removeChild(mark.firstChild);
-		}
-		textNode && parent.insertBefore(textNode, mark);
-		parent.removeChild(mark);
+		console.log("erase", mark);
+		eraseOneMark(mark);
+		console.log("erase complete");
 	});
 }
 
-function getFirstTextNode(mark) {
-	const firstSpan = mark.childNodes[0];
-	for (let i = 0; i < firstSpan.childNodes.length; i++) {
-		const node = firstSpan.childNodes[i];
-		if (node.nodeType === Node.TEXT_NODE) {
-			return node;
+function eraseOneMark(mark) {
+	const parent = mark.parentNode;
+	const contentNode = getContentNode(mark);
+
+	if (contentNode.nodeType === Node.TEXT_NODE) {
+		const textContent = contentNode.textContent;
+
+		let combinedText = "";
+		let prevTextNode = mark.previousSibling;
+		let nextTextNode = mark.nextSibling;
+
+		if (prevTextNode && prevTextNode.nodeType === Node.TEXT_NODE) {
+			combinedText += prevTextNode.textContent;
+			parent.removeChild(prevTextNode);
 		}
+
+		combinedText += textContent;
+
+		if (nextTextNode && nextTextNode.nodeType === Node.TEXT_NODE) {
+			combinedText += nextTextNode.textContent;
+			parent.removeChild(nextTextNode);
+		}
+
+		const newTextNode = document.createTextNode(combinedText);
+		parent.insertBefore(newTextNode, mark);
+		parent.removeChild(mark);
+	} else {
+		console.log("Not a Text Node", contentNode.NodeType);
+		parent.insertBefore(contentNode, mark);
+		parent.removeChild(mark);
 	}
-	return null;
+}
+
+function getContentNode(mark) {
+	const spanNode = mark.childNodes[0];
+	const contentNode = spanNode.childNodes[0];
+	console.log("spanNode", spanNode, "contentNode", contentNode);
+	return spanNode.childNodes[0];
 }

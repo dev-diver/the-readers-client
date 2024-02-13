@@ -56,6 +56,7 @@ function OptionsModal({
 		event.preventDefault();
 		if (selectedHighlightInfo) {
 			selectedHighlightInfo.forEach(async (highlightInfo) => {
+				console.log("하이라이트 정보", highlightInfo);
 				const newRange = InfoToRange(highlightInfo);
 				highlightInfo = {
 					...highlightInfo,
