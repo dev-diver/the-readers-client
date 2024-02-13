@@ -63,7 +63,7 @@ function Highlighter({ bookId, renderContent }) {
 			const pageNum = 1; //pageNum은 레이지로드 전까지는 1로 해도 전체 가져옴
 			if (user) {
 				console.log("my applyServerHighlight");
-				applyServerHighlight(user.id, bookId, pageNum, color);
+				applyServerHighlight(user.id, bookId, pageNum, color, true);
 			}
 		}
 	}, [renderContent, user]);
@@ -105,7 +105,7 @@ function Highlighter({ bookId, renderContent }) {
 	}, [user]);
 
 	/* Server */
-	const applyServerHighlight = (userId, bookId, pageNum, color) => {
+	const applyServerHighlight = (userId, bookId, pageNum, color, set = false) => {
 		api
 			.get(`/highlights/user/${userId}/book/${bookId}/page/${pageNum}`)
 			.then((response) => {
@@ -120,11 +120,11 @@ function Highlighter({ bookId, renderContent }) {
 						bookId: bookId,
 					};
 					drawHighlight(newRange, drawHighlightInfo);
-					if (userId == user?.id) {
+					if (set) {
 						highlights.push(highlightInfo);
 					}
 				});
-				if (userId == user?.id) {
+				if (set) {
 					setHighlightList(highlights);
 				}
 			})

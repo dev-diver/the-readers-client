@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import api from "api";
-import { Tooltip, Box, Button, Typography, Modal } from "@mui/material";
-import ViewMyMarker from "components/MarkerViewer";
+import { Tooltip, Button } from "@mui/material";
 import "./style.css";
 import OnclickOptions from "components/OnclickOptions";
 
-function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, userId, highlightId, bookId, children }) {
+function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, highlightInfo, children }) {
 	const [highlights, setHighlights] = useState([]);
 	const [onClickOptions, setOnClickOptions] = useState(false);
 	const [memoData, setMemoData] = useState("");
 	const [isTooltipOpen, setIsTooltipOpen] = useState(false); // Tooltip을 제어하기 위한 상태
+	const { highlightId, userId, bookId } = highlightInfo;
 
 	const handleComponentClick = async () => {
 		try {
@@ -73,13 +73,13 @@ function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, userId, highl
 							disableHoverListener // 호버 시 Tooltip이 자동으로 표시되지 않도록 함
 							disableTouchListener // 터치 시 Tooltip이 표시되지 않도록 함
 						>
-							<Button
+							<button
 								className="memobutton"
 								onMouseEnter={handleComponentEnter} // 마우스 오버 시 메모 데이터 로드
 								onMouseLeave={handleComponentLeave} // 마우스 아웃 시 Tooltip 숨김
 							>
 								🔴{/* 메모 확인 버튼 */}
-							</Button>
+							</button>
 						</Tooltip>
 						<button className="memobutton" onClick={() => viewInnerLink()}>
 							🟠{/* 내부 링크 확인 버튼 */}

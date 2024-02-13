@@ -164,7 +164,7 @@ function Chart() {
 					<YAxis dataKey="page" type="category" />
 					<CartesianGrid strokeDasharray="3 3" />
 					<Tooltip />
-					{roomUsers.map((user, index) => (
+					{roomUsers?.map((user, index) => (
 						<Area
 							key={user.id}
 							type="monotone"
@@ -173,7 +173,7 @@ function Chart() {
 							fillOpacity={1}
 							fill={colors[index % colors.length]} // 사용자별 고유 색상으로 fill 설정
 						/>
-					))}
+					)) || []}
 				</AreaChart>
 			</ResponsiveContainer>
 		</div>
