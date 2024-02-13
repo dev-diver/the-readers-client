@@ -1,26 +1,31 @@
 import React, { useEffect, useRef } from "react";
 import Box from "@mui/joy/Box";
 import { useRecoilState } from "recoil";
-import { penModeState, widthState } from "recoil/atom";
+import { userState, penModeState, widthState, drawerFormState } from "recoil/atom";
 import { Pointer, Highlighter, PencilLine, MousePointerClick, Eraser } from "lucide-react";
 import AttentionButton from "./AttentionButton";
+import { offerLogin } from "components/Header/SideDrawer/utils";
 
-// import * as React from 'react';
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
-// import FormatAlignLeftIcon from "@mui/icons-material/FormatAlignLeft";
-// import PageCanvasGroup from "./PageCanvasGroup";
-// import { ConnectingAirportsOutlined } from "@mui/icons-material";
 
 export default function PenController() {
 	const [mode, setMode] = useRecoilState(penModeState);
+	const [user, setUser] = useRecoilState(userState);
+	const [drawerForm, setDrawerForm] = useRecoilState(drawerFormState);
 
 	// 펜 컨트롤러의 길이를 계산해 브라우저 가운데 넣기 위하여 추가한 코드
 	const [width, setWidth] = useRecoilState(widthState); // 요소의 너비를 저장할 상태
 	const ref = useRef(null); // 요소에 대한 참조를 생성
 
 	const handleChange = (event, newMode) => {
-		setMode(newMode);
+		if (!user) {
+			offerLogin(user, setDrawerForm);
+			return;
+		}
+		if (newMode !== null) {
+			setMode(newMode);
+		}
 	};
 
 	useEffect(() => {
@@ -52,21 +57,19 @@ export default function PenController() {
 			sx={{ backgroundColor: "#f7f7f7", borderRadius: "8px", border: "1px solid #ddd", overflow: "hidden" }}
 		>
 			<ToggleButtonGroup orientation="horizontal" value={mode} exclusive onChange={handleChange} aria-label="Mode">
-				<ToggleButton value="pointer" aria-label="pointer">
+				<ToggleButton value="pointer" aria-label="pointer" sx={{ padding: 0, width: "50px", height: "50px" }}>
 					<Pointer />
 				</ToggleButton>
-				<ToggleButton value="highlight" aria-label="highlight">
+				<ToggleButton value="highlight" aria-label="highlight" sx={{ padding: 0, width: "50px", height: "50px" }}>
 					<Highlighter />
 				</ToggleButton>
-				<ToggleButton value="draw" aria-label="draw">
+				<ToggleButton value="draw" aria-label="draw" sx={{ padding: 0, width: "50px", height: "50px" }}>
 					<PencilLine />
 				</ToggleButton>
-				<ToggleButton value="click" aria-label="click">
+				<ToggleButton value="click" aria-label="click" sx={{ padding: 0, width: "50px", height: "50px" }}>
 					<Eraser />
 				</ToggleButton>
-				<ToggleButton value="attention" aria-label="attention">
-					<AttentionButton />
-				</ToggleButton>
+				<AttentionButton />
 			</ToggleButtonGroup>
 		</Box>
 	);

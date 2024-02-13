@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import { isLeadState, isTrailState, userState, scrollerRefState } from "recoil/atom";
 import socket from "socket";
-import { Button } from "@mui/material";
+import { ToggleButton } from "@mui/material";
 import { smoothScrollTo } from "../PdfScroller/util";
 import CampaignIcon from "@mui/icons-material/Campaign";
 
@@ -43,14 +43,13 @@ export default function AttentionButton() {
 	}, [scrollerRef]);
 
 	return (
-		<Button
+		<ToggleButton
+			value="attention"
+			aria-label="attention"
 			onClick={() => sendAttention()}
-			sx={{
-				borderRadius: 0,
-				color: "#f44336",
-			}}
+			sx={{ width: "50px", height: "50px", overflow: "hidden" }}
 		>
-			<CampaignIcon />
-		</Button>
+			<CampaignIcon sx={{ width: "30px", height: "30px" }} />
+		</ToggleButton>
 	);
 }

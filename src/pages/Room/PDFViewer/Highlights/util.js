@@ -1,3 +1,7 @@
+import { createRoot } from "react-dom/client";
+import React from "react";
+import MyMarkerComponent from "components/MyMarkerComponent";
+
 function getElemPageNum(elem) {
 	// console.log("elemPageNum", container);
 	return getElemPageContainer(elem).getAttribute("data-page-no");
@@ -89,6 +93,7 @@ export function rangeToInfo(range, additionalInfo) {
 
 	const highlightInfo = {
 		bookId: additionalInfo.bookId,
+		id: additionalInfo.id,
 		pageNum: pageNum,
 		text: additionalInfo.text, // 형광펜 칠해진 글자
 		startContainer: startContainerIdx, //range.startContainer,
@@ -103,21 +108,36 @@ export function rangeToInfo(range, additionalInfo) {
 
 export function drawHighlight(range, highlightInfo) {
 	// console.log("drawHighlight", range, highlightInfo);
-	let passNode = false;
 
+	//같은 경우 처리
+	if (range.startContainer === range.endContainer) {
+		const startOffset = range.startOffset;
+		const endOffset = range.endOffset;
+		const part = range.startContainer.splitText(startOffset);
+		// console.log("(before) start, end", range.startOffset, range.endOffset);
+		// console.log("(after) start, end", range.startOffset, range.endOffset);
+		// console.log("(before) end-start", range.endOffset - range.startOffset);
+		// console.log("(after) end-start", range.endOffset);
+		// console.log("const", endOffset - startOffset);
+		part.splitText(endOffset - startOffset);
+		createMarkTag(part, highlightInfo, range, true);
+		return;
+	}
+
+	let passNode = false;
 	const filterFunction = function (node) {
-		if (node.hasChildNodes() || node.nodeType !== Node.TEXT_NODE) {
+		if (node.nodeType !== Node.TEXT_NODE) {
 			return NodeFilter.FILTER_SKIP;
 		}
 
 		if (node === range.startContainer) {
 			passNode = true;
-			return NodeFilter.FILTER_SKIP;
+			return NodeFilter.FILTER_ACCEPT;
 		}
 
 		if (node === range.endContainer) {
 			passNode = false;
-			return NodeFilter.FILTER_SKIP;
+			return NodeFilter.FILTER_ACCEPT;
 		}
 
 		const filterState = passNode ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
@@ -126,27 +146,49 @@ export function drawHighlight(range, highlightInfo) {
 	};
 
 	const walker = document.createTreeWalker(range.commonAncestorContainer, NodeFilter.SHOW_ALL, filterFunction);
-
-	let parentElement;
-	//range.startContainer 의 range.startOffset 부터 range.startContainer 의 끝까지를 mark로 감싸는 코드
-
-	//중간
 	let currentNode = walker.nextNode();
-	// console.log(currentNode);
-	while (currentNode) {
-		const nextNode = walker.nextNode();
-		parentElement = currentNode.parentNode;
+	console.log(range.startContainer, currentNode);
+	//처음
+	const part = currentNode.splitText(range.startOffset);
+	createMarkTag(part, highlightInfo, range);
 
-		const marker = document.createElement("mark");
-		marker.classList.add(highlightInfo.color);
-		marker.setAttribute("data-highlight-id", highlightInfo.id);
-		marker.setAttribute("data-page-num", getElemPageNum(range.startContainer));
-		marker.setAttribute("data-user-id", highlightInfo.userId);
-		parentElement.replaceChild(marker, currentNode);
-		marker.appendChild(currentNode);
+	currentNode = walker.nextNode();
+	while (currentNode) {
+		console.log(range.startContainer, currentNode);
+		const nextNode = walker.nextNode();
+		const isEnd = !nextNode;
+		if (isEnd) {
+			currentNode.splitText(range.endOffset);
+		}
+		createMarkTag(currentNode, highlightInfo, range, isEnd);
 		currentNode = nextNode;
 	}
 }
+
+const createMarkTag = (currentNode, highlightInfo, range, isEnd = false) => {
+	const marker = document.createElement("mark");
+	marker.classList.add(highlightInfo.color);
+	const IsMemoOpen = isEnd;
+	// marker 요소에 대한 새로운 root를 생성하고, MyMarkerComponent를 렌더링합니다.
+	const markerRoot = createRoot(marker); // marker 요소에 대한 root 생성
+	markerRoot.render(
+		<MyMarkerComponent
+			isOpen={false}
+			onClose={() => {}}
+			highlightId={highlightInfo.id}
+			pageNum={getElemPageNum(range.startContainer)}
+			bookId={highlightInfo.bookId}
+			userId={highlightInfo.userId}
+			color={highlightInfo.color}
+			text={currentNode.textContent}
+			IsMemoOpen={IsMemoOpen}
+		>
+			{currentNode.textContent}
+		</MyMarkerComponent>
+	);
+	currentNode.parentElement.replaceChild(marker, currentNode);
+	return marker;
+};
 
 export function eraseHighlight(highlightId) {
 	const highlightMarks = document.querySelectorAll(`[data-highlight-id="${highlightId}"]`);

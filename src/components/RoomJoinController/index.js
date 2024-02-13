@@ -18,47 +18,48 @@ export default function RoomJoinController({ roomId }) {
 	// const uuid = createUuid();
 
 	useEffect(() => {
-		socket.on("message", (data) => {
-			alert(data.message);
-			// toast.info(data.message);
-		});
-		return () => {
-			socket.off("message");
-		};
-	}, []);
+		if (!user || !roomId) return;
 
-	useEffect(() => {
-		if (user && roomId) {
-			const myRoomUser = {
-				roomId: roomId,
-				userId: user.id,
-				userName: user.nick,
-			};
-			setRoomUser(myRoomUser);
-			socket.emit("room-joined", myRoomUser);
-		}
+		const onMessageHandler = (data) => {
+			console.log("message", data);
+		};
+
+		socket.on("message", onMessageHandler);
 		return () => {
-			socket.off("room-joined");
+			socket.off("message", onMessageHandler);
 		};
 	}, [user, roomId]);
 
 	useEffect(() => {
-		socket.on("room-users-changed", (data) => {
-			console.log("room-users-changed", data);
-			// 각 사용자의 userId와 bookId를 조합하여 canvasId를 생성
-			const updatedUsers = data.map((user) => {
-				console.log("user", user);
-				return {
-					...user,
-					canvasId: `${user.userId}`, // userId와 bookId를 결합하여 canvasId 생성
-				};
-			});
-			setRoomUsers(updatedUsers); // 상태 업데이트
-		});
-		return () => {
-			socket.off("room-users-changed");
+		console.log("user", user, "roomId", roomId);
+
+		if (user && roomId) {
+			const myRoomUser = {
+				user: user,
+				roomId: roomId,
+			};
+			setRoomUser(myRoomUser);
+			socket.emit("room-joined", myRoomUser);
+		} else {
+			socket.emit("room-leaved", roomUser);
+			setRoomUser(null);
+			setRoomUsers([]);
+		}
+	}, [user, roomId]);
+
+	useEffect(() => {
+		if (!user || !roomId) return;
+
+		const roomUserChangeHandler = (data) => {
+			console.log("room-users-changed", data.roomUsers);
+			setRoomUsers(data.roomUsers);
 		};
-	}, [user]);
+
+		socket.on("room-users-changed", roomUserChangeHandler);
+		return () => {
+			socket.off("room-users-changed", roomUserChangeHandler);
+		};
+	}, [user, roomId]);
 
 	return <div></div>;
 }

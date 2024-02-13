@@ -129,10 +129,10 @@ const MemberList = () => {
 					Close
 				</button>
 				<div className="w-100 mt-5">
-					{roomUsers.map((usr, index) => (
+					{roomUsers.map((roomUsr, index) => (
 						<p key={index} className="text-white text-center py-2">
-							{usr.userId}
-							{usr.id === roomUser.id && " - (You)"}
+							{roomUsr.id}
+							{roomUsr.id === roomUser.id && " - (You)"}
 						</p>
 					))}
 				</div>

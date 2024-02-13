@@ -1,9 +1,10 @@
 import React, { useState, forwardRef } from "react";
 import api from "api";
-// import "./style.css";
 import { Typography, Grid, Box, Fab, Tooltip, Modal, TextField, Slider, Button } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
+import { useRecoilState } from "recoil";
+import { userState } from "recoil/atom";
 
 const style = {
 	position: "absolute",
@@ -18,9 +19,14 @@ const style = {
 };
 
 const MakeRoom = () => {
+	const [user, setUser] = useRecoilState(userState);
 	const [open, setOpen] = useState(false);
 
 	const openModal = () => {
+		if (!user) {
+			alert("로그인을 해주세요");
+			return;
+		}
 		setOpen(true);
 	};
 
@@ -43,17 +49,23 @@ const MakeRoom = () => {
 };
 
 const MakeRoomForm = forwardRef(({ closeModal }, ref) => {
+	const [user, setUser] = useRecoilState(userState);
 	const [roomName, setRoomName] = useState("");
 	const [maxParticipants, setMaxParticipants] = useState(1);
 	const navigate = useNavigate();
 
 	const handleSubmit = async (event) => {
+		if (!user) {
+			alert("로그인을 해주세요");
+			return;
+		}
 		event.preventDefault();
 
 		try {
 			const response = await api.post("/rooms", {
 				roomName,
 				maxParticipants,
+				user: user,
 			});
 			alert(response.data.message);
 			// 데이터를 다 입력해야만 팝업창이 닫힘

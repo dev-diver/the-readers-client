@@ -7,9 +7,23 @@ import ViewMyMarker from "components/MarkerViewer";
 function InsertInner({ isOpen, onClose, userId, highlightId, bookId }) {
 	const [highlights, setHighlights] = useState([]);
 
+	// 클릭 이벤트 핸들러
+	// const handleComponentClick = async () => {
+	// 	try {
+	// 		const response = await api.get(`/highlights/book/${bookId}`);
+	// 		console.log("데이터 입니다", response.data.data.data);
+	// 		setHighlights(response.data.data); // 상태 업데이트
+	// 	} catch (error) {
+	// 		console.error("Failed to fetch highlights", error);
+	// 	}
+	// };
+
 	// 하이라이트 선택 핸들러
 	const handleSelectHighlight = async (highlightId) => {
 		console.log("선택된 하이라이트 ID:", highlightId);
+		// try {
+		// 	const response = await api.post(`link/${highlightId}`);
+		// }
 	};
 
 	const modalStyle = {

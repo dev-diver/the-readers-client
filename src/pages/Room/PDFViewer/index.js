@@ -6,21 +6,23 @@ import PageCanvasGroup from "./PageCanvasGroup";
 import Chart from "components/Chart";
 import VideoChat from "components/VideoChat";
 import PdfScroller from "./PdfScroller/index";
-import AttentionButton from "./PenController/AttentionButton";
 import CursorCanvasController from "./PageCanvasGroup/CursorCanvasController";
 import DrawingCanvasController from "./PageCanvasGroup/DrawingCanvasController";
 import { useRecoilState } from "recoil";
-import { scrollYState, scrollerRefState, viewerScaleState, htmlContentState } from "recoil/atom";
+import { drawerFormState, userState, viewerScaleState, htmlContentState, eachPageLoadingState } from "recoil/atom";
 import { Box, Grid, Hidden } from "@mui/material";
 import PenController from "./PenController";
 import SwitchController from "./SwitchController";
 import { DraggableElement } from "components/DragNDrop/DraggableElement";
-import RoomUserList from "components/RoomUserList";
+import api from "api";
+import { baseURL } from "config/config";
+import HareAndTortoise from "components/HareAndTortoise";
+import { produce } from "immer";
 
 import { useParams } from "react-router-dom";
 import { userState } from "recoil/atom";
 
-const VIEWER_WIDTH = 800;
+const VIEWER_WIDTH = 800; //650;
 
 function PDFViewer({ book }) {
 	const notesData = [
@@ -33,73 +35,68 @@ function PDFViewer({ book }) {
 			},
 		},
 	];
-	const [htmlContent, setHtmlContent] = useRecoilState(htmlContentState);
+	const [pageContainerHTML, setPageContainerHTML] = useRecoilState(htmlContentState);
 	const [renderContent, setRenderContent] = useState(false);
 	const [canvasComponents, setCanvasComponents] = useState([]);
-	const [cssLoaded, setCssLoaded] = useState(false);
-	const [scroll, setScroll] = useRecoilState(scrollYState);
 	const [originalWidth, setOriginalWidth] = useState(0);
 	const [scale, setScale] = useRecoilState(viewerScaleState);
 	const [notes, setNotes] = useState(notesData);
-	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
 	const pdfContentsRef = useRef(null);
+	const [eachPageLoading, setEachPageLoading] = useRecoilState(eachPageLoadingState);
 
+	const [drawState, setDrawState] = useRecoilState(drawerFormState);
 	const [user, setUser] = useRecoilState(userState);
+
 	const { roomId } = useParams();
 
 	useEffect(() => {
 		setRenderContent(false);
-		book.url &&
-			fetch(book.url)
-				.then((response) => {
-					response.text().then((text) => {
-						setHtmlContent(text);
-					});
-				})
-				.catch((err) => {
-					logger.log(err);
-				});
-	}, [book.url]);
+		if (!book?.urlName) {
+			return;
+		}
+		const HTMLurl = `/storage/pdf/${book.urlName}`;
+		api(HTMLurl)
+			.then((response) => {
+				const parser = new DOMParser();
+				const doc = parser.parseFromString(response.data, "text/html");
+				const pageContainer = doc.querySelector("#page-container");
+				const htmlContent = pageContainer ? pageContainer.outerHTML : "";
+				setPageContainerHTML(htmlContent);
+			})
+			.catch((err) => {
+				logger.log(err);
+			});
+
+		const CSSurl = `${baseURL}/api/storage/pdf/${book.urlName}/css`;
+		const linkId = `css-${book.urlName}`;
+
+		const link = document.createElement("link");
+		link.href = CSSurl;
+		link.type = "text/css";
+		link.rel = "stylesheet";
+		link.id = linkId;
+		document.head.appendChild(link);
+
+		setEachPageLoading([]);
+
+		return () => {
+			const link = document.getElementById(linkId);
+			if (link) {
+				link.remove();
+			}
+		};
+	}, [book]);
 
 	useEffect(() => {
-		if (htmlContent && scrollerRef) {
+		if (pageContainerHTML && !renderContent && book?.urlName) {
 			console.log("htmlContent rerender");
-			const pageContainer = scrollerRef.querySelector("#page-container");
+			const pageContainer = pdfContentsRef.current.querySelector("#page-container");
 			if (!pageContainer) return;
-			const pageDivs = pageContainer.querySelectorAll(":scope > div");
-			const mapCanvasContainer = Array.from(pageDivs).map((pageDiv, index) => {
-				const container = document.createElement("div");
-				container.classList.add("page-wrapper");
-				container.style.display = "inline-block"; //content에 크기 맞추기
-				container.style.height = "auto";
-				container.style.position = "relative";
-
-				const canvasLayer = document.createElement("div");
-				canvasLayer.classList.add("canvasLayer");
-
-				const textLayer = document.createElement("div");
-				textLayer.classList.add("textLayer"); //content에 크기 맞추기
-				textLayer.style.display = "inline-block";
-				textLayer.style.height = "auto";
-				// textLayer.addEventListener("mousemove", (e) => canvasMouse(e, index));
-				// textLayer.addEventListener("mouseout", (e) => clearCanvas(index));
-
-				const pageDivClone = pageDiv.cloneNode(true);
-
-				pageDiv.parentNode.replaceChild(container, pageDiv);
-				container.appendChild(canvasLayer);
-				container.appendChild(textLayer);
-				textLayer.appendChild(pageDivClone);
-
-				return {
-					component: <PageCanvasGroup pageNum={index + 1} pageWrapper={container} />,
-					container: canvasLayer,
-				};
-			});
-			setCanvasComponents(mapCanvasContainer);
-			setRenderContent(true);
+			const pageDivs = pageContainer.querySelectorAll(".pf"); //페이지 div
+			setEachPageLoading(new Array(pageDivs.length).fill(false));
+			mapContainer(pageDivs);
 		}
-	}, [htmlContent]);
+	}, [pageContainerHTML, book]);
 
 	useEffect(() => {
 		if (renderContent && pdfContentsRef) {
@@ -113,21 +110,75 @@ function PDFViewer({ book }) {
 		}
 	}, [originalWidth]);
 
-	// useEffect(() => {
-	//     const link = document.createElement('link');
-	//     link.rel = "stylesheet"
-	//     link.href = `${baseURL}/src/example.css`
-	//     link.onload = () => setCssLoaded(true);
-	//     document.head.appendChild(link);
-
-	//     return() =>{
-	//         document.head.removeChild(link);
-	//     }
-	// }, []);
-
 	function adjustScaleToWidth(targetWidth) {
-		const scale = originalWidth / targetWidth;
+		const scale = targetWidth / originalWidth;
+		console.log("originalWidth", originalWidth, "targetWidth", targetWidth, "scale", scale);
 		setScale(scale);
+	}
+
+	async function mapContainer(pageDivs) {
+		const mapCanvasContainer = await Promise.all(
+			Array.from(pageDivs).map(async (pageDiv, index) => {
+				const fileName = pageDiv.getAttribute("data-page-url");
+				console.log(fileName, "fileName", eachPageLoading[index]);
+				if (!fileName || !pageDiv.parentNode || eachPageLoading[index])
+					return {
+						component: null,
+						container: null,
+					};
+				setEachPageLoading((prev) =>
+					produce(prev, (draft) => {
+						draft[index] = "loading";
+					})
+				);
+				const url = `/storage/pdf/${book.urlName}/pages/${fileName}`;
+				const pageDivLoad = await api(url)
+					.then((response) => {
+						const parser = new DOMParser();
+						const doc = parser.parseFromString(response.data, "text/html");
+						const div = doc.querySelector(".pf");
+						return div;
+					})
+					.catch((err) => {
+						logger.log(err);
+					});
+				// console.log(pageDivLoad, "pageDivLoad");
+
+				const container = document.createElement("div");
+				container.classList.add("page-wrapper");
+				container.style.display = "inline-block"; //content에 크기 맞추기
+				container.style.height = "auto";
+				container.style.position = "relative";
+
+				const canvasLayer = document.createElement("div");
+				canvasLayer.classList.add("canvasLayer");
+				canvasLayer.style.display = "inline-block";
+				canvasLayer.style.height = "auto";
+
+				const textLayer = document.createElement("div");
+				textLayer.classList.add("textLayer"); //content에 크기 맞추기
+				textLayer.style.display = "inline-block";
+				textLayer.style.height = "auto";
+
+				// textLayer.addEventListener("mousemove", (e) => canvasMouse(e, index));
+				// textLayer.addEventListener("mouseout", (e) => clearCanvas(index));
+				pageDiv.parentNode.replaceChild(container, pageDiv);
+				container.appendChild(textLayer);
+				container.appendChild(canvasLayer);
+				textLayer.appendChild(pageDivLoad);
+				setEachPageLoading((prev) =>
+					produce(prev, (draft) => {
+						draft[index] = "loaded";
+					})
+				);
+				return {
+					component: <PageCanvasGroup pageNum={index + 1} canvasFrame={textLayer} />,
+					container: canvasLayer,
+				};
+			})
+		);
+		setCanvasComponents(mapCanvasContainer);
+		setRenderContent(true);
 	}
 
 	return (
@@ -146,8 +197,11 @@ function PDFViewer({ book }) {
 			{/* <DrawingCanvas /> */}
 			<Grid container spacing={2}>
 				<Hidden mdDown>
+					<Grid item xs={false} sm={false} md={1} lg={21}>
+						<HareAndTortoise />
+					</Grid>
 					<Grid item xs={false} sm={false} md={1.5} lg={2}>
-						<Chart scroll={scroll} />
+						<Chart />
 					</Grid>
 				</Hidden>
 				<Grid item xs={7} sm={7} md={7} lg={7}>
@@ -155,7 +209,7 @@ function PDFViewer({ book }) {
 						<Box
 							ref={pdfContentsRef}
 							className="pdf-contents"
-							dangerouslySetInnerHTML={{ __html: htmlContent }}
+							dangerouslySetInnerHTML={{ __html: pageContainerHTML }}
 							sx={{
 								width: "100%",
 								transform: `scale(${scale})`,
@@ -167,23 +221,23 @@ function PDFViewer({ book }) {
 				</Grid>
 				<Hidden smDown>
 					<Grid item xs={false} sm={false} md={1} lg={3}>
-						<RoomUserList />
+						{/* <RoomUserList /> */}
 						<Highlights bookId={book.id} renderContent={renderContent} />
 					</Grid>
 				</Hidden>
 				{notes.map((note) => (
 					<Grid item style={{ flex: 1 }} key={note.id}>
-						<DraggableElement>
+						{/* <DraggableElement startX={window.innerWidth - 300} startY={120}>
 							<SwitchController />
-						</DraggableElement>
-						<DraggableElement>
+						</DraggableElement> */}
+						<DraggableElement startX={window.innerWidth - 300} startY={60}>
 							<PenController />
 						</DraggableElement>
 					</Grid>
 				))}
 			</Grid>
 			{canvasComponents.map(({ component, container }) => {
-				return createPortal(component, container);
+				return component && createPortal(component, container);
 			})}
 			<CursorCanvasController totalPage={canvasComponents.length} />
 			<DrawingCanvasController totalPage={canvasComponents.length} />
