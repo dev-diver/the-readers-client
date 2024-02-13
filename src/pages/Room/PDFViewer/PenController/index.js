@@ -54,7 +54,12 @@ export default function PenController() {
 	return (
 		<Box
 			ref={ref}
-			sx={{ backgroundColor: "#f7f7f7", borderRadius: "8px", border: "1px solid #ddd", overflow: "hidden" }}
+			sx={{
+				backgroundColor: "#f7f7f7",
+				borderRadius: "8px",
+				border: "1px solid #ddd",
+				overflow: "hidden",
+			}}
 		>
 			<ToggleButtonGroup orientation="horizontal" value={mode} exclusive onChange={handleChange} aria-label="Mode">
 				<ToggleButton value="pointer" aria-label="pointer" sx={{ padding: 0, width: "50px", height: "50px" }}>

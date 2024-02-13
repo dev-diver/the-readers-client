@@ -14,13 +14,11 @@ import { Box, Grid, Hidden } from "@mui/material";
 import PenController from "./PenController";
 import SwitchController from "./SwitchController";
 import { DraggableElement } from "components/DragNDrop/DraggableElement";
+// import { ReactiveDraggable } from "components/DragNDrop/ReactiveDraggable";
 import api from "api";
 import { baseURL } from "config/config";
 import HareAndTortoise from "components/HareAndTortoise";
 import { produce } from "immer";
-
-import { useParams } from "react-router-dom";
-import { userState } from "recoil/atom";
 
 const VIEWER_WIDTH = 800; //650;
 
@@ -46,8 +44,6 @@ function PDFViewer({ book }) {
 
 	const [drawState, setDrawState] = useRecoilState(drawerFormState);
 	const [user, setUser] = useRecoilState(userState);
-
-	const { roomId } = useParams();
 
 	useEffect(() => {
 		setRenderContent(false);
@@ -191,9 +187,9 @@ function PDFViewer({ book }) {
 				paddingTop: 25,
 			}}
 		>
-			{/* <DraggableElement> */}
+			{/* <ReactiveDraggable startX={window.innerWidth - 300} startY={60}> */}
 			<VideoChat />
-			{/* </DraggableElement> */}
+			{/* </ReactiveDraggable> */}
 			{/* <DrawingCanvas /> */}
 			<Grid container spacing={2}>
 				<Hidden mdDown>
