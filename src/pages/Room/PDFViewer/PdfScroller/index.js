@@ -72,8 +72,6 @@ export default function PdfScroller({ renderContent, children }) {
 
 	const handleScroll = useCallback(
 		(event) => {
-			console.log("handleScroll");
-
 			const scrollTop = event.currentTarget.scrollTop;
 			if (isLead) {
 				console.log("lead-scroll", scrollTop);

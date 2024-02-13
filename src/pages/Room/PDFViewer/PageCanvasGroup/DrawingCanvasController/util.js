@@ -16,7 +16,6 @@ export const getCanvasRef = (drawingCanvasRefs, pageNum, userId) => {
 };
 
 export const imageToCanvas = (canvasImage, canvas, callback) => {
-	console.log("canvas", canvas);
 	if (canvas) {
 		const context = canvas.getContext("2d");
 		const image = new Image();

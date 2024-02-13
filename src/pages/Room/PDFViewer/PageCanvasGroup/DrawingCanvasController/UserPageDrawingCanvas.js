@@ -38,7 +38,6 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame, setDrawi
 		if (!canvasRef) {
 			return;
 		}
-		console.log("load drawing", canvasRef, bookId, pageNum, roomUser.id);
 		api
 			.get(`/drawings/book/${bookId}/page/${pageNum}/user/${roomUser.id}`, { responseType: "blob" })
 			.then((response) => {

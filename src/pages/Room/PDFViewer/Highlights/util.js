@@ -45,7 +45,6 @@ function nodeToPathNum(container) {
 			markerCount++;
 			const split = parseInt(node.getAttribute("data-split"));
 			splitCount += split;
-			console.log(node.classList, node, node.childNodes);
 		}
 		const filterState = isMarkTag ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
 		return filterState;
@@ -76,7 +75,6 @@ function pathNumToNode(pageNum, pathNum) {
 			markerCount++;
 			const split = parseInt(node.getAttribute("data-split"));
 			splitCount += split;
-			console.log(node.classList, node, node.childNodes);
 		}
 		const filterState = isMarkTag ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
 		return filterState;
@@ -143,7 +141,6 @@ export function InfoToRange(Info) {
 	const startOffset = Info.startOffset - getLastMarkerEndOffset(startContainer);
 	const endOffset = Info.endOffset - getLastMarkerEndOffset(endContainer);
 
-	console.log(startContainer, endContainer, "startOffset", startOffset, "endOffset", endOffset);
 	range.setStart(startContainer, startOffset);
 	range.setEnd(endContainer, endOffset);
 
@@ -155,7 +152,6 @@ export function rangeToInfo(range, additionalInfo) {
 	const startContainerIdx = nodeToPathNum(range.startContainer);
 	const endContainerIdx = nodeToPathNum(range.endContainer);
 	const lastMarkerEndOffset = getLastMarkerEndOffset(range.startContainer);
-	console.log("lastMarkerEndOffset", lastMarkerEndOffset);
 
 	const highlightInfo = {
 		bookId: additionalInfo.bookId,
@@ -213,14 +209,12 @@ export function drawHighlight(range, highlightInfo) {
 
 	const walker = document.createTreeWalker(range.commonAncestorContainer, NodeFilter.SHOW_ALL, filterFunction);
 	let currentNode = walker.nextNode();
-	console.log(range.startContainer, currentNode);
 	//처음
 	const part = currentNode.splitText(range.startOffset);
 	createMarkTag(part, highlightInfo, range, false, 1);
 
 	currentNode = walker.nextNode();
 	while (currentNode) {
-		console.log(range.startContainer, currentNode);
 		const nextNode = walker.nextNode();
 		const isEnd = !nextNode;
 		if (isEnd) {
@@ -238,17 +232,15 @@ const createMarkTag = (currentNode, highlightInfo, range, isEnd = false, split =
 	marker.setAttribute("data-endOffset", range.endOffset);
 	marker.setAttribute("data-split", split);
 	marker.setAttribute("data-text-length", currentNode.textContent.length);
+	marker.setAttribute("data-highlight-id", highlightInfo.id);
+	marker.setAttribute("data-page-num", getElemPageNum(range.startContainer));
+	marker.setAttribute("data-user-id", highlightInfo.userId);
+
 	const IsMemoOpen = isEnd;
 	// marker 요소에 대한 새로운 root를 생성하고, MyMarkerComponent를 렌더링합니다.
 	const markerRoot = createRoot(marker); // marker 요소에 대한 root 생성
 	markerRoot.render(
-		<MyMarkerComponent
-			isOpen={false}
-			onClose={() => {}}
-			highlightInfo={highlightInfo}
-			pageNum={getElemPageNum(range.startContainer)}
-			IsMemoOpen={IsMemoOpen}
-		>
+		<MyMarkerComponent highlightInfo={highlightInfo} IsMemoOpen={IsMemoOpen}>
 			{currentNode.textContent}
 		</MyMarkerComponent>
 	);
@@ -258,10 +250,25 @@ const createMarkTag = (currentNode, highlightInfo, range, isEnd = false, split =
 
 export function eraseHighlight(highlightId) {
 	const highlightMarks = document.querySelectorAll(`[data-highlight-id="${highlightId}"]`);
-	//highlightMarks를 감싸고 있는 mark를 제거
+	console.log("erase highlight", highlightMarks);
 	highlightMarks.forEach((mark) => {
 		const parent = mark.parentNode;
-		while (mark.firstChild) parent.insertBefore(mark.firstChild, mark);
+		const textNode = getFirstTextNode(mark);
+		while (mark.firstChild) {
+			mark.removeChild(mark.firstChild);
+		}
+		textNode && parent.insertBefore(textNode, mark);
 		parent.removeChild(mark);
 	});
+}
+
+function getFirstTextNode(mark) {
+	const firstSpan = mark.childNodes[0];
+	for (let i = 0; i < firstSpan.childNodes.length; i++) {
+		const node = firstSpan.childNodes[i];
+		if (node.nodeType === Node.TEXT_NODE) {
+			return node;
+		}
+	}
+	return null;
 }

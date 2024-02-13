@@ -4,12 +4,12 @@ import { Tooltip, Button } from "@mui/material";
 import "./style.css";
 import OnclickOptions from "components/OnclickOptions";
 
-function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, highlightInfo, children }) {
+function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, children }) {
 	const [highlights, setHighlights] = useState([]);
 	const [onClickOptions, setOnClickOptions] = useState(false);
 	const [memoData, setMemoData] = useState("");
 	const [isTooltipOpen, setIsTooltipOpen] = useState(false); // Tooltip을 제어하기 위한 상태
-	const { highlightId, userId, bookId } = highlightInfo;
+	const { id: highlightId, userId, bookId } = highlightInfo;
 
 	const handleComponentClick = async () => {
 		try {
@@ -56,40 +56,33 @@ function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, highlightInfo
 	const viewInnerLink = async () => {};
 
 	return (
-		<>
-			<mark
-				data-highlight-id={highlightId}
-				data-page-num={pageNum}
-				data-user-id={userId}
-				onClick={() => handleComponentClick()}
-			>
-				{children}
-				{IsMemoOpen && (
-					<>
-						<Tooltip
-							title={memoData || "No memo available"} // Tooltip에 표시할 텍스트
-							open={isTooltipOpen} // Tooltip 표시 여부
-							disableFocusListener // 포커스 시 Tooltip이 표시되지 않도록 함
-							disableHoverListener // 호버 시 Tooltip이 자동으로 표시되지 않도록 함
-							disableTouchListener // 터치 시 Tooltip이 표시되지 않도록 함
+		<span onClick={() => handleComponentClick()}>
+			{children}
+			{IsMemoOpen && (
+				<>
+					<Tooltip
+						title={memoData || "No memo available"} // Tooltip에 표시할 텍스트
+						open={isTooltipOpen} // Tooltip 표시 여부
+						disableFocusListener // 포커스 시 Tooltip이 표시되지 않도록 함
+						disableHoverListener // 호버 시 Tooltip이 자동으로 표시되지 않도록 함
+						disableTouchListener // 터치 시 Tooltip이 표시되지 않도록 함
+					>
+						<button
+							className="memobutton"
+							onMouseEnter={handleComponentEnter} // 마우스 오버 시 메모 데이터 로드
+							onMouseLeave={handleComponentLeave} // 마우스 아웃 시 Tooltip 숨김
 						>
-							<button
-								className="memobutton"
-								onMouseEnter={handleComponentEnter} // 마우스 오버 시 메모 데이터 로드
-								onMouseLeave={handleComponentLeave} // 마우스 아웃 시 Tooltip 숨김
-							>
-								🔴{/* 메모 확인 버튼 */}
-							</button>
-						</Tooltip>
-						<button className="memobutton" onClick={() => viewInnerLink()}>
-							🟠{/* 내부 링크 확인 버튼 */}
+							🔴{/* 메모 확인 버튼 */}
 						</button>
-						<button className="memobutton" onClick={() => viewInnerLink()}>
-							🟡{/* 외부 링크 확인 버튼 */}
-						</button>
-					</>
-				)}
-			</mark>
+					</Tooltip>
+					<button className="memobutton" onClick={() => viewInnerLink()}>
+						🟠{/* 내부 링크 확인 버튼 */}
+					</button>
+					<button className="memobutton" onClick={() => viewInnerLink()}>
+						🟡{/* 외부 링크 확인 버튼 */}
+					</button>
+				</>
+			)}
 			{onClickOptions && (
 				<OnclickOptions
 					isOpen={onClickOptions}
@@ -99,7 +92,7 @@ function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, highlightInfo
 					bookId={bookId}
 				/>
 			)}
-		</>
+		</span>
 	);
 }
 

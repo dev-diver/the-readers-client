@@ -116,7 +116,7 @@ function Highlighter({ bookId, renderContent }) {
 					const drawHighlightInfo = {
 						id: highlightInfo.id,
 						userId: userId,
-						color: color,
+						color: color || highlightInfo.color,
 						bookId: bookId,
 					};
 					drawHighlight(newRange, drawHighlightInfo);
