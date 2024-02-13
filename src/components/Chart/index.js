@@ -26,7 +26,7 @@ function Chart() {
 	// }, []);
 
 	useEffect(() => {
-		// 페이지 객체를 초기화하는 함수
+		// 페이지 데이터를 초기화하는 함수
 		const initializePageData = () => {
 			return new Array(30).fill(null).map((_, index) => {
 				const pageObject = { page: `${index + 1}` }; // 기본 page 설정
@@ -38,17 +38,35 @@ function Chart() {
 			});
 		};
 
-		const initializedData = initializePageData(); // 초기화된 페이지 데이터 생성
-		console.log("initializedData", initializedData);
-		setData(initializedData); // 생성된 데이터로 상태 업데이트
+		// 기존 데이터를 업데이트하는 함수
+		const updatePageDataWithNewUsers = (existingData) => {
+			return (
+				existingData?.map((pageObject) => {
+					const updatedPageObject = { ...pageObject }; // 기존 페이지 객체 복사
+					roomUsers?.forEach((user) => {
+						const userIdKey = user?.id; // 각 사용자 ID에 대한 키
+						// 해당 사용자 ID 키가 없거나 새로운 유저일 경우 0으로 초기화
+						if (!Object.hasOwnProperty.call(updatedPageObject, userIdKey)) {
+							updatedPageObject[userIdKey] = 0;
+						}
+					}) || [];
+					return updatedPageObject;
+				}) || []
+			);
+		};
+
+		// 데이터가 이미 있으면 업데이트하고, 없으면 초기화
+		const updatedOrInitializedData = data?.length === 0 ? initializePageData() : updatePageDataWithNewUsers(data);
+
+		setData(updatedOrInitializedData); // 업데이트된 또는 초기화된 데이터로 상태
 	}, [roomUsers]); // roomUsers가 변경될 때마다 이 로직을 다시 실행
 
 	useEffect(() => {
 		const handleUpdateChart = (userData) => {
-			const { filteredData, userKey, room } = userData;
-			console.log("****received data from server****");
-			console.log("filteredData", filteredData);
-			console.log("userKey", userKey);
+			const { filteredData, userKey } = userData;
+			// console.log("****received data from server****");
+			// console.log("filteredData", filteredData);
+			// console.log("userKey", userKey);
 			setData((prevData) => {
 				// prevData의 깊은 복사본을 생성합니다.
 				const updatedData = prevData.map((item) => {
@@ -65,12 +83,12 @@ function Chart() {
 					// 일치하는 항목이 없는 경우, 원본 항목을 반환합니다.
 					return item;
 				});
-				console.log("updatedData", updatedData);
+				// console.log("updatedData", updatedData);
 				return updatedData;
 			});
 		};
 		socket.on("update-chart", handleUpdateChart);
-		console.log("roomUsers", roomUsers);
+		// console.log("roomUsers", roomUsers);
 		return () => {
 			socket.off("update-chart", handleUpdateChart);
 		};
@@ -82,6 +100,7 @@ function Chart() {
 		const interval = setInterval(() => {
 			setCount((c) => c + 1);
 		}, 1000);
+		console.log("data", data);
 
 		// 컴포넌트가 언마운트될 때 인터벌 정리
 		return () => clearInterval(interval);
@@ -129,15 +148,17 @@ function Chart() {
 				})
 				.filter((item) => item !== null); // null 값을 제거하여 최종 배열 생성
 		};
+
 		const filteredData = filterDataByUserId(updatedData, userKey);
-		console.log("*****send data from client to server*****");
-		console.log("filteredData", filteredData);
+		// console.log("*****send data from client to server*****");
+		// console.log("filteredData", filteredData);
 		const room = roomUser.roomId;
 		socket.emit("send-chart", { filteredData, userKey, room });
 	}, [scroll]);
 
 	// Hare And Tortoise
 	useEffect(() => {
+		if (!roomUser?.user) return;
 		socket.emit("current-user-position", { scroll, user: roomUser.user, room: roomUser.roomId });
 	}, [scroll]);
 
@@ -167,6 +188,8 @@ function Chart() {
 	}, []);
 
 	const CustomTick = React.memo(({ x, y, payload, currentUsersPage }) => {
+		// console.log("CustomTick");
+		// console.log("x", x, "y", y, "payload", payload);
 		let profileImgSrc = null;
 
 		// console.log(currentUsersPage);
@@ -205,7 +228,7 @@ function Chart() {
 				{/* foreignObject를 사용하여 이미지를 표시 */}
 				{sortedUsersOnPage.map((user, index, arr) => (
 					// 본인은 가장 앞에, 나머지 사용자들이 생기면 본인을 x축 점점 앞으로 배치
-					<foreignObject key={user.id} x={-50 + 10 * index} y={-6} width="40" height="40">
+					<foreignObject key={user.id} x={-60 + 10 * index} y={-6} width="40" height="40">
 						<img
 							src={user.profileImg}
 							width="32"
