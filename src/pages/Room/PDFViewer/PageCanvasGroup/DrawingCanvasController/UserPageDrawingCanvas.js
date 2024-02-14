@@ -38,7 +38,7 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame, setDrawi
 		if (!canvasRef) {
 			return;
 		}
-		console.log("load drawing", canvasRef, bookId, pageNum, roomUser.id);
+		// console.log("load drawing", canvasRef, bookId, pageNum, roomUser.id);
 		api
 			.get(`/drawings/book/${bookId}/page/${pageNum}/user/${roomUser.id}`, { responseType: "blob" })
 			.then((response) => {
@@ -49,7 +49,7 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame, setDrawi
 				});
 			})
 			.catch((err) => {
-				console.log("기존 자료 없음", bookId, pageNum, roomUser.id);
+				// console.log("기존 자료 없음", bookId, pageNum, roomUser.id);
 			});
 	}, [canvasRef]);
 

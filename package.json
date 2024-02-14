@@ -23,6 +23,7 @@
 		"d3": "^7.8.5",
 		"immer": "^10.0.3",
 		"lucide-react": "^0.321.0",
+		"openvidu-browser": "^2.29.1",
 		"query-string": "^8.2.0",
 		"react": "^18.2.0",
 		"react-bootstrap": "^2.10.0",

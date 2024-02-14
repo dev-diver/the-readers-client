@@ -20,6 +20,7 @@ export default function UploadBookToRoom({ roomId, refresher, setPop }) {
 		formData.append("title", title);
 		const timestamp = Date.now();
 		formData.append("fileName", `_${timestamp}`);
+		console.log("url", `${PDF_UPLOAD_URL}/api/pdf`);
 		api
 			.post(`${PDF_UPLOAD_URL}/api/pdf`, formData)
 			.then((response) => {

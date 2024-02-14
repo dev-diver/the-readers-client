@@ -1,7 +1,6 @@
 export const getCanvasRef = (drawingCanvasRefs, pageNum, userId) => {
 	// console.log("drawingCanvasRefs", drawingCanvasRefs, pageNum, userId);
 	const thisPageRef = drawingCanvasRefs.find((pageRef) => pageRef.page === pageNum);
-	// console.log("thisPageRef", thisPageRef, pageNum, userId);
 	if (!thisPageRef) {
 		return null;
 	}
@@ -16,7 +15,7 @@ export const getCanvasRef = (drawingCanvasRefs, pageNum, userId) => {
 };
 
 export const imageToCanvas = (canvasImage, canvas, callback) => {
-	console.log("canvas", canvas);
+	// console.log("canvas", canvas);
 	if (canvas) {
 		const context = canvas.getContext("2d");
 		const image = new Image();
