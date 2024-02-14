@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Box, Button } from "@mui/material";
-import { InfoToRange, drawHighlight } from "pages/Room/PDFViewer/Highlights/util";
-import api from "api";
-import { logger } from "logger";
-import socket from "socket.js";
 import InsertLink from "components/OptionsModal/InsertLink";
 import AddMemo from "components/OnclickOptions/AddMemo";
 
