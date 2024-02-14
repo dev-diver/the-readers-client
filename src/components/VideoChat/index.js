@@ -37,8 +37,12 @@ const VideoChat = () => {
 	const navigate = useNavigate();
 	const OV = new OpenVidu();
 
+	useEffect(() => {
+		console.log("++++++++++++++JoinSession");
+		joinSession();
+	}, []);
+
 	const startToSession = async () => {
-		await joinSession();
 		startToSubscriber();
 	};
 
