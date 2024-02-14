@@ -19,6 +19,7 @@ import api from "api";
 import { baseURL } from "config/config";
 import HareAndTortoise from "components/HareAndTortoise";
 import { produce } from "immer";
+import RoomUserList from "components/RoomUserList";
 
 const VIEWER_WIDTH = 800; //650;
 
