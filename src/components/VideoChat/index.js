@@ -3,9 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { OpenVidu } from "openvidu-browser";
 import axios from "axios";
 import UserVideoComponent from "./UserVideoComponent";
-import { Container, OutButton, StartButton, VideoBox, VideoContainer, Video } from "./style";
+import { Container, OutButton, StartButton, VideoBox, VideoContainer, Video, VideoButtonBox } from "./style";
 import { useRecoilState } from "recoil";
-import { userState } from "recoil/atom";
+import { userState, isVideoExitState } from "recoil/atom";
 
 const APPLICATION_SERVER_URL = "https://demos.openvidu.io/";
 
@@ -19,6 +19,7 @@ const VideoChat = () => {
 	const { roomId } = useParams();
 	const [mySessionId, setMySessionId] = useState(roomId);
 	const [myUserName, setMyUserName] = useState(user.id);
+	const [isVideoExit, setIsVideoExit] = useRecoilState(isVideoExitState);
 
 	const navigate = useNavigate();
 	const OV = new OpenVidu();
@@ -129,14 +130,14 @@ const VideoChat = () => {
 		}
 	};
 
-	const deleteSubscriber = (streamManager) => {
-		const index = subscribers.indexOf(streamManager, 0);
-		if (index > -1) {
-			const newSubscribers = subscribers.slice();
-			newSubscribers.splice(index, 1);
-			setSubscribers({ ...subscribers, subscribers: newSubscribers });
-		}
-	};
+	// const deleteSubscriber = (streamManager) => {
+	// 	const index = subscribers.indexOf(streamManager, 0);
+	// 	if (index > -1) {
+	// 		const newSubscribers = subscribers.slice();
+	// 		newSubscribers.splice(index, 1);
+	// 		setSubscribers({ ...subscribers, subscribers: newSubscribers });
+	// 	}
+	// };
 
 	const joinSession = async () => {
 		const mySession = OV.initSession();
@@ -148,7 +149,7 @@ const VideoChat = () => {
 			session.disconnect();
 		}
 
-		setSession(undefined);
+		// setSession(undefined);
 		setSubscribers([]);
 		setMainStreamManager(undefined);
 		setPublisher(undefined);
@@ -218,26 +219,55 @@ const VideoChat = () => {
 
 	return (
 		<div className="container">
+			<VideoButtonBox>
+				<StartButton
+					onClick={() => {
+						startToSession();
+						setIsVideoExit(true);
+					}}
+				>
+					Start
+				</StartButton>
+				{/* <p>
+					{isVideoExit !== true ? (
+						<a>
+							<StartButton
+								onClick={() => {
+									startToSession();
+									setIsVideoExit(true);
+								}}
+							>
+								Start
+							</StartButton>
+						</a>
+					) : (
+						<a href={`/room/${roomId}/book`}>
+							<OutButton
+								onClick={() => {
+									leaveSession();
+									setIsVideoExit(false);
+								}}
+							>
+								Exit!
+							</OutButton>
+						</a>
+					)}
+				</p> */}
+			</VideoButtonBox>
 			<VideoContainer>
-				<a>
-					<StartButton onClick={startToSession}>Start</StartButton>
-				</a>
-				{session !== undefined ? (
+				{/* {session !== undefined ? ( */}
+				{isVideoExit !== false ? (
 					<div id="session">
 						<div id="session-header">
 							<h1 id="session-title">mysessionId: {mySessionId}</h1>
-							<a href={`/room/${roomId}`}>
-								<OutButton onClick={leaveSession}>Exit!</OutButton>
-							</a>
 						</div>
-
-						{mainStreamManager !== undefined ? (
-							<VideoBox>
-								<div id="main-video" className="col-md-6">
-									<UserVideoComponent streamManager={mainStreamManager} />
-								</div>
-							</VideoBox>
-						) : null}
+						{/* {mainStreamManager !== undefined ? ( */}
+						<VideoBox>
+							<div id="main-video" className="col-md-6">
+								<UserVideoComponent streamManager={mainStreamManager} />
+							</div>
+						</VideoBox>
+						{/* ) : null} */}
 						<div id="video-container" className="col-md-6">
 							{subscribers.map((sub, i) => (
 								<div

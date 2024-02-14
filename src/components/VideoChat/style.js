@@ -11,21 +11,6 @@ const Container = styled.div`
 	align-items: center;
 `;
 
-const OutButton = styled.button`
-	align-self: flex-end;
-	cursor: pointer;
-	background-color: white;
-	color: black;
-	width: 50px;
-	height: 50px;
-	border-radius: 50%;
-	text-align: center;
-	margin-bottom: 10px;
-	box-shadow:
-		0 4px 6px rgba(50, 50, 93, 0.11),
-		0 1px 3px rgba(0, 0, 0, 0.08);
-`;
-
 const VideoContainer = styled.div`
 	width: 100%;
 	height: 150px;
@@ -56,6 +41,21 @@ const VideoBox = styled.div`
 	}
 `;
 
+const OutButton = styled.button`
+	align-self: flex-end;
+	cursor: pointer;
+	background-color: white;
+	color: black;
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+	text-align: center;
+	margin-bottom: 10px;
+	box-shadow:
+		0 4px 6px rgba(50, 50, 93, 0.11),
+		0 1px 3px rgba(0, 0, 0, 0.08);
+`;
+
 const StartButton = styled.button`
 	align-self: flex-end;
 	cursor: pointer;
@@ -71,4 +71,12 @@ const StartButton = styled.button`
 		0 1px 3px rgba(0, 0, 0, 0.08);
 `;
 
-export { Container, OutButton, VideoContainer, VideoBox, StartButton };
+const VideoButtonBox = styled.div`
+	width: 100%;
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	background-color: #4a90e2;
+`;
+
+export { Container, OutButton, VideoContainer, VideoBox, StartButton, VideoButtonBox };

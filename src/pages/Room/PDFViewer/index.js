@@ -187,8 +187,8 @@ function PDFViewer({ book }) {
 				paddingTop: 25,
 			}}
 		>
-			{/* <ReactiveDraggable startX={window.innerWidth - 300} startY={60}> */}
 			<VideoChat />
+			{/* <ReactiveDraggable startX={window.innerWidth - 300} startY={60}> */}
 			{/* </ReactiveDraggable> */}
 			{/* <DrawingCanvas /> */}
 			<Grid container spacing={2}>
