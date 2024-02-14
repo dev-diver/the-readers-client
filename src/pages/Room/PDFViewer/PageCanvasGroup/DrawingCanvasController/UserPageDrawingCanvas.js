@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useLayoutEffect } from "react";
+import React, { useRef, useState, useEffect, useLayoutEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
-import { useRecoilState } from "recoil";
-import { getCanvasRef, imageToCanvas } from "./util";
-import { userState, drawingCanvasRefsState, penModeState } from "recoil/atom";
+import { useRecoilState, useSetRecoilState, useRecoilValue } from "recoil";
+import { userState, penModeState, canvasElementsFamily } from "recoil/atom";
 import { debounce } from "lodash";
+import { blobToJson } from "./utils";
 
 import rough from "roughjs/bundled/rough.esm";
 import socket from "socket";
@@ -13,15 +13,21 @@ const generator = rough.generator();
 const tool = "pencil";
 const color = "black";
 
-function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame, setDrawingRef }) {
+function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 	const { bookId, roomId } = useParams();
 	const [user, setUser] = useRecoilState(userState);
 	const [penMode, setPenMode] = useRecoilState(penModeState);
 
 	const [isDrawing, setIsDrawing] = useState(false);
-	const [drawingCanvasRefs, setDrawingCanvasRefs] = useRecoilState(drawingCanvasRefsState);
-	const [canvasRef, setCanvasRef] = useState(null);
-	const [elements, setElements] = useState([]);
+	const canvasRef = useRef(null);
+	const elements = useRecoilValue(canvasElementsFamily({ pageNum: pageNum, userId: roomUser.id }));
+	const setElements = useSetRecoilState(canvasElementsFamily({ pageNum: pageNum, userId: roomUser.id }));
+	const updateElement = useCallback(
+		(newElement) => {
+			setElements((oldElements) => [...oldElements, newElement]);
+		},
+		[setElements]
+	);
 
 	const location = {
 		bookId: bookId,
@@ -30,35 +36,29 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame, setDrawi
 	};
 
 	useEffect(() => {
-		console.log("drawingCanvasRefs", drawingCanvasRefs);
-		const canvasRef = getCanvasRef(drawingCanvasRefs, pageNum, roomUser.id);
-		console.log("canvasRef", canvasRef);
-		setCanvasRef(canvasRef);
-	}, [drawingCanvasRefs]);
-
-	useEffect(() => {
-		if (!canvasRef) {
+		if (!canvasRef?.current) {
 			return;
 		}
 		api
 			.get(`/drawings/book/${bookId}/page/${pageNum}/user/${roomUser.id}`, { responseType: "blob" })
 			.then((response) => {
-				const canvasImage = URL.createObjectURL(response.data);
-				console.log("로드 성공", canvasImage);
-				imageToCanvas(canvasImage, canvasRef, () => {
-					URL.revokeObjectURL(canvasImage);
+				const elementsBlob = response.data;
+				console.log("기존 자료 있음", elementsBlob);
+				blobToJson(elementsBlob).then((json) => {
+					console.log("복호화", json);
+					setElements(json);
 				});
 			})
 			.catch((err) => {
 				console.log("기존 자료 없음", bookId, pageNum, roomUser.id);
 			});
-	}, [canvasRef]);
+	}, [canvasRef.current]);
 
 	useLayoutEffect(() => {
 		if (!canvasRef || !user) return;
-		const roughCanvas = rough.canvas(canvasRef);
+		const roughCanvas = rough.canvas(canvasRef.current);
 		if (elements.length > 0) {
-			canvasRef.getContext("2d").clearRect(0, 0, canvasRef.width, canvasRef.height);
+			canvasRef.current.getContext("2d").clearRect(0, 0, canvasRef.width, canvasRef.height);
 		}
 		elements.forEach((ele, i) => {
 			if (ele.element === "rect") {
@@ -86,33 +86,31 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame, setDrawi
 			}
 		});
 
-		canvasRef.toBlob((blob) => {
-			const data = {
-				user: user,
-				location,
-				canvasImage: blob,
-			};
-			socket.emit("draw-canvas", data);
-		}, "image/png");
+		const data = {
+			user: user,
+			location,
+			elements: elements,
+		};
+		const jsonString = JSON.stringify(data);
+		const dataBlob = new Blob([jsonString], { type: "application/json" });
+		socket.emit("draw-canvas", dataBlob);
 	}, [elements, user]);
 
 	const drawMouseDown = (e) => {
 		const { offsetX, offsetY } = e.nativeEvent;
 		if (tool === "pencil") {
-			setElements((prevElements) => [
-				...prevElements,
-				{
-					offsetX,
-					offsetY,
-					path: [[offsetX, offsetY]],
-					stroke: color,
-					element: tool,
-				},
-			]);
+			const newElement = {
+				offsetX,
+				offsetY,
+				path: [[offsetX, offsetY]],
+				stroke: color,
+				element: tool,
+			};
+			updateElement(newElement);
 		} else {
-			setElements((prevElements) => [...prevElements, { offsetX, offsetY, stroke: color, element: tool }]);
+			const newElement = { offsetX, offsetY, stroke: color, element: tool };
+			updateElement(newElement);
 		}
-
 		setIsDrawing(true);
 	};
 
@@ -173,21 +171,22 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame, setDrawi
 		setIsDrawing(false);
 		// const canvasRef = getCanvasRef(drawingCanvasRefs, pageNum, user.id);
 		if (!canvasRef) return;
-		canvasRef.toBlob((blob) => {
-			const data = {
-				user: user,
-				location,
-				canvasImage: blob,
-			};
-			debounceDrawSave(data);
-		}, "image/png");
+		const data = {
+			user: user,
+			location,
+			elements: elements,
+		};
+		debounceDrawSave(data);
 	};
 
 	const debounceDrawSave = debounce((data) => {
 		//draw save 로직  /book/:bookId/page/:pageNum/user/:userId 주소로 요청
-		const formData = new FormData();
 		const { bookId, pageNum } = data.location;
-		formData.append("file", data.canvasImage);
+
+		const jsonString = JSON.stringify(data.elements);
+		const elementsBlob = new Blob([jsonString], { type: "application/json" });
+		const formData = new FormData();
+		formData.append("file", elementsBlob, "drawing.json");
 		console.log(data);
 		api.post(`/drawings/book/${bookId}/page/${pageNum}/user/${user.id}`, formData).catch((err) => {
 			console.log(err);
@@ -198,7 +197,7 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame, setDrawi
 		<canvas
 			key={`drawing-canvas-${index}`}
 			id={`drawing-canvas-${pageNum}-${roomUser.id}`}
-			ref={(el) => setDrawingRef(el, roomUser.id)}
+			ref={canvasRef}
 			width={canvasFrame.scrollWidth}
 			height={canvasFrame.scrollHeight}
 			style={{

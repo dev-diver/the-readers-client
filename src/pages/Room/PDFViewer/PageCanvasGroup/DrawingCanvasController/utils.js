@@ -32,3 +32,21 @@ export const imageToCanvas = (canvasImage, canvas, callback) => {
 		// console.error("canvas is null");
 	}
 };
+
+export const blobToJson = (blob) => {
+	return new Promise((resolve, reject) => {
+		const reader = new FileReader();
+		reader.onload = function () {
+			try {
+				const json = JSON.parse(reader.result);
+				resolve(json);
+			} catch (error) {
+				reject(error);
+			}
+		};
+		reader.onerror = function (error) {
+			reject(error);
+		};
+		reader.readAsText(blob);
+	});
+};

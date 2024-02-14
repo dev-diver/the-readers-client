@@ -1,4 +1,4 @@
-import { atom } from "recoil";
+import { atom, atomFamily } from "recoil";
 
 export const roomState = atom({
 	key: "room",
@@ -66,14 +66,9 @@ export const highlightState = atom({
 	default: [],
 });
 
-export const drawingCanvasRefsState = atom({
-	key: "drawingCanvasRefs",
+export const canvasElementsFamily = atomFamily({
+	key: "canvasElementsFamily",
 	default: [],
-});
-
-export const drawingCanvasInitState = atom({
-	key: "drawingCanvasInit",
-	default: false,
 });
 
 export const bookChangedState = atom({
