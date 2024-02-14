@@ -79,7 +79,7 @@ export default function RoomUserList() {
 					},
 				}}
 			>
-				{roomUsers.map((Member, index) => (
+				{roomUsers?.map((Member, index) => (
 					<MenuItem key={index} onClick={handleClose}>
 						<BadgeAvatars nick={Member.nick} profileImg={Member.profileImg} />
 						{Member.id === roomUser.user.id && (
@@ -101,7 +101,7 @@ export default function RoomUserList() {
 							></Badge>
 						)}
 					</MenuItem>
-				))}
+				)) || []}
 			</Menu>
 		</div>
 	);
