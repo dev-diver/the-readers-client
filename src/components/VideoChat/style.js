@@ -30,11 +30,12 @@ const Header = styled.div`
 `;
 
 const VideoContainer = styled.div`
-	width: 100%;
-	height: 150px;
-	display: flex;
-	justify-content: space-around;
-	align-items: center;
+	padding: 5px;	
+	boxShadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08),
+	borderRadius: 8px,
+	backgroundColor: #f7f7f7,
+	border: 1px solid #ddd,
+	zIndex: 100,	
 `;
 
 const VideoBox = styled.div`
@@ -43,8 +44,6 @@ const VideoBox = styled.div`
 	height: 110px;
 	border-radius: 50%;
 	z-index: 999;
-	bottom: -50px;
-	right: 0;
 	box-shadow:
 		0 4px 6px rgba(50, 50, 93, 0.11),
 		0 1px 3px rgba(0, 0, 0, 0.08);
@@ -95,14 +94,16 @@ const StartButton = styled.button`
 	height: 50px;
 	border-radius: 50%;
 	text-align: center;
-	margin-bottom: 10px;
+	margin-bottom: 10 px;
 	box-shadow:
 		0 4px 6px rgba(50, 50, 93, 0.11),
 		0 1px 3px rgba(0, 0, 0, 0.08);
 `;
 
 const VideoButtonBox = styled.div`
-	width: 100%;
+	padding: 5px;
+	border-radius: 10px;
+	width: 110px;
 	display: flex;
 	justify-content: space-around;
 	align-items: center;

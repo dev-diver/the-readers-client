@@ -18,6 +18,7 @@ import {
 } from "./style";
 import { useRecoilState } from "recoil";
 import { userState, isVideoExitState } from "recoil/atom";
+import { ReactiveDraggable } from "components/DragNDrop/ReactiveDraggable";
 
 const APPLICATION_SERVER_URL = "https://demos.openvidu.io/";
 
@@ -30,16 +31,11 @@ const VideoChat = () => {
 	const [user, setUser] = useRecoilState(userState);
 	const { roomId } = useParams();
 	const [mySessionId, setMySessionId] = useState(roomId);
-	const [myUserName, setMyUserName] = useState(user.id);
+	const [myUserName, setMyUserName] = useState(user.nick);
 	const [isVideoExit, setIsVideoExit] = useRecoilState(isVideoExitState);
-	// const [OV, setOV] = useState(new OpenVidu());
 
 	const navigate = useNavigate();
 	const OV = new OpenVidu();
-
-	// useEffect(() => {
-	// 	joinSession();
-	// }, [user, roomId]);
 
 	const startToSession = async () => {
 		await joinSession();
@@ -54,17 +50,6 @@ const VideoChat = () => {
 			console.log("Stream created:", event.stream);
 			const subscriber = session.subscribe(event.stream, undefined);
 			setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber]);
-
-			// const existingStream = subscribers.find((subscriber) => subscriber.stream.streamId === event.stream.streamId);
-			// if (existingStream) {
-			// 	// 기존 스트림이 존재한다면 중복으로 간주하고 추가 동작을 수행하지 않습니다.
-			// 	console.log("Stream already published");
-			// 	return;
-			// }
-
-			// // 중복되지 않는 스트림의 경우 구독자 목록에 추가
-			// const subscriber = session.subscribe(event.stream, undefined);
-			// setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber]);
 		});
 
 		session.on("streamDestroyed", (event) => {
@@ -104,6 +89,7 @@ const VideoChat = () => {
 				setPublisher(publisher);
 				setCurrentVideoDevice(videoDevice);
 				console.log("-----------videoDevice----------");
+				console.log("1111111111subscribers", subscribers);
 			} catch (error) {
 				console.log("There was an error connecting to the session:", error.code, error.message);
 			}
@@ -130,14 +116,6 @@ const VideoChat = () => {
 		};
 	}, []);
 
-	// const handleChangeSessionId = (e) => {
-	// 	setMySessionId({ ...mySessionId, mySessionId: e.target.value });
-	// };
-
-	// const handleChangeUserName = (e) => {
-	// 	setMyUserName({ ...myUserName, myUserName: e.target.value });
-	// };
-
 	const handleMainVideoStream = (stream) => {
 		if (mainStreamManager !== stream) {
 			setMainStreamManager({ ...mainStreamManager, mainStreamManager: stream });
@@ -158,8 +136,8 @@ const VideoChat = () => {
 		setSession(mySession);
 	};
 
-	const onbeforeunload = (event) => {
-		this.leaveSession();
+	const onbeforeunload = () => {
+		leaveSession();
 	};
 
 	useEffect(() => {
@@ -174,44 +152,10 @@ const VideoChat = () => {
 		}
 		deleteSubscriber(mainStreamManager);
 
-		// setOV(null);
 		setSession(undefined);
 		setSubscribers([]);
 		setMainStreamManager(undefined);
 		setPublisher(undefined);
-		// setMySessionId(roomId);
-		// setMyUserName(user.id);
-	};
-
-	const switchCamera = async () => {
-		try {
-			const devices = await OV.getDevices();
-			const videoDevices = devices.filter((device) => device.kind === "videoinput");
-
-			if (videoDevices && videoDevices.length > 1) {
-				const newVideoDevice = videoDevices.filter((device) => device.deviceId !== currentVideoDevice.deviceId);
-
-				if (newVideoDevice.length > 0) {
-					const newPublisher = OV.initPublisher(undefined, {
-						videoSource: newVideoDevice[0].deviceId,
-						publishAudio: true,
-						publishVideo: true,
-						mirror: true,
-					});
-
-					newPublisher.once("accessAllowed", async () => {
-						await session.unpublish(mainStreamManager);
-						await session.publish(newPublisher);
-
-						setCurrentVideoDevice(newVideoDevice[0]);
-						setMainStreamManager(newPublisher);
-						setPublisher(newPublisher);
-					});
-				}
-			}
-		} catch (e) {
-			console.error(e);
-		}
 	};
 
 	const getToken = async () => {
@@ -244,51 +188,41 @@ const VideoChat = () => {
 	};
 
 	return (
-		<div className="container">
-			<VideoButtonBox>
-				{/* <StartButton
-					onClick={() => {
-						startToSession();
-						setIsVideoExit(true);
-					}}
-				>
-					Start
-				</StartButton> */}
-				{/* <p>
-					{isVideoExit !== true ? ( */}
-				{mainStreamManager === undefined ? (
-					<a>
-						<StartButton
-							onClick={() => {
-								startToSession();
-								setIsVideoExit(true);
-							}}
-						>
-							Start
-						</StartButton>
-					</a>
-				) : (
-					// <a href={`/room/${roomId}/book`}>
-					<a>
-						<OutButton
-							onClick={() => {
-								leaveSession();
-								setIsVideoExit(false);
-							}}
-						>
-							Exit!
-						</OutButton>
-					</a>
-				)}
-			</VideoButtonBox>
-			<VideoContainer>
-				{/* {session !== undefined ? ( */}
-				<Session>
+		<div className="container" style={{ backgroundColor: "gray" }}>
+			<ReactiveDraggable startX={window.innerWidth - 300} startY={60}>
+				<VideoContainer style={{ zIndex: 100 }}>
+					<Header>
+						<NameTag id="session-title">방 이름: {mySessionId}</NameTag>
+					</Header>
+					<VideoButtonBox>
+						{mainStreamManager === undefined ? (
+							<a>
+								<StartButton
+									onClick={() => {
+										startToSession();
+										setIsVideoExit(true);
+									}}
+								>
+									Start
+								</StartButton>
+							</a>
+						) : (
+							// <a href={`/room/${roomId}/book`}>
+							<a>
+								<OutButton
+									onClick={() => {
+										leaveSession();
+										setIsVideoExit(false);
+									}}
+								>
+									Exit!
+								</OutButton>
+							</a>
+						)}
+					</VideoButtonBox>
+					{/* <Session> */}
 					{isVideoExit !== false ? (
 						<p>
-							<Header>
-								<NameTag id="session-title">mysessionId: {mySessionId}</NameTag>
-							</Header>
 							<VideoBox>
 								<div id="main-video" className="col-md-6">
 									<UserVideoComponent streamManager={mainStreamManager} />
@@ -301,7 +235,6 @@ const VideoChat = () => {
 										className="stream-container col-md-6 col-xs-6"
 										onClick={() => handleMainVideoStream(sub)}
 									>
-										<NameTag>99999{sub.id}</NameTag>
 										<VideoBox>
 											<UserVideoComponent streamManager={sub} />
 										</VideoBox>
@@ -310,8 +243,9 @@ const VideoChat = () => {
 							</div>
 						</p>
 					) : null}
-				</Session>
-			</VideoContainer>
+					{/* </Session> */}
+				</VideoContainer>
+			</ReactiveDraggable>
 		</div>
 	);
 };

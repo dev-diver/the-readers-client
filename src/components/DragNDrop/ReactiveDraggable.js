@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 import { widthState } from "recoil/atom"; // 필요한 Recoil 상태
 
-export default function ReactiveDraggable({ children, startX, startY }) {
+export function ReactiveDraggable({ children, startX, startY }) {
 	const [position, setPosition] = useState({ x: startX, y: startY });
 	const [width, setWidth] = useRecoilState(widthState); // widthState 사용
 	const [dragging, setDragging] = useState(false);

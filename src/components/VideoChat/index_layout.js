@@ -10,15 +10,6 @@ export default function VideoChat() {
 	const [Layout, setLayout] = useRecoilState(LayoutState);
 	return (
 		<Container>
-			{/* <Box sx={{ backgroundColor: "#f7f7f7", borderRadius: "8px", border: "1px solid #ddd" }}> */}
-			{/* <Paper
-				sx={{
-					backgroundColor: "#f7f7f7",
-					borderRadius: "8px",
-					border: "1px solid #ddd",
-					zIndex: 100,
-				}}
-			> */}
 			<VideoContainer
 				style={{
 					boxShadow: "0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08)",
@@ -38,8 +29,6 @@ export default function VideoChat() {
 					<VideoBox>뉴진스</VideoBox>
 				</ReactiveDraggable>
 			</VideoContainer>
-			{/* </Paper> */}
-			{/* </Box> */}
 		</Container>
 	);
 }
