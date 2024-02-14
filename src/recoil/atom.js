@@ -71,6 +71,11 @@ export const canvasElementsFamily = atomFamily({
 	default: [],
 });
 
+export const canvasHistoryFamily = atomFamily({
+	key: "canvasHistoryFamily",
+	default: [],
+});
+
 export const bookChangedState = atom({
 	key: "bookChanged",
 	default: false,

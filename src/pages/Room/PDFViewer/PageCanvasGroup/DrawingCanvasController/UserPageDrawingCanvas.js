@@ -20,8 +20,12 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 
 	const [isDrawing, setIsDrawing] = useState(false);
 	const canvasRef = useRef(null);
-	const elements = useRecoilValue(canvasElementsFamily({ pageNum: pageNum, userId: roomUser.id }));
-	const setElements = useSetRecoilState(canvasElementsFamily({ pageNum: pageNum, userId: roomUser.id }));
+	const elements = useRecoilValue(canvasElementsFamily({ bookId: bookId, pageNum: pageNum, userId: roomUser.id }));
+
+	const setElements = useSetRecoilState(
+		canvasElementsFamily({ bookId: bookId, pageNum: pageNum, userId: roomUser.id })
+	);
+
 	const updateElement = useCallback(
 		(newElement) => {
 			setElements((oldElements) => [...oldElements, newElement]);
@@ -58,7 +62,7 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 		if (!canvasRef || !user) return;
 		const roughCanvas = rough.canvas(canvasRef.current);
 		if (elements.length > 0) {
-			canvasRef.current.getContext("2d").clearRect(0, 0, canvasRef.width, canvasRef.height);
+			canvasRef.current.getContext("2d").clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
 		}
 		elements.forEach((ele, i) => {
 			if (ele.element === "rect") {
