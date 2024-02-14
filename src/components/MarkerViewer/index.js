@@ -58,21 +58,6 @@ function MarkerViewer({ isOpen, onClose, bookId, fromHighlightId, MyMarkers, onC
 		onCloseEntire(); // 전체 모달 닫기
 	};
 
-	// const handleNoteChange = (event, id) => {
-	// 	// 여기서 id는 행의 ID, event.target.value는 입력된 값
-	// 	console.log(`Note updated for ${id}: ${event.target.value}`);
-	// 	// 해당 노트를 상태에 저장하거나 처리하는 로직 추가
-	// };
-
-	// const handleNoteChange = (event, id) => {
-	// 	const newNote = event.target.value;
-	// 	console.log(`Updating note for ${id}: ${newNote}`);
-	// 	setNotes((prevNotes) => ({
-	// 		...prevNotes,
-	// 		[id]: newNote, // 특정 ID의 note 값을 업데이트
-	// 	}));
-	// };
-
 	const handleKeyDown = (event) => {
 		// 스페이스바가 눌렸을 때 이벤트 전파 방지
 		if (event.key === " ") {

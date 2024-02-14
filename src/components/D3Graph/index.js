@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import * as d3 from "d3";
 import { v4 as uuidv4 } from "uuid";
 import api from "api";
+import "./style.css";
 
-const D3Graph = ({ highlightId, data, width = 1000, height = 800, onNodeClick = () => {} }) => {
+const D3Graph = ({ highlightId, data, width, height, onNodeClick = () => {} }) => {
 	const [containerId] = useState(`d3graph-${uuidv4()}`);
 	const [nodeTexts, setNodeTexts] = useState([]);
 	useEffect(() => {
@@ -31,6 +32,12 @@ const D3Graph = ({ highlightId, data, width = 1000, height = 800, onNodeClick = 
 		if (!data) return;
 
 		// console.log("Link data with notes:", data.links[0].note);
+
+		// 노드에 무작위 초기 위치 할당
+		data.nodes.forEach((node) => {
+			node.x = Math.random() * width;
+			node.y = Math.random() * height;
+		});
 
 		d3.select(`#${containerId} svg`).remove();
 
@@ -79,26 +86,29 @@ const D3Graph = ({ highlightId, data, width = 1000, height = 800, onNodeClick = 
 			.append("text")
 			.attr("class", "link-note")
 			.attr("text-anchor", "middle")
-			.attr("font-size", "30px")
+			.attr("font-size", "15px")
 			.attr("font-weight", "lighter")
 			.style("fill", "black")
 			.text((d) => d.note || "")
 			.each(function (d) {
 				// 여기에서 d는 바인딩된 데이터입니다.
-				console.log("Link data:", d); // 콘솔에 데이터 출력
+				console.log("Link data:", d.note); // 콘솔에 데이터 출력
 			});
 
 		const simulation = d3
 			.forceSimulation(data.nodes)
 			.force(
 				"link",
-				d3.forceLink(data.links).id((d) => d.id)
-			)
-			.force("charge", d3.forceManyBody())
-			.force("center", d3.forceCenter(width / 2, height / 2));
-
-		// 링크와 노드, 그리고 연결 선 텍스트의 위치 업데이트
-		// 시뮬레이션 tick 함수
+				d3
+					.forceLink(data.links)
+					.id((d) => d.id)
+					.distance(200)
+			) // 링크 거리 조정
+			.force("charge", d3.forceManyBody().strength(-500)) // 반발력 조정
+			.force("center", d3.forceCenter(width / 2, height / 2))
+			.force("collide", d3.forceCollide(50)) // 충돌 반경 설정
+			.alpha(1) // 초기 열량 설정
+			.alphaDecay(0.02); // 열량 감소율 조정
 
 		// 노드 그룹 생성
 		const node = svg.append("g").attr("class", "nodes").selectAll("g").data(data.nodes).join("g");
@@ -119,7 +129,10 @@ const D3Graph = ({ highlightId, data, width = 1000, height = 800, onNodeClick = 
 			.text(function (d) {
 				return nodeTexts[d.id] || "No text"; // 텍스트가 없을 경우 "No text" 출력
 			}) // nodeTexts 객체에서 텍스트 검색
-			.style("fill", "black"); // 텍스트 색상
+			.style("fill", "black") // 텍스트 색상
+			.each(function (d) {
+				console.log("Node data:", nodeTexts[d.id]); // 콘솔에 데이터 출력
+			});
 
 		simulation.on("tick", () => {
 			// 링크와 노드의 위치 업데이트
@@ -151,8 +164,8 @@ const D3Graph = ({ highlightId, data, width = 1000, height = 800, onNodeClick = 
 
 			function dragended(event) {
 				if (!event.active) simulation.alphaTarget(0);
-				// event.subject.fx = null;
-				// event.subject.fy = null;
+				event.subject.fx = null;
+				event.subject.fy = null;
 			}
 
 			return d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended);
@@ -161,9 +174,9 @@ const D3Graph = ({ highlightId, data, width = 1000, height = 800, onNodeClick = 
 		function color() {
 			return "#C6E4FF";
 		}
-	}, [data, width, height, onNodeClick, containerId]);
+	}, [data, width, height, onNodeClick, containerId, nodeTexts]);
 
-	return <div id={containerId}></div>;
+	return <div id={containerId} style={{ width: "900px", height: "400px" }}></div>;
 };
 
 export default D3Graph;

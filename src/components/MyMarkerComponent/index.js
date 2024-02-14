@@ -91,11 +91,13 @@ function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, userId, highl
 		}
 	};
 
-	const viewLink = async () => {
+	// const viewLink = async () => {
+	// 	setD3GraphOpen(true);
+	// };
+	const viewLink = async (e) => {
+		e.stopPropagation(); // 이벤트 버블링 중지 -> handleComponentClick 작동 방지
 		setD3GraphOpen(true);
 	};
-
-	const viewInnerLink = async () => {};
 
 	const modalStyle = {
 		position: "absolute",
@@ -121,26 +123,44 @@ function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, userId, highl
 				{IsMemoOpen && (
 					<>
 						<Tooltip
-							title={memoData || "No memo available"} // Tooltip에 표시할 텍스트
+							title={memoData || "메모가 없습니다."} // Tooltip에 표시할 텍스트
 							open={isTooltipOpen} // Tooltip 표시 여부
 							disableFocusListener // 포커스 시 Tooltip이 표시되지 않도록 함
 							disableHoverListener // 호버 시 Tooltip이 자동으로 표시되지 않도록 함
 							disableTouchListener // 터치 시 Tooltip이 표시되지 않도록 함
+							className="button-over-mark"
 						>
 							<Button
+								variant="contained"
+								size="large"
 								className="memobutton"
 								onMouseEnter={handleComponentEnter} // 마우스 오버 시 메모 데이터 로드
 								onMouseLeave={handleComponentLeave} // 마우스 아웃 시 Tooltip 숨김
+								style={{
+									fontSize: "1.5rem",
+									padding: "12px 24px",
+									borderRadius: "8px",
+								}}
 							>
 								🔴{/* 메모 확인 버튼 */}
 							</Button>
 						</Tooltip>
-						<Button variant="contained" size="large" href="#contained-buttons" onClick={() => viewLink()}>
-							🟠버튼입니다.{/* 내부 링크 확인 버튼 */}
+						<Button
+							variant="contained"
+							size="large"
+							href="#contained-buttons"
+							// onClick={() => viewLink()}
+							onClick={(e) => viewLink(e)} // 이벤트 객체를 viewLink 함수에 전달
+							className="button-over-mark"
+							style={{
+								fontSize: "1.5rem",
+								padding: "12px 24px",
+								borderRadius: "8px",
+							}}
+						>
+							🟠{/* 내부 링크 확인 버튼 */}
 						</Button>
-						<button className="memobutton" onClick={() => viewInnerLink()}>
-							🟡{/* 외부 링크 확인 버튼 */}
-						</button>
+						<button className="memobutton">🟡{/* 외부 링크 확인 버튼 : 아직 구현 못함. */}</button>
 					</>
 				)}
 			</mark>
@@ -158,10 +178,10 @@ function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, userId, highl
 					<Box sx={modalStyle}>
 						<D3Graph
 							highlightId={highlightId}
-							data={linkData} // 여기서 yourData는 그래프를 그리는 데 필요한 데이터 객체입니다.
-							width={600} // 그래프의 너비를 지정합니다. 원하는 값으로 변경 가능합니다.
-							height={400} // 그래프의 높이를 지정합니다. 원하는 값으로 변경 가능합니다.
-							onNodeClick={(nodeId) => console.log(`Node ${nodeId} was clicked`)} // 노드 클릭 시 실행될 함수입니다.
+							data={linkData} // 그래프를 그리는 데 필요한 데이터 객체
+							width={900} // 그래프의 너비를 지정
+							height={400} // 그래프의 높이를 지정
+							onNodeClick={(nodeId) => console.log(`Node ${nodeId} was clicked`)} // 노드 클릭 시 실행될 함수
 						/>
 					</Box>
 				</Modal>
