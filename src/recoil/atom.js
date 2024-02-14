@@ -108,3 +108,8 @@ export const isMainState = atom({
 	key: "isMain",
 	default: false,
 });
+
+export const isVideoExitState = atom({
+	key: "isVideoExit",
+	default: false,
+});

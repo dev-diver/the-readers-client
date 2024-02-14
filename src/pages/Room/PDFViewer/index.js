@@ -14,10 +14,12 @@ import { Box, Grid, Hidden } from "@mui/material";
 import PenController from "./PenController";
 import SwitchController from "./SwitchController";
 import { DraggableElement } from "components/DragNDrop/DraggableElement";
+// import { ReactiveDraggable } from "components/DragNDrop/ReactiveDraggable";
 import api from "api";
 import { baseURL } from "config/config";
 import HareAndTortoise from "components/HareAndTortoise";
 import { produce } from "immer";
+import RoomUserList from "components/RoomUserList";
 
 const VIEWER_WIDTH = 800; //650;
 
@@ -187,7 +189,9 @@ function PDFViewer({ book }) {
 				paddingTop: 25,
 			}}
 		>
-			{/* <VideoChat /> */}
+			<VideoChat />
+			{/* <ReactiveDraggable startX={window.innerWidth - 300} startY={60}> */}
+			{/* </ReactiveDraggable> */}
 			{/* <DrawingCanvas /> */}
 			<Grid container spacing={2}>
 				<Hidden mdDown>
@@ -215,7 +219,7 @@ function PDFViewer({ book }) {
 				</Grid>
 				<Hidden smDown>
 					<Grid item xs={false} sm={false} md={1} lg={3}>
-						{/* <RoomUserList /> */}
+						<RoomUserList />
 						<Highlights bookId={book.id} renderContent={renderContent} />
 					</Grid>
 				</Hidden>

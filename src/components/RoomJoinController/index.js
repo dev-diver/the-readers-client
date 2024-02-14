@@ -42,21 +42,22 @@ export default function RoomJoinController({ roomId }) {
 			socket.emit("room-joined", myRoomUser);
 		} else {
 			socket.emit("room-leaved", roomUser);
-			setRoomUser(null);
-			setRoomUsers([]);
+			socket.off("room-joined");
+			if (!user) {
+				setRoomUser(null);
+				setRoomUsers([]);
+			}
 		}
 	}, [user, roomId]);
 
 	useEffect(() => {
-		if (!user || !roomId) return;
-		const roomUserChangeHandler = (data) => {
+		const handleRoomUsersChanged = (data) => {
 			console.log("room-users-changed", data.roomUsers);
 			setRoomUsers(data.roomUsers);
 		};
-
-		socket.on("room-users-changed", roomUserChangeHandler);
+		socket.on("room-users-changed", handleRoomUsersChanged);
 		return () => {
-			socket.off("room-users-changed", roomUserChangeHandler);
+			socket.off("room-users-changed", handleRoomUsersChanged);
 		};
 	}, [user, roomId]);
 

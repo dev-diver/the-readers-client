@@ -54,7 +54,7 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 				});
 			})
 			.catch((err) => {
-				console.log("기존 자료 없음", bookId, pageNum, roomUser.id);
+				// console.log("기존 자료 없음", bookId, pageNum, roomUser.id);
 			});
 	}, [canvasRef.current]);
 
