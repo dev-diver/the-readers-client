@@ -31,7 +31,7 @@ const VideoChat = () => {
 	const [user, setUser] = useRecoilState(userState);
 	const { roomId } = useParams();
 	const [mySessionId, setMySessionId] = useState(roomId);
-	const [myUserName, setMyUserName] = useState(user.nick);
+	const [myUserName, setMyUserName] = useState(user?.nick || "");
 	const [isVideoExit, setIsVideoExit] = useRecoilState(isVideoExitState);
 
 	const navigate = useNavigate();

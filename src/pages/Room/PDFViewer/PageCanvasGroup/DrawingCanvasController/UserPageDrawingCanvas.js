@@ -59,7 +59,8 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 	}, [canvasRef.current]);
 
 	useLayoutEffect(() => {
-		if (!canvasRef || !user) return;
+		console.log("draw-canvas", elements, roomUser.id);
+		if (!canvasRef || !user || elements.length == 0) return;
 		const roughCanvas = rough.canvas(canvasRef.current);
 		if (elements.length > 0) {
 			canvasRef.current.getContext("2d").clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
@@ -90,14 +91,17 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 			}
 		});
 
-		const data = {
-			user: user,
-			location,
-			elements: elements,
-		};
-		const jsonString = JSON.stringify(data);
-		const dataBlob = new Blob([jsonString], { type: "application/json" });
-		socket.emit("draw-canvas", dataBlob);
+		if (roomUser.id == user?.id) {
+			const data = {
+				user: user,
+				location,
+				elements: elements,
+			};
+			socket.emit("draw-canvas", data);
+		}
+		// const jsonString = JSON.stringify(data);
+		// const dataBlob = new Blob([jsonString], { type: "application/json" });
+		// console.log(dataBlob);
 	}, [elements, user]);
 
 	const drawMouseDown = (e) => {

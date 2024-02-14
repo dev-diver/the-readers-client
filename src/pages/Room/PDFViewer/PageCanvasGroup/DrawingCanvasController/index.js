@@ -1,9 +1,8 @@
 import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import socket from "socket";
-import { useRecoilCallback, useRecoilValue } from "recoil";
+import { useRecoilCallback } from "recoil";
 import { canvasElementsFamily, canvasHistoryFamily } from "recoil/atom";
-import { blobToJson } from "./utils";
 import { Button } from "@mui/material";
 
 const useUndoRedo = () => {
@@ -71,15 +70,17 @@ export default function DrawingCanvasController() {
 		const handleShareCanvas = (data) => {
 			// console.log("share-canvas", data);
 			const dataBlob = data;
-			blobToJson(dataBlob).then((json) => {
-				console.log("복호화", json);
-				const { user, location, elements } = json;
-				updateCanvasElement(bookId, location.pageNum, user.id, elements);
-			});
+			const { user, location, elements } = data;
+			// arrayBufferToJson(dataBlob).then((json) => {
+			// 	console.log("복호화", json);
+			// 	const { user, location, elements } = json;
+			// 	updateCanvasElement(bookId, location.pageNum, user.id, elements);
+			// });
+			updateCanvasElement(bookId, location.pageNum, user.id, elements);
 		};
 		socket.on("share-canvas", handleShareCanvas);
 		return () => {
-			socket.off("canvasImage", handleShareCanvas);
+			socket.off("share-canvas", handleShareCanvas);
 		};
 	}, [updateCanvasElement]);
 

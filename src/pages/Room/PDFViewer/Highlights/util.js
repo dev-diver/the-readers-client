@@ -120,7 +120,7 @@ export function InfoToRange(Info) {
 
 	while (startContainerEndOffset < Info.endOffset) {
 		startContainer = startContainer.nextSibling;
-		if (startContainer.classList?.contains("marker")) {
+		if (startContainer?.classList?.contains("marker")) {
 			startContainerEndOffset += parseInt(startContainer.getAttribute("data-text-length"));
 		} else {
 			startContainerEndOffset += startContainer.textContent.length;

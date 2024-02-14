@@ -49,3 +49,18 @@ export const blobToJson = (blob) => {
 		reader.readAsText(blob);
 	});
 };
+
+export const arrayBufferToJson = (arrayBuffer) => {
+	return new Promise((resolve, reject) => {
+		// ArrayBuffer를 문자열로 변환
+		const decoder = new TextDecoder("utf-8");
+		const text = decoder.decode(arrayBuffer);
+		try {
+			// 문자열을 JSON으로 파싱
+			const json = JSON.parse(text);
+			resolve(json);
+		} catch (error) {
+			reject(error);
+		}
+	});
+};

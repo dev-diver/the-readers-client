@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import { isLeadState, isTrailState, userState, scrollerRefState } from "recoil/atom";
 import socket from "socket";
-import { ToggleButton } from "@mui/material";
+import { Button } from "@mui/material";
 import { smoothScrollTo } from "../PdfScroller/util";
 import CampaignIcon from "@mui/icons-material/Campaign";
 
@@ -17,6 +17,10 @@ export default function AttentionButton() {
 	const navigate = useNavigate();
 
 	const sendAttention = () => {
+		if (isTrail) {
+			setTrail(false);
+			return;
+		}
 		console.log("scrollerRef", scrollerRef);
 		const scrollTop = scrollerRef.scrollTop; // 현재 스크롤 위치
 		console.log("send-attention", scrollTop);
@@ -26,7 +30,6 @@ export default function AttentionButton() {
 			scrollTop: scrollTop,
 		});
 		setLead(true);
-		setTrail(false);
 	};
 
 	useEffect(() => {
@@ -43,13 +46,14 @@ export default function AttentionButton() {
 	}, [scrollerRef]);
 
 	return (
-		<ToggleButton
+		<Button
 			value="attention"
 			aria-label="attention"
+			color={isLead ? "error" : isTrail ? "primary" : "inherit"}
 			onClick={() => sendAttention()}
 			sx={{ width: "50px", height: "50px", overflow: "hidden" }}
 		>
 			<CampaignIcon sx={{ width: "30px", height: "30px" }} />
-		</ToggleButton>
+		</Button>
 	);
 }
