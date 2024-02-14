@@ -3,7 +3,19 @@ import { useParams, useNavigate } from "react-router-dom";
 import { OpenVidu } from "openvidu-browser";
 import axios from "axios";
 import UserVideoComponent from "./UserVideoComponent";
-import { Container, OutButton, StartButton, VideoBox, VideoContainer, Video, VideoButtonBox } from "./style";
+
+import {
+	Container,
+	OutButton,
+	StartButton,
+	VideoBox,
+	VideoContainer,
+	Video,
+	VideoButtonBox,
+	Session,
+	NameTag,
+	Header,
+} from "./style";
 import { useRecoilState } from "recoil";
 import { userState, isVideoExitState } from "recoil/atom";
 
@@ -20,6 +32,7 @@ const VideoChat = () => {
 	const [mySessionId, setMySessionId] = useState(roomId);
 	const [myUserName, setMyUserName] = useState(user.id);
 	const [isVideoExit, setIsVideoExit] = useRecoilState(isVideoExitState);
+	// const [OV, setOV] = useState(new OpenVidu());
 
 	const navigate = useNavigate();
 	const OV = new OpenVidu();
@@ -38,19 +51,20 @@ const VideoChat = () => {
 		console.log("session", session);
 		if (!session) return;
 		session.on("streamCreated", (event) => {
-			// console.log("Stream created:", event.stream);
-			// const subscriber = session.subscribe(event.stream, undefined);
-			// setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber]);
-			const existingStream = subscribers.find((subscriber) => subscriber.stream.streamId === event.stream.streamId);
-			if (existingStream) {
-				// 기존 스트림이 존재한다면 중복으로 간주하고 추가 동작을 수행하지 않습니다.
-				console.log("Stream already published");
-				return;
-			}
-
-			// 중복되지 않는 스트림의 경우 구독자 목록에 추가
+			console.log("Stream created:", event.stream);
 			const subscriber = session.subscribe(event.stream, undefined);
 			setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber]);
+
+			// const existingStream = subscribers.find((subscriber) => subscriber.stream.streamId === event.stream.streamId);
+			// if (existingStream) {
+			// 	// 기존 스트림이 존재한다면 중복으로 간주하고 추가 동작을 수행하지 않습니다.
+			// 	console.log("Stream already published");
+			// 	return;
+			// }
+
+			// // 중복되지 않는 스트림의 경우 구독자 목록에 추가
+			// const subscriber = session.subscribe(event.stream, undefined);
+			// setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber]);
 		});
 
 		session.on("streamDestroyed", (event) => {
@@ -130,26 +144,38 @@ const VideoChat = () => {
 		}
 	};
 
-	// const deleteSubscriber = (streamManager) => {
-	// 	const index = subscribers.indexOf(streamManager, 0);
-	// 	if (index > -1) {
-	// 		const newSubscribers = subscribers.slice();
-	// 		newSubscribers.splice(index, 1);
-	// 		setSubscribers({ ...subscribers, subscribers: newSubscribers });
-	// 	}
-	// };
+	const deleteSubscriber = (streamManager) => {
+		const index = subscribers.indexOf(streamManager, 0);
+		if (index > -1) {
+			const newSubscribers = subscribers.slice();
+			newSubscribers.splice(index, 1);
+			setSubscribers({ ...subscribers, subscribers: newSubscribers });
+		}
+	};
 
 	const joinSession = async () => {
 		const mySession = OV.initSession();
 		setSession(mySession);
 	};
 
+	const onbeforeunload = (event) => {
+		this.leaveSession();
+	};
+
+	useEffect(() => {
+		window.addEventListener("beforeunload", onbeforeunload);
+		window.removeEventListener("beforeunload", onbeforeunload);
+	}, [subscribers]);
+
 	const leaveSession = () => {
 		if (session) {
 			session.disconnect();
+			console.log("========session disconnect");
 		}
+		deleteSubscriber(mainStreamManager);
 
-		// setSession(undefined);
+		// setOV(null);
+		setSession(undefined);
 		setSubscribers([]);
 		setMainStreamManager(undefined);
 		setPublisher(undefined);
@@ -220,70 +246,71 @@ const VideoChat = () => {
 	return (
 		<div className="container">
 			<VideoButtonBox>
-				<StartButton
+				{/* <StartButton
 					onClick={() => {
 						startToSession();
 						setIsVideoExit(true);
 					}}
 				>
 					Start
-				</StartButton>
+				</StartButton> */}
 				{/* <p>
-					{isVideoExit !== true ? (
-						<a>
-							<StartButton
-								onClick={() => {
-									startToSession();
-									setIsVideoExit(true);
-								}}
-							>
-								Start
-							</StartButton>
-						</a>
-					) : (
-						<a href={`/room/${roomId}/book`}>
-							<OutButton
-								onClick={() => {
-									leaveSession();
-									setIsVideoExit(false);
-								}}
-							>
-								Exit!
-							</OutButton>
-						</a>
-					)}
-				</p> */}
+					{isVideoExit !== true ? ( */}
+				{mainStreamManager === undefined ? (
+					<a>
+						<StartButton
+							onClick={() => {
+								startToSession();
+								setIsVideoExit(true);
+							}}
+						>
+							Start
+						</StartButton>
+					</a>
+				) : (
+					// <a href={`/room/${roomId}/book`}>
+					<a>
+						<OutButton
+							onClick={() => {
+								leaveSession();
+								setIsVideoExit(false);
+							}}
+						>
+							Exit!
+						</OutButton>
+					</a>
+				)}
 			</VideoButtonBox>
 			<VideoContainer>
 				{/* {session !== undefined ? ( */}
-				{isVideoExit !== false ? (
-					<div id="session">
-						<div id="session-header">
-							<h1 id="session-title">mysessionId: {mySessionId}</h1>
-						</div>
-						{/* {mainStreamManager !== undefined ? ( */}
-						<VideoBox>
-							<div id="main-video" className="col-md-6">
-								<UserVideoComponent streamManager={mainStreamManager} />
-							</div>
-						</VideoBox>
-						{/* ) : null} */}
-						<div id="video-container" className="col-md-6">
-							{subscribers.map((sub, i) => (
-								<div
-									key={sub.id}
-									className="stream-container col-md-6 col-xs-6"
-									onClick={() => handleMainVideoStream(sub)}
-								>
-									<span>{sub.id}</span>
-									<VideoBox>
-										<UserVideoComponent streamManager={sub} />
-									</VideoBox>
+				<Session>
+					{isVideoExit !== false ? (
+						<p>
+							<Header>
+								<NameTag id="session-title">mysessionId: {mySessionId}</NameTag>
+							</Header>
+							<VideoBox>
+								<div id="main-video" className="col-md-6">
+									<UserVideoComponent streamManager={mainStreamManager} />
 								</div>
-							))}
-						</div>
-					</div>
-				) : null}
+							</VideoBox>
+							<div id="video-container" className="col-md-6">
+								{subscribers.map((sub, i) => (
+									<div
+										key={sub.id}
+										className="stream-container col-md-6 col-xs-6"
+										onClick={() => handleMainVideoStream(sub)}
+									>
+										<NameTag>99999{sub.id}</NameTag>
+										<VideoBox>
+											<UserVideoComponent streamManager={sub} />
+										</VideoBox>
+									</div>
+								))}
+							</div>
+						</p>
+					) : null}
+				</Session>
 			</VideoContainer>
 		</div>
 	);

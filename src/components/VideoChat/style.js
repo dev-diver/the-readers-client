@@ -11,6 +11,24 @@ const Container = styled.div`
 	align-items: center;
 `;
 
+const Session = styled.div`
+	margin: auto;
+	border-radius: 20px;
+	box-shadow:
+		0 4px 6px rgba(50, 50, 93, 0.11),
+		0 1px 3px rgba(0, 0, 0, 0.08);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 100px;
+`;
+
+const Header = styled.div`
+	display: flex;
+	justify-content: center;
+	align-items: center;
+`;
+
 const VideoContainer = styled.div`
 	width: 100%;
 	height: 150px;
@@ -39,6 +57,18 @@ const VideoBox = styled.div`
 		height: 149px;
 		cursor: pointer;
 	}
+`;
+
+const NameTag = styled.div`
+	width: 100%;
+	color: white;
+	background-color: #4a90e2;
+	font-size: 10px;
+	width: 80px;
+	text-align: center;
+	box-shadow:
+		0 4px 6px rgba(50, 50, 93, 0.11),
+		0 1px 3px rgba(0, 0, 0, 0.08);
 `;
 
 const OutButton = styled.button`
@@ -79,4 +109,4 @@ const VideoButtonBox = styled.div`
 	background-color: #4a90e2;
 `;
 
-export { Container, OutButton, VideoContainer, VideoBox, StartButton, VideoButtonBox };
+export { Container, OutButton, VideoContainer, VideoBox, StartButton, VideoButtonBox, Session, NameTag, Header };
