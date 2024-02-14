@@ -3,10 +3,9 @@ import * as d3 from "d3";
 import { v4 as uuidv4 } from "uuid";
 import api from "api";
 
-const D3Graph = ({ highlightId, data, width = 600, height = 400, onNodeClick = () => {} }) => {
+const D3Graph = ({ highlightId, data, width = 1000, height = 800, onNodeClick = () => {} }) => {
 	const [containerId] = useState(`d3graph-${uuidv4()}`);
 	const [nodeTexts, setNodeTexts] = useState([]);
-
 	useEffect(() => {
 		const fetchAllNodeTexts = async () => {
 			const texts = {};
@@ -20,7 +19,6 @@ const D3Graph = ({ highlightId, data, width = 600, height = 400, onNodeClick = (
 					console.error(`Failed to fetch highlight for node ${node.id}`, error);
 				}
 			}
-
 			setNodeTexts(texts);
 		};
 
@@ -31,6 +29,8 @@ const D3Graph = ({ highlightId, data, width = 600, height = 400, onNodeClick = (
 
 	useEffect(() => {
 		if (!data) return;
+
+		// console.log("Link data with notes:", data.links[0].note);
 
 		d3.select(`#${containerId} svg`).remove();
 
@@ -56,16 +56,7 @@ const D3Graph = ({ highlightId, data, width = 600, height = 400, onNodeClick = (
 			.attr("fill", "#999")
 			.style("stroke", "none");
 
-		const simulation = d3
-			.forceSimulation(data.nodes)
-			.force(
-				"link",
-				d3.forceLink(data.links).id((d) => d.id)
-			)
-			.force("charge", d3.forceManyBody())
-			.force("center", d3.forceCenter(width / 2, height / 2));
-
-		// 연결 선(link) 그리기
+		// 연결 선(link) 설정
 		const link = svg
 			.append("g")
 			.attr("class", "links")
@@ -78,32 +69,36 @@ const D3Graph = ({ highlightId, data, width = 600, height = 400, onNodeClick = (
 			.attr("stroke-width", (d) => Math.sqrt(d.value))
 			.attr("marker-end", "url(#arrowhead)");
 
-		// 연결 선(link) 위에 텍스트(note) 추가
+		// 연결 선 위의 텍스트(note) 설정
 		const linkText = svg
 			.append("g")
-			.selectAll(".link-note")
+			.attr("class", "link-notes")
+			.selectAll("text")
 			.data(data.links)
 			.enter()
 			.append("text")
 			.attr("class", "link-note")
-			.text((d) => d.note)
-			.style("fill", "red") // 텍스트 색상 지정
-			.style("font-size", "10px") // 텍스트 크기 지정
-			.attr("x", (d) => (d.source.x + d.target.x) / 2)
-			.attr("y", (d) => (d.source.y + d.target.y) / 2);
+			.attr("text-anchor", "middle")
+			.attr("font-size", "30px")
+			.attr("font-weight", "lighter")
+			.style("fill", "black")
+			.text((d) => d.note || "")
+			.each(function (d) {
+				// 여기에서 d는 바인딩된 데이터입니다.
+				console.log("Link data:", d); // 콘솔에 데이터 출력
+			});
+
+		const simulation = d3
+			.forceSimulation(data.nodes)
+			.force(
+				"link",
+				d3.forceLink(data.links).id((d) => d.id)
+			)
+			.force("charge", d3.forceManyBody())
+			.force("center", d3.forceCenter(width / 2, height / 2));
 
 		// 링크와 노드, 그리고 연결 선 텍스트의 위치 업데이트
-		simulation.on("tick", () => {
-			link
-				.attr("x1", (d) => d.source.x)
-				.attr("y1", (d) => d.source.y)
-				.attr("x2", (d) => d.target.x)
-				.attr("y2", (d) => d.target.y);
-
-			linkText.attr("x", (d) => (d.source.x + d.target.x) / 2).attr("y", (d) => (d.source.y + d.target.y) / 2);
-
-			node.attr("transform", (d) => `translate(${d.x},${d.y})`);
-		});
+		// 시뮬레이션 tick 함수
 
 		// 노드 그룹 생성
 		const node = svg.append("g").attr("class", "nodes").selectAll("g").data(data.nodes).join("g");
@@ -133,6 +128,11 @@ const D3Graph = ({ highlightId, data, width = 600, height = 400, onNodeClick = (
 				.attr("y1", (d) => d.source.y)
 				.attr("x2", (d) => d.target.x)
 				.attr("y2", (d) => d.target.y);
+
+			linkText
+				.attr("x", (d) => (d.source.x + d.target.x) / 2)
+				.attr("y", (d) => (d.source.y + d.target.y) / 2)
+				.attr("dy", 5); // dy는 텍스트를 선 위로 조금 올리기 위해 사용됩니다.
 
 			node.attr("transform", (d) => `translate(${d.x},${d.y})`);
 		});

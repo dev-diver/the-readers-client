@@ -32,7 +32,7 @@ function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, userId, highl
 	}, [D3GraphOpen, highlightId]);
 
 	const transformData = (links) => {
-		const nodes = [{ id: highlightId.toString(), label: "Highlight Node", note: memoData }]; // ID를 문자열로 변환
+		const nodes = [{ id: highlightId.toString(), label: "Highlight Node" }]; // ID를 문자열로 변환
 		links.forEach((link) => {
 			// toHighlightId를 노드 배열에 추가
 			const targetId = link.toHighlightId.toString(); // ID를 문자열로 변환
@@ -44,7 +44,7 @@ function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, userId, highl
 		const linksTransformed = links.map((link) => ({
 			source: highlightId.toString(),
 			target: link.toHighlightId.toString(),
-			// 추가적인 링크 속성
+			note: link.note.toString() || "No note",
 		}));
 
 		return { nodes, links: linksTransformed };
@@ -55,7 +55,6 @@ function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, userId, highl
 			const response = await api.get(`/highlights/book/${bookId}`);
 			console.log("북아이디", bookId);
 			console.log("하이라이트아이디", highlightId);
-			console.log("데이터 입니다", response);
 			setHighlights(response.data.data); // 상태 업데이트
 			setOnClickOptions(true);
 		} catch (error) {
