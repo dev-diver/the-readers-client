@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import api from "api";
 import { Box, Button, TextField, Typography, Modal, FormControl } from "@mui/material";
 
-function AddMemo({ isOpen, onClose, highlightId, userId, handleCreateHighlight }) {
+function AddMemo({ isOpen, onClose, highlightId, userId, onCloseEntire }) {
 	const [memo, setMemo] = useState("");
-
 	// 메모 추가
-	const addMemo = async (e) => {
+	const addMemo = async (e, memo) => {
 		e.preventDefault(); // 폼 제출의 기본 동작 방지
+		console.log(highlightId, memo);
 		try {
 			const response = await api.put(`/highlights/user/${userId}/memo`, {
 				highlightId,
@@ -15,6 +15,7 @@ function AddMemo({ isOpen, onClose, highlightId, userId, handleCreateHighlight }
 			});
 			console.log("메모 생성 성공:", response.data);
 			onClose(); // 모달 닫기
+			onCloseEntire(); // 상위 컴포넌트의 모달 닫기
 		} catch (error) {
 			console.error("Failed to create highlight", error);
 		}

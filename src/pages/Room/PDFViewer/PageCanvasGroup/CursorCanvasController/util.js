@@ -19,7 +19,6 @@ export const canvasMouse = (event, info) => {
 		element = element.offsetParent;
 	}
 
-	// console.log("info", info);
 	socket.emit("move-pointer", {
 		user: info.user, // 로그인해야 userId.id가 존재.
 		bookId: info.bookId,

@@ -144,7 +144,7 @@ function Chart() {
 	// count가 prevScroll 값이 바뀔 때마다 0으로 초기화되는 기능 포함
 	useEffect(() => {
 		// data가 {}일 때는 !data로 잡히지 않으므로 추가로 조건문을 걸어줌
-		if (!data || ("object" && Object.keys(data).length === 0)) return;
+		if (!roomUser || !data || ("object" && Object.keys(data).length === 0)) return;
 		const userKey = roomUser?.user?.id;
 		let page = 0;
 		const updatedData = data.map((item) => {
@@ -187,7 +187,7 @@ function Chart() {
 		// console.log("filteredData", filteredData);
 		const room = roomUser.roomId;
 		socket.emit("send-chart", { filteredData, userKey, room });
-	}, [scroll]);
+	}, [scroll, roomUser]);
 
 	// Hare And Tortoise
 	useEffect(() => {

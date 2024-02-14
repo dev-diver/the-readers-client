@@ -20,7 +20,6 @@ function Highlighter({ bookId, renderContent }) {
 	// 진태 추가 코드
 	const [optionsModalOpen, setOptionsModalOpen] = useState(false);
 	const [highlightId, setHighlightId] = useState(null);
-	const [userId, setUserId] = useState(null);
 	const [highlightInfos, setHighlightInfos] = useState(null);
 
 	const [highlightList, setHighlightList] = useRecoilState(highlightState);
@@ -47,7 +46,9 @@ function Highlighter({ bookId, renderContent }) {
 				alert("하이라이팅은 로그인이 필요합니다.");
 				return;
 			}
+		}
 
+		if (selectedRange.rangeCount > 0 && !selectedRange.isCollapsed) {
 			const highlightInfos = [];
 
 			for (let i = 0; i < selectedRange.rangeCount; i++) {
@@ -218,7 +219,7 @@ function Highlighter({ bookId, renderContent }) {
 	};
 
 	return (
-		<div>
+		<>
 			<HighlightList highlights={highlightList} deleteHandler={deleteHighlightListItem} />
 			{/* 조건부 랜더링 : optionsModalOpen이 true되면 OptionsModal이 화면에 랜더링됨. */}
 			{optionsModalOpen && (
@@ -238,7 +239,7 @@ function Highlighter({ bookId, renderContent }) {
 					selectedHighlightInfo={highlightInfos} // selectedHighlightInfo를 OptionsModal에 전달
 				/>
 			)}
-		</div>
+		</>
 	);
 }
 

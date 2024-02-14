@@ -18,17 +18,21 @@ export default function RoomJoinController({ roomId }) {
 	// const uuid = createUuid();
 
 	useEffect(() => {
-		socket.on("message", (data) => {
-			alert(data.message);
-			// toast.info(data.message);
-		});
-		return () => {
-			socket.off("message");
+		if (!user || !roomId) return;
+
+		const onMessageHandler = (data) => {
+			console.log("message", data);
 		};
-	}, []);
+
+		socket.on("message", onMessageHandler);
+		return () => {
+			socket.off("message", onMessageHandler);
+		};
+	}, [user, roomId]);
 
 	useEffect(() => {
 		console.log("user", user, "roomId", roomId);
+
 		if (user && roomId) {
 			const myRoomUser = {
 				user: user,
@@ -36,15 +40,14 @@ export default function RoomJoinController({ roomId }) {
 			};
 			setRoomUser(myRoomUser);
 			socket.emit("room-joined", myRoomUser);
-		}
-		return () => {
+		} else {
 			socket.emit("room-leaved", roomUser);
 			socket.off("room-joined");
 			if (!user) {
 				setRoomUser(null);
 				setRoomUsers([]);
 			}
-		};
+		}
 	}, [user, roomId]);
 
 	useEffect(() => {
@@ -56,7 +59,7 @@ export default function RoomJoinController({ roomId }) {
 		return () => {
 			socket.off("room-users-changed", handleRoomUsersChanged);
 		};
-	}, [user]);
+	}, [user, roomId]);
 
 	return <div></div>;
 }
