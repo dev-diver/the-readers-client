@@ -30,7 +30,9 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame, setDrawi
 	};
 
 	useEffect(() => {
+		console.log("drawingCanvasRefs", drawingCanvasRefs);
 		const canvasRef = getCanvasRef(drawingCanvasRefs, pageNum, roomUser.id);
+		console.log("canvasRef", canvasRef);
 		setCanvasRef(canvasRef);
 	}, [drawingCanvasRefs]);
 
@@ -169,8 +171,8 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame, setDrawi
 
 	const drawMouseUp = () => {
 		setIsDrawing(false);
-
-		const canvasRef = getCanvasRef(drawingCanvasRefs, pageNum, user.id);
+		// const canvasRef = getCanvasRef(drawingCanvasRefs, pageNum, user.id);
+		if (!canvasRef) return;
 		canvasRef.toBlob((blob) => {
 			const data = {
 				user: user,

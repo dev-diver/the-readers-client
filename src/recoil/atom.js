@@ -71,6 +71,11 @@ export const drawingCanvasRefsState = atom({
 	default: [],
 });
 
+export const drawingCanvasInitState = atom({
+	key: "drawingCanvasInit",
+	default: false,
+});
+
 export const bookChangedState = atom({
 	key: "bookChanged",
 	default: false,

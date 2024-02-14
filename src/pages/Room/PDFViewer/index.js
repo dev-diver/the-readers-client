@@ -79,6 +79,7 @@ function PDFViewer({ book }) {
 			if (link) {
 				link.remove();
 			}
+			setEachPageLoading([]);
 		};
 	}, [book]);
 

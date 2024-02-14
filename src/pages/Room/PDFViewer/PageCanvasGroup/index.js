@@ -46,7 +46,7 @@ function PageCanvasGroup({ pageNum, canvasFrame }) {
 		if (refs.length === 0) return false;
 		return refs.every((pageRef) => {
 			// console.log("page ref", pageRef);
-			if (Object.keys(pageRef.userRefs).length === 0) return false;
+			if (Object.keys(pageRef.userRefs).length == 0) return false;
 			return Object.values(pageRef.userRefs).every((userRef) => {
 				// console.log(!!userRef.current);
 				return !!userRef.current;
@@ -54,33 +54,32 @@ function PageCanvasGroup({ pageNum, canvasFrame }) {
 		});
 	};
 
-	const setDrawingRef = useCallback(
-		(el, userId) => {
-			let flag = isAllRefSet(drawingCanvasRefs);
-			// console.log("isAllRefset", flag);
-			if (flag) {
-				// console.log("All refs are set");
-				return;
-			}
-			setDrawingCanvasRefs((oldRefs) => {
-				const newRefs = produce(oldRefs, (draftRefs) => {
-					draftRefs.forEach((pageRef) => {
-						if (pageRef.page === pageNum) {
-							let userRefs = pageRef.userRefs[userId];
-							// console.log("userRefs", userRefs);
-							if (!userRefs?.current) {
-								pageRef.userRefs[userId] = { current: el };
-							}
+	const setDrawingRef = (el, userId) => {
+		// console.log("setDrawingRef", el, userId, drawingCanvasRefs);
+		if (!el || drawingCanvasRefs.length == 0) return;
+		let flag = isAllRefSet(drawingCanvasRefs);
+		// console.log("isAllRefset", flag);
+		if (flag) {
+			// console.log("All refs are set");
+			return;
+		}
+		setDrawingCanvasRefs((oldRefs) => {
+			const newRefs = produce(oldRefs, (draftRefs) => {
+				draftRefs.forEach((pageRef) => {
+					if (pageRef.page === pageNum) {
+						let userRefs = pageRef.userRefs[userId];
+						// console.log("userRefs", userRefs);
+						if (!userRefs?.current) {
+							pageRef.userRefs[userId] = { current: el };
 						}
-					});
-					// console.log("draftRefs", draftRefs);
+					}
 				});
-				// console.log("newRefs", newRefs);
-				return newRefs;
+				// console.log("draftRefs", draftRefs);
 			});
-		},
-		[setDrawingCanvasRefs] // 의존성 배열에 pageNum과 setDrawingCanvasRefs를 포함합니다.
-	);
+			// console.log("newRefs", newRefs);
+			return newRefs;
+		});
+	};
 
 	const info = { user: user, bookId: bookId, pageNum: pageNum };
 	//pointer canvas도 밖으로 빼기

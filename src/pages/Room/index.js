@@ -55,6 +55,10 @@ function Room() {
 	useEffect(() => {
 		const findBook = room.Books?.find((book) => book.id == bookId);
 		setBook(findBook);
+		return () => {
+			console.log("set book empty");
+			setBook({});
+		};
 	}, [room, bookId]);
 
 	const bookClickHandler = (book) => {

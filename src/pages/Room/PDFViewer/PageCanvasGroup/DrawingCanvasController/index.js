@@ -1,31 +1,33 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
 import socket from "socket";
 import { useRecoilState } from "recoil";
 import { getCanvasRef, imageToCanvas } from "./util";
-import { bookChangedState, roomUsersState, drawingCanvasRefsState } from "recoil/atom";
+import { bookChangedState, roomUsersState, drawingCanvasRefsState, drawingCanvasInitState } from "recoil/atom";
 
 export default function DrawingCanvasController({ totalPage }) {
 	const [drawingCanvasRefs, setDrawingCanvasRefs] = useRecoilState(drawingCanvasRefsState);
 	const [bookChanged, setBookChanged] = useRecoilState(bookChangedState);
 	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
-	const [initialize, setInitialize] = useState(false);
+	const [initialize, setInitialize] = useRecoilState(drawingCanvasInitState);
+	const { bookId } = useParams();
 
 	useEffect(() => {
 		console.log("totalPage", totalPage, "roomUsers", roomUsers, "initialize", initialize);
-		if (totalPage === 0 || roomUsers?.length == 0 || initialize) return;
-		// console.log("roomUsers", roomUsers);
+		if (initialize) return;
+		console.error("canvasRefs reset");
 		const newRefs = new Array(totalPage).fill(null).map((e, i) => {
-			const roomRefs = roomUsers.reduce((acc, user) => {
-				acc[user] = React.createRef();
-				return acc;
-			}, {});
+			const roomRefs = {};
+			// roomUsers.reduce((acc, user) => {
+			// 	acc[user.id] = React.createRef();
+			// 	return acc;
+			// }, {});
 			return { page: i + 1, userRefs: roomRefs };
 		});
 		console.log("newRefs", newRefs);
 		setInitialize(true);
-		setBookChanged((prev) => !prev);
 		setDrawingCanvasRefs(newRefs);
-	}, [totalPage, roomUsers, initialize]);
+	}, [bookId, totalPage, roomUsers, initialize]);
 
 	useEffect(() => {
 		setInitialize(false);
@@ -36,6 +38,7 @@ export default function DrawingCanvasController({ totalPage }) {
 			if (data) {
 				const { user, canvasImage, location } = data;
 				const canvasRef = getCanvasRef(drawingCanvasRefs, location.pageNum, user.id);
+				// console.log("share-canvas", data, drawingCanvasRefs, canvasRef);
 				imageToCanvas(canvasImage, canvasRef);
 			}
 		};

@@ -17,6 +17,7 @@ export const getCanvasRef = (drawingCanvasRefs, pageNum, userId) => {
 
 export const imageToCanvas = (canvasImage, canvas, callback) => {
 	if (canvas) {
+		console.log(canvas, canvasImage);
 		const context = canvas.getContext("2d");
 		const image = new Image();
 
@@ -27,5 +28,7 @@ export const imageToCanvas = (canvasImage, canvas, callback) => {
 		};
 
 		image.src = canvasImage;
+	} else {
+		// console.error("canvas is null");
 	}
 };
