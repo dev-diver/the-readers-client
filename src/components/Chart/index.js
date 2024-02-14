@@ -6,6 +6,8 @@ import socket from "socket";
 import { Button } from "@mui/material";
 import { set } from "lodash";
 
+import api from "api";
+
 // 미리 정의된 색상 배열
 function coloringUser(userId) {
 	const colors = ["#8884d8", "#82ca9d", "#ffc658", "#ff7300", "#ff3864"];
@@ -25,10 +27,36 @@ function Chart() {
 	// 	console.log("roomUser", roomUser);
 	// }, []);
 
+	/* Server  수정중 */
+	const applyServerChart = (UserId, BookId, page, time) => {
+		api
+			.get(`/chart/${BookId}/${UserId}`)
+			.then((response) => {
+				console.log("**CHART** response", response.data.data);
+			})
+			.catch((error) => {
+				console.log("**CHART** error", error);
+			});
+	};
+	/*** */
+
 	useEffect(() => {
-		console.log("currentUsersPage", currentUsersPage);
-		console.log("data", data);
-	}, [scroll]);
+		const handleApplyServerChart = (data) => {
+			const users = data.roomUsers;
+			// console.log("**CHART** room-users-changed", users);
+			applyServerChart(1, 1, 1, 1);
+		};
+		socket.on("room-users-changed", handleApplyServerChart);
+
+		return () => {
+			socket.off("room-users-changed", handleApplyServerChart);
+		};
+	}, []);
+
+	// useEffect(() => {
+	// 	console.log("currentUsersPage", currentUsersPage);
+	// 	console.log("data", data);
+	// }, [scroll]);
 
 	useEffect(() => {
 		// 페이지 데이터를 초기화하는 함수
@@ -105,7 +133,7 @@ function Chart() {
 		const interval = setInterval(() => {
 			setCount((c) => c + 1);
 		}, 1000);
-		console.log("data", data);
+		// console.log("data", data);
 
 		// 컴포넌트가 언마운트될 때 인터벌 정리
 		return () => clearInterval(interval);
@@ -171,7 +199,7 @@ function Chart() {
 		socket.on("other-user-position", (data) => {
 			const { user, scroll, flag } = data;
 			if (flag === 1) {
-				console.log("유저 나갈 때?? scroll", scroll);
+				// console.log("유저 나갈 때?? scroll", scroll);
 			}
 			setCurrentUsersPage((prev) => {
 				// 먼저, 이전 상태에서 현재 업데이트된 사용자를 찾습니다.
