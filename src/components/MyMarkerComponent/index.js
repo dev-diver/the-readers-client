@@ -21,7 +21,6 @@ function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, userId, highl
 					const response = await api.get(`link/${highlightId}`);
 					if (response.data && response.data.data) {
 						setLinkData(transformData(response.data.data)); // 가져온 데이터를 상태에 저장
-						console.log("데이터데이터", response.data.data);
 					}
 				} catch (error) {
 					console.error("Failed to fetch link data", error);

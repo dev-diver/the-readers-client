@@ -1,9 +1,34 @@
 import React, { useEffect, useState } from "react";
 import * as d3 from "d3";
 import { v4 as uuidv4 } from "uuid";
+import api from "api";
 
-const D3Graph = ({ heightId, data, width = 600, height = 400, onNodeClick = () => {} }) => {
+const D3Graph = ({ highlightId, data, width = 600, height = 400, onNodeClick = () => {} }) => {
 	const [containerId] = useState(`d3graph-${uuidv4()}`);
+	const [nodeTexts, setNodeTexts] = useState([]);
+
+	useEffect(() => {
+		const fetchAllNodeTexts = async () => {
+			const texts = {};
+			for (const node of data.nodes) {
+				try {
+					const response = await api.get(`/highlights/${node.id}`);
+					if (response.data && response.data.data) {
+						texts[node.id] = response.data.data.text; // 객체 업데이트
+					}
+				} catch (error) {
+					console.error(`Failed to fetch highlight for node ${node.id}`, error);
+				}
+			}
+
+			setNodeTexts(texts);
+		};
+
+		if (data.nodes && data.nodes.length > 0) {
+			fetchAllNodeTexts();
+		}
+	}, [data.nodes]);
+
 	useEffect(() => {
 		if (!data) return;
 
@@ -40,17 +65,45 @@ const D3Graph = ({ heightId, data, width = 600, height = 400, onNodeClick = () =
 			.force("charge", d3.forceManyBody())
 			.force("center", d3.forceCenter(width / 2, height / 2));
 
-		// 선(링크) 그리기
+		// 연결 선(link) 그리기
 		const link = svg
 			.append("g")
 			.attr("class", "links")
 			.selectAll("line")
 			.data(data.links)
-			.join("line")
+			.enter()
+			.append("line")
 			.attr("stroke", "#999")
 			.attr("stroke-opacity", 0.6)
 			.attr("stroke-width", (d) => Math.sqrt(d.value))
-			.attr("marker-end", "url(#arrowhead)"); // 화살표 마커 적용
+			.attr("marker-end", "url(#arrowhead)");
+
+		// 연결 선(link) 위에 텍스트(note) 추가
+		const linkText = svg
+			.append("g")
+			.selectAll(".link-note")
+			.data(data.links)
+			.enter()
+			.append("text")
+			.attr("class", "link-note")
+			.text((d) => d.note)
+			.style("fill", "red") // 텍스트 색상 지정
+			.style("font-size", "10px") // 텍스트 크기 지정
+			.attr("x", (d) => (d.source.x + d.target.x) / 2)
+			.attr("y", (d) => (d.source.y + d.target.y) / 2);
+
+		// 링크와 노드, 그리고 연결 선 텍스트의 위치 업데이트
+		simulation.on("tick", () => {
+			link
+				.attr("x1", (d) => d.source.x)
+				.attr("y1", (d) => d.source.y)
+				.attr("x2", (d) => d.target.x)
+				.attr("y2", (d) => d.target.y);
+
+			linkText.attr("x", (d) => (d.source.x + d.target.x) / 2).attr("y", (d) => (d.source.y + d.target.y) / 2);
+
+			node.attr("transform", (d) => `translate(${d.x},${d.y})`);
+		});
 
 		// 노드 그룹 생성
 		const node = svg.append("g").attr("class", "nodes").selectAll("g").data(data.nodes).join("g");
@@ -69,8 +122,8 @@ const D3Graph = ({ heightId, data, width = 600, height = 400, onNodeClick = () =
 			.attr("dx", -10) // x 방향으로의 위치 조정
 			.attr("dy", ".35em") // y 방향으로의 위치 조정
 			.text(function (d) {
-				return d.note;
-			}) // 각 노드의 name 속성을 텍스트로 사용
+				return nodeTexts[d.id] || "No text"; // 텍스트가 없을 경우 "No text" 출력
+			}) // nodeTexts 객체에서 텍스트 검색
 			.style("fill", "black"); // 텍스트 색상
 
 		simulation.on("tick", () => {
