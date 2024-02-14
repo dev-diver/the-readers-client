@@ -28,10 +28,22 @@ export const canvasMouse = (event, info) => {
 	});
 };
 
+export const canvasMouseOut = (info) => {
+	socket.emit("move-pointer", {
+		delete: true,
+		user: info.user,
+		bookId: info.bookId,
+		pageNum: info.pageNum,
+	});
+};
+
 export const updatePointers = (pointers, data) => {
 	// 새로운 포인터 데이터 추가 또는 업데이트
 	const index = pointers.findIndex((p) => p.user.id === data.user.id);
-	if (index >= 0) {
+	if (data.delete) {
+		pointers.splice(index, 1);
+		return;
+	} else if (index >= 0) {
 		pointers[index] = data;
 	} else {
 		pointers.push(data);

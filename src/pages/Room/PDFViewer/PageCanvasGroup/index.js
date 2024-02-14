@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useRecoilState } from "recoil";
-import { canvasMouse, clearCanvas } from "./CursorCanvasController/util";
+import { canvasMouse, canvasMouseOut } from "./CursorCanvasController/util";
 import { userState, roomUsersState, cursorCanvasRefsState, penModeState, bookChangedState } from "recoil/atom";
 
 import UserPageDrawingCanvas from "./DrawingCanvasController/UserPageDrawingCanvas";
@@ -42,16 +42,13 @@ function PageCanvasGroup({ pageNum, canvasFrame }) {
 				height={canvasFrame.scrollHeight}
 				style={{
 					border: "1px solid black",
-					pointerEvents: penMode == "pointer" ? "auto" : " none",
+					pointerEvents: user && penMode == "pointer" ? "auto" : " none",
 					position: "absolute",
 					left: 0,
 					top: 0,
 				}}
 				onMouseMove={(e) => canvasMouse(e, info)}
-				onMouseOut={(e) => {
-					//socket 신호가 더 늦게와서 다시 그려짐
-					clearCanvas(e.target);
-				}}
+				onMouseOut={(e) => canvasMouseOut(info)}
 			></canvas>
 			{roomUsers?.map((roomUser, i) => (
 				<UserPageDrawingCanvas key={i} index={i} pageNum={pageNum} canvasFrame={canvasFrame} roomUser={roomUser} />
