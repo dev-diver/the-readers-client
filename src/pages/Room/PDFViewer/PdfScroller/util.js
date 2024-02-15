@@ -1,4 +1,5 @@
 import { numToPageContainer } from "../Highlights/util";
+import { useRecoilCallback } from "recoil";
 
 /* deprecated */
 export const moveToScroll = (container, scrollTop) => {
@@ -52,7 +53,7 @@ export const scrollToPage = (scroller, pageNum, scale) => {
 	}
 };
 
-const getRelativeTop = (element, container) => {
+export const getRelativeTop = (element, container) => {
 	let top = 0;
 	let currentElement = element;
 	while (currentElement && container.contains(currentElement) && currentElement !== container) {
@@ -61,4 +62,27 @@ const getRelativeTop = (element, container) => {
 	}
 
 	return top;
+};
+
+export const useDetermineCurrentPage = () => {
+	const determineCurrentPage = useRecoilCallback(
+		({ snapshot }) =>
+			async (totalPage, currentScrollY) => {
+				let currentPageKey = null;
+				for (let page = 1; page <= totalPage; page++) {
+					const Key = { bookId: bookId, pageNum: page, userId: userId };
+					const scrollTop = await snapshot.getPromise(pageScrollPositionFamily(Key));
+					if (currentScrollY >= scrollTop) {
+						currentPageKey = page;
+					} else {
+						break;
+					}
+				}
+				console.log(`Current Page: ${currentPageKey}`);
+				return currentPageKey;
+			},
+		[]
+	);
+
+	return determineCurrentPage;
 };

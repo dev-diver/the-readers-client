@@ -1,10 +1,12 @@
 import React, { useCallback, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import { canvasMouse, canvasMouseOut } from "./CursorCanvasController/util";
 import { userState, roomUsersState, cursorCanvasRefsState, penModeState, bookChangedState } from "recoil/atom";
 
 import UserPageDrawingCanvas from "./DrawingCanvasController/UserPageDrawingCanvas";
+import { getRelativeTop } from "../PdfScroller/util";
+import PdfScroller from "../PdfScroller";
 
 function PageCanvasGroup({ pageNum, canvasFrame }) {
 	const { bookId, roomId } = useParams();
@@ -13,8 +15,8 @@ function PageCanvasGroup({ pageNum, canvasFrame }) {
 	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
 	const [bookChanged, setBookChanged] = useRecoilState(bookChangedState);
 	const [cursorCanvasRefs, setCursorCanvasRefs] = useRecoilState(cursorCanvasRefsState);
-
 	const [penMode, setPenMode] = useRecoilState(penModeState);
+	const [scroller, setScroller] = useRecoilState(scrollerRefState);
 
 	const setRef = useCallback(
 		(el) => {
@@ -30,6 +32,15 @@ function PageCanvasGroup({ pageNum, canvasFrame }) {
 		},
 		[pageNum, bookChanged, setCursorCanvasRefs]
 	);
+
+	const setCanvasScrollTop = useSetRecoilState(
+		pageScrollTopFamily({ bookId: bookId, pageNum: pageNum, userId: user.id })
+	);
+
+	useEffect(() => {
+		const canvasScrollTop = getRelativeTop(canvasFrame, scroller);
+		setCanvasScrollTop(canvasScrollTop);
+	}, [canvasFrame]);
 
 	const info = { user: user, bookId: bookId, pageNum: pageNum };
 	//pointer canvas도 밖으로 빼기
