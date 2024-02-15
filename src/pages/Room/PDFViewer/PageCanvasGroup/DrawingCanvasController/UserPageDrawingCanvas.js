@@ -90,6 +90,9 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 		});
 
 		if (roomUser.id == user?.id) {
+			// const jsonString = JSON.stringify(data); //json은 너무 느림
+			// const dataBlob = new Blob([jsonString], { type: "application/json" });
+			// console.log(dataBlob);
 			const data = {
 				user: user,
 				location,
@@ -97,9 +100,6 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 			};
 			socket.emit("draw-canvas", data);
 		}
-		// const jsonString = JSON.stringify(data);
-		// const dataBlob = new Blob([jsonString], { type: "application/json" });
-		// console.log(dataBlob);
 	}, [elements, user]);
 
 	const drawMouseDown = (e) => {

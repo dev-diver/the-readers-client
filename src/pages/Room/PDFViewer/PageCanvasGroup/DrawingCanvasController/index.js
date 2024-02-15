@@ -28,10 +28,10 @@ const useUndoRedo = () => {
 		({ snapshot, set }) =>
 			(bookId, pageNum, userId) => {
 				const Key = { bookId: bookId, pageNum: pageNum, userId: userId };
-				const currentElements = snapshot.getLoadable(canvasElementsFamily(Key)).getValue();
+				// const currentElements = snapshot.getLoadable(canvasElementsFamily(Key)).getValue();
 				const currentHistory = snapshot.getLoadable(canvasHistoryFamily(Key)).getValue();
 
-				if (currentElements.length > 0) {
+				if (currentHistory.length > 0) {
 					const currentHistoryItem = currentHistory[currentHistory.length - 1];
 					set(canvasElementsFamily(Key), (prevElements) => [...prevElements, currentHistoryItem]);
 					set(canvasHistoryFamily(Key), (prevHistory) =>
