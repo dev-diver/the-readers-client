@@ -98,7 +98,9 @@ function PDFViewer({ book }) {
 
 	useEffect(() => {
 		if (renderContent && pdfContentsRef) {
-			setOriginalWidth(pdfContentsRef.current.getBoundingClientRect().width);
+			const wrapper = pdfContentsRef.current.querySelector(".page-wrapper");
+			const originalWidth = wrapper.getBoundingClientRect().width;
+			setOriginalWidth(originalWidth);
 		}
 	}, [renderContent, pdfContentsRef]);
 

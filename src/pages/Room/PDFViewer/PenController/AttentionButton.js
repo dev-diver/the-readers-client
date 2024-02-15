@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useRecoilState } from "recoil";
-import { isLeadState, isTrailState, userState, scrollerRefState } from "recoil/atom";
+import { viewerScaleState, isLeadState, isTrailState, userState, scrollerRefState } from "recoil/atom";
 import socket from "socket";
 import { Button } from "@mui/material";
 import { smoothScrollTo } from "../PdfScroller/util";
@@ -13,6 +13,7 @@ export default function AttentionButton() {
 	const [isTrail, setTrail] = useRecoilState(isTrailState);
 	const [isLead, setLead] = useRecoilState(isLeadState);
 	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
+	const [scale, setScale] = useRecoilState(viewerScaleState);
 
 	const navigate = useNavigate();
 
@@ -28,6 +29,7 @@ export default function AttentionButton() {
 		socket.emit("request-attention", {
 			userId: user.id,
 			bookId: bookId,
+			scale: scale,
 			scrollTop: scrollTop,
 		});
 		setLead(true);
@@ -38,13 +40,14 @@ export default function AttentionButton() {
 			setTrail(true);
 			setLead(false);
 			navigate(`/room/${roomId}/book/${data.bookId}`);
+			if (data.scale !== scale) setScale(data.scale);
 			smoothScrollTo(scrollerRef, data.scrollTop, 500); // 500ms 동안 목표 위치로 부드럽게 스크롤
 		});
 
 		return () => {
 			socket.off("receive-attention");
 		};
-	}, [scrollerRef]);
+	}, [scrollerRef, scale]);
 
 	return (
 		<Button
