@@ -18,7 +18,7 @@ export const smoothScrollTo = (container, destinationY, duration = 300) => {
 
 		container.scrollTop = start + change * fraction;
 
-		if (fraction < 1 || container.scrollTop !== destinationY) {
+		if (fraction < 1) {
 			requestAnimationFrame(animateScroll);
 		}
 	};
