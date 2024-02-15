@@ -1,3 +1,6 @@
+import { debounce } from "lodash";
+import api from "api";
+
 export const getCanvasRef = (drawingCanvasRefs, pageNum, userId) => {
 	// console.log("drawingCanvasRefs", drawingCanvasRefs, pageNum, userId);
 	const thisPageRef = drawingCanvasRefs.find((pageRef) => pageRef.page === pageNum);
@@ -64,3 +67,16 @@ export const arrayBufferToJson = (arrayBuffer) => {
 		}
 	});
 };
+
+export const debounceDrawSave = debounce((elements, location, userId) => {
+	//draw save 로직  /book/:bookId/page/:pageNum/user/:userId 주소로 요청
+	const { bookId, pageNum } = location;
+
+	const jsonString = JSON.stringify(elements);
+	const elementsBlob = new Blob([jsonString], { type: "application/json" });
+	const formData = new FormData();
+	formData.append("file", elementsBlob, "drawing.json");
+	api.post(`/drawings/book/${bookId}/page/${pageNum}/user/${userId}`, formData).catch((err) => {
+		console.log(err);
+	});
+}, 1000);

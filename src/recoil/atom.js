@@ -88,6 +88,7 @@ export const penModeState = atom({
 });
 
 /* domRef */
+//커서
 export const cursorCanvasRefsState = atom({
 	key: "canvasRefsState",
 	default: [],
@@ -101,12 +102,6 @@ export const scrollerRefState = atom({
 export const eachPageLoadingState = atom({
 	key: "eachPageLoading",
 	default: [],
-});
-
-/*main 여부. useLoation()으로 대체 가능 */
-export const isMainState = atom({
-	key: "isMain",
-	default: false,
 });
 
 export const isVideoExitState = atom({

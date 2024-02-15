@@ -1,24 +1,28 @@
 import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import socket from "socket";
-import { useRecoilCallback } from "recoil";
-import { canvasElementsFamily, canvasHistoryFamily } from "recoil/atom";
+import { useRecoilCallback, useRecoilState } from "recoil";
+import { canvasElementsFamily, canvasHistoryFamily, userState } from "recoil/atom";
 import { Button } from "@mui/material";
+import { debounceDrawSave } from "./utils";
 
 const useUndoRedo = () => {
 	const undo = useRecoilCallback(
 		({ snapshot, set }) =>
-			(bookId, pageNum, userId) => {
-				const Key = { bookId: bookId, pageNum: pageNum, userId: userId };
-				const currentElements = snapshot.getLoadable(canvasElementsFamily(Key)).getValue();
+			async (roomId, bookId, pageNum, userId) => {
+				const Key = { roomId: roomId, bookId: bookId, pageNum: pageNum, userId: userId };
+				const currentElements = await snapshot.getPromise(canvasElementsFamily(Key));
 				//const currentHistory = snapshot.getLoadable(canvasHistoryFamily(elementsKey)).getValue();
-				console.log("undo", currentElements);
 				if (currentElements.length > 0) {
 					const newHistoryItem = currentElements[currentElements.length - 1];
+
+					const newElements = await snapshot
+						.getPromise(canvasElementsFamily(Key))
+						.then((prevElements) => prevElements.filter((ele, index) => index !== currentElements.length - 1));
 					set(canvasHistoryFamily(Key), (prevHistory) => [...prevHistory, newHistoryItem]);
-					set(canvasElementsFamily(Key), (prevElements) =>
-						prevElements.filter((ele, index) => index !== currentElements.length - 1)
-					);
+					set(canvasElementsFamily(Key), newElements);
+
+					debounceDrawSave(newElements, Key, userId);
 				}
 			},
 		[]
@@ -26,17 +30,21 @@ const useUndoRedo = () => {
 
 	const redo = useRecoilCallback(
 		({ snapshot, set }) =>
-			(bookId, pageNum, userId) => {
-				const Key = { bookId: bookId, pageNum: pageNum, userId: userId };
+			async (roomId, bookId, pageNum, userId) => {
+				const Key = { roomId: roomId, bookId: bookId, pageNum: pageNum, userId: userId };
 				// const currentElements = snapshot.getLoadable(canvasElementsFamily(Key)).getValue();
-				const currentHistory = snapshot.getLoadable(canvasHistoryFamily(Key)).getValue();
-
+				const currentHistory = await snapshot.getPromise(canvasHistoryFamily(Key));
 				if (currentHistory.length > 0) {
 					const currentHistoryItem = currentHistory[currentHistory.length - 1];
-					set(canvasElementsFamily(Key), (prevElements) => [...prevElements, currentHistoryItem]);
+					const newElements = await snapshot
+						.getPromise(canvasElementsFamily(Key))
+						.then((prevElements) => [...prevElements, currentHistoryItem]);
+
+					set(canvasElementsFamily(Key), newElements);
 					set(canvasHistoryFamily(Key), (prevHistory) =>
 						prevHistory.filter((ele, index) => index !== currentHistory.length - 1)
 					);
+					debounceDrawSave(newElements, Key, userId);
 				}
 			},
 		[]
@@ -46,21 +54,22 @@ const useUndoRedo = () => {
 };
 
 export default function DrawingCanvasController() {
-	const { bookId } = useParams();
+	const { roomId, bookId } = useParams();
 	const { undo, redo } = useUndoRedo();
+	const [user, setUser] = useRecoilState(userState);
 
 	const handleUndoClick = (pageNum, userId) => {
-		undo(bookId, pageNum, userId);
+		undo(roomId, bookId, pageNum, userId);
 	};
 
 	const handleRedoClick = (pageNum, userId) => {
-		redo(bookId, pageNum, userId);
+		redo(roomId, bookId, pageNum, userId);
 	};
 
 	const updateCanvasElement = useRecoilCallback(
 		({ set }) =>
-			(bookId, pageNum, userId, elements) => {
-				const elementKey = { bookId: bookId, pageNum: pageNum, userId: userId };
+			(roomId, bookId, pageNum, userId, elements) => {
+				const elementKey = { roomId: roomId, bookId: bookId, pageNum: pageNum, userId: userId };
 				set(canvasElementsFamily(elementKey), elements);
 			},
 		[]
@@ -69,14 +78,14 @@ export default function DrawingCanvasController() {
 	useEffect(() => {
 		const handleShareCanvas = (data) => {
 			// console.log("share-canvas", data);
-			const dataBlob = data;
+			// const dataBlob = data;
 			const { user, location, elements } = data;
 			// arrayBufferToJson(dataBlob).then((json) => {
 			// 	console.log("복호화", json);
 			// 	const { user, location, elements } = json;
 			// 	updateCanvasElement(bookId, location.pageNum, user.id, elements);
 			// });
-			updateCanvasElement(bookId, location.pageNum, user.id, elements);
+			updateCanvasElement(roomId, bookId, location.pageNum, user.id, elements);
 		};
 		socket.on("share-canvas", handleShareCanvas);
 		return () => {
@@ -86,8 +95,8 @@ export default function DrawingCanvasController() {
 
 	return (
 		<>
-			<Button onClick={() => handleUndoClick(1, 1)}>Undo</Button>
-			<Button onClick={() => handleRedoClick(1, 1)}>Redo</Button>
+			<Button onClick={() => handleUndoClick(1, user.id)}>Undo</Button>
+			<Button onClick={() => handleRedoClick(1, user.id)}>Redo</Button>
 		</>
 	);
 }

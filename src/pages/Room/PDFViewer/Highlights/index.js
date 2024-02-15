@@ -4,14 +4,20 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { rangeToInfo, InfoToRange, eraseHighlight, drawHighlight } from "./util";
 import { useRecoilState } from "recoil";
-import { roomUsersState, penModeState, userState, scrollerRefState, highlightState } from "recoil/atom";
+import {
+	bookChangedState,
+	roomUsersState,
+	penModeState,
+	userState,
+	scrollerRefState,
+	highlightState,
+} from "recoil/atom";
 import socket from "socket.js";
 import "./styles.css";
 
 import HighlightList from "./HighlightList";
 // 진태 추가 코드
 import OptionsModal from "components/OptionsModal";
-import { set } from "react-hook-form";
 
 function Highlighter({ bookId, renderContent }) {
 	const { roomId } = useParams();
@@ -28,6 +34,7 @@ function Highlighter({ bookId, renderContent }) {
 	const [highlightList, setHighlightList] = useRecoilState(highlightState);
 	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
 	const [penMode, setPenMode] = useRecoilState(penModeState);
+	const [bookChanged, setBookChanged] = useRecoilState(bookChangedState);
 
 	useEffect(() => {
 		scrollerRef?.addEventListener("mouseup", selectionToHighlight);
@@ -75,7 +82,7 @@ function Highlighter({ bookId, renderContent }) {
 				});
 			}
 		}
-	}, [renderContent, user]);
+	}, [renderContent, user, bookChanged]);
 
 	useEffect(() => {
 		console.log("prevUsers", prevRoomUsers, "roomUsers", roomUsers);
@@ -97,7 +104,7 @@ function Highlighter({ bookId, renderContent }) {
 				eraseHighlight(scrollerRef, highlightId);
 			});
 		});
-	}, [roomUsers]);
+	}, [roomUsers, bookChanged]);
 
 	useEffect(() => {
 		socket.on("draw-highlight", (data) => {
@@ -210,7 +217,6 @@ function Highlighter({ bookId, renderContent }) {
 					isOpen={optionsModalOpen}
 					onClose={() => setOptionsModalOpen(false)}
 					user={user}
-					userId={user.id}
 					highlightId={highlightId}
 					setHighlightId={setHighlightId}
 					bookId={bookId}

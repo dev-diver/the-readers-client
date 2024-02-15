@@ -14,7 +14,6 @@ function OptionsModal({
 	isOpen,
 	onClose,
 	user,
-	userId,
 	highlightId,
 	bookId,
 	roomId,
@@ -38,7 +37,7 @@ function OptionsModal({
 		}
 
 		return api
-			.post(`/highlights/user/${userId}`, highlightInfo)
+			.post(`/highlights/user/${user.id}`, highlightInfo)
 			.then((response) => {
 				logger.log(response);
 				const highlightId = response.data.data[0].HighlightId;
@@ -66,7 +65,7 @@ function OptionsModal({
 				console.log("하이라이트 아이디입니다.", highlightId);
 				const drawHighlightInfo = {
 					id: highlightId,
-					userId: userId,
+					userId: user.id,
 					color: color,
 					bookId: bookId,
 				};
@@ -119,7 +118,7 @@ function OptionsModal({
 					<InsertMemo
 						isOpen={InsertMemoOpen}
 						onClose={() => setInsertMemoOpen(false)}
-						userId={userId}
+						userId={user.id}
 						handleCreateHighlight={handleCreateHighlight}
 					/>
 				)}

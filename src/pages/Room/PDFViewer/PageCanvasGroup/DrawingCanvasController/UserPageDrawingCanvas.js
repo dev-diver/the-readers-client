@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect, useLayoutEffect, useCallback } from
 import { useParams } from "react-router-dom";
 import { useRecoilState, useSetRecoilState, useRecoilValue } from "recoil";
 import { userState, penModeState, canvasElementsFamily } from "recoil/atom";
-import { debounce } from "lodash";
+import { debounceDrawSave } from "./utils";
 import { blobToJson } from "./utils";
 
 import rough from "roughjs/bundled/rough.esm";
@@ -20,10 +20,12 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 
 	const [isDrawing, setIsDrawing] = useState(false);
 	const canvasRef = useRef(null);
-	const elements = useRecoilValue(canvasElementsFamily({ bookId: bookId, pageNum: pageNum, userId: roomUser.id }));
+	const elements = useRecoilValue(
+		canvasElementsFamily({ roomId: roomId, bookId: bookId, pageNum: pageNum, userId: roomUser.id })
+	);
 
 	const setElements = useSetRecoilState(
-		canvasElementsFamily({ bookId: bookId, pageNum: pageNum, userId: roomUser.id })
+		canvasElementsFamily({ roomId: roomId, bookId: bookId, pageNum: pageNum, userId: roomUser.id })
 	);
 
 	const updateElement = useCallback(
@@ -95,7 +97,7 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 			// console.log(dataBlob);
 			const data = {
 				user: user,
-				location,
+				location: location,
 				elements: elements,
 			};
 			socket.emit("draw-canvas", data);
@@ -176,28 +178,9 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 	const drawMouseUp = () => {
 		setIsDrawing(false);
 		// const canvasRef = getCanvasRef(drawingCanvasRefs, pageNum, user.id);
-		if (!canvasRef) return;
-		const data = {
-			user: user,
-			location,
-			elements: elements,
-		};
-		debounceDrawSave(data);
+		if (!canvasRef || !user) return;
+		debounceDrawSave(elements, location, user?.id);
 	};
-
-	const debounceDrawSave = debounce((data) => {
-		//draw save 로직  /book/:bookId/page/:pageNum/user/:userId 주소로 요청
-		const { bookId, pageNum } = data.location;
-
-		const jsonString = JSON.stringify(data.elements);
-		const elementsBlob = new Blob([jsonString], { type: "application/json" });
-		const formData = new FormData();
-		formData.append("file", elementsBlob, "drawing.json");
-		console.log(data);
-		api.post(`/drawings/book/${bookId}/page/${pageNum}/user/${user.id}`, formData).catch((err) => {
-			console.log(err);
-		});
-	}, 1000);
 
 	return (
 		<canvas
