@@ -19,6 +19,7 @@ import api from "api";
 import { baseURL } from "config/config";
 import HareAndTortoise from "components/HareAndTortoise";
 import { produce } from "immer";
+import RoomUserList from "components/RoomUserList";
 
 const VIEWER_WIDTH = 800; //650;
 
@@ -217,7 +218,7 @@ function PDFViewer({ book }) {
 				</Grid>
 				<Hidden smDown>
 					<Grid item xs={false} sm={false} md={1} lg={3}>
-						{/* <RoomUserList /> */}
+						<RoomUserList />
 						<Highlights bookId={book.id} renderContent={renderContent} />
 					</Grid>
 				</Hidden>

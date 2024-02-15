@@ -8,3 +8,14 @@
 	background-color: #f0f0f0; /* 배경색 */
 	margin-right: 5px; /* 버튼 간의 간격 */
 }
+
+.mark-container {
+	position: relative; /* 상위 컨테이너에 relative 포지셔닝 적용 */
+}
+
+.button-over-mark {
+	position: absolute; /* Button에 absolute 포지셔닝 적용 */
+	top: -10px; /* mark 태그 위에 위치하도록 top 값 조정 */
+	right: 0; /* 오른쪽 정렬을 원할 경우 */
+	z-index: 100; /* 다른 요소들 위에 렌더링되도록 z-index 값 조정 */
+}
