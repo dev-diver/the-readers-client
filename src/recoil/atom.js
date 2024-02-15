@@ -84,7 +84,7 @@ export const bookChangedState = atom({
 /* pen mode */
 export const penModeState = atom({
 	key: "penMode",
-	default: "pointer",
+	default: "highlight",
 });
 
 /* domRef */

@@ -62,9 +62,7 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 		console.log("draw-canvas", elements, roomUser.id);
 		if (!canvasRef || !user) return;
 		const roughCanvas = rough.canvas(canvasRef.current);
-		if (elements.length > 0) {
-			canvasRef.current.getContext("2d").clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-		}
+		canvasRef.current.getContext("2d").clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
 		elements.forEach((ele, i) => {
 			if (ele.element === "rect") {
 				roughCanvas.draw(
