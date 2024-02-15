@@ -4,6 +4,8 @@ import { Tooltip, Box, Button, Typography, Modal } from "@mui/material";
 import "./style.css";
 import OnclickOptions from "components/OnclickOptions";
 import D3Graph from "components/D3Graph";
+import { set } from "react-hook-form";
+import Outerlinks from "components/Outerlinks";
 
 function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, children }) {
 	const [highlights, setHighlights] = useState([]);
@@ -13,6 +15,9 @@ function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, children }) {
 	const { id: highlightId, userId, bookId } = highlightInfo;
 	const [D3GraphOpen, setD3GraphOpen] = useState(false);
 	const [linkData, setLinkData] = useState({ nodes: [], links: [] }); // API로부터 받은 링크 데이터를 저장
+	const [outerlinks, setOuterlinks] = useState([]);
+	// MyMarkerComponent에서 outerlinks 상태를 boolean으로 관리하기 위한 새로운 상태 추가
+	const [isOuterlinksOpen, setIsOuterlinksOpen] = useState(false);
 
 	useEffect(() => {
 		if (D3GraphOpen) {
@@ -100,6 +105,14 @@ function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, children }) {
 		setD3GraphOpen(true);
 	};
 
+	const viewOuterlink = async (e) => {
+		e.stopPropagation(); // 이벤트 버블링 중지 -> handleComponentClick 작동 방지
+		setIsOuterlinksOpen(true); // Outerlinks 모달을 열기 위해 상태를 true로 설정
+
+		console.log("외부 링크 확인 버튼 클릭");
+		console.log("highlightId", highlightId);
+	};
+
 	const modalStyle = {
 		position: "absolute",
 		top: "50%",
@@ -156,7 +169,20 @@ function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, children }) {
 						>
 							🟠{/* 내부 링크 확인 버튼 */}
 						</Button>
-						<button className="memobutton">🟡{/* 외부 링크 확인 버튼 : 아직 구현 못함. */}</button>
+						<Button
+							className="memobutton"
+							variant="contained"
+							size="large"
+							href="#contained-buttons"
+							style={{
+								fontSize: "1.5rem",
+								padding: "12px 24px",
+								borderRadius: "8px",
+							}}
+							onClick={(e) => viewOuterlink(e)}
+						>
+							🟡{/* 외부 링크 확인 버튼 : 아직 구현 못함. */}
+						</Button>
 					</>
 				)}
 			</span>
@@ -181,6 +207,9 @@ function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, children }) {
 						/>
 					</Box>
 				</Modal>
+			)}
+			{isOuterlinksOpen && (
+				<Outerlinks isOpen={isOuterlinksOpen} onClose={() => setIsOuterlinksOpen(false)} highlightId={highlightId} />
 			)}
 		</>
 	);
