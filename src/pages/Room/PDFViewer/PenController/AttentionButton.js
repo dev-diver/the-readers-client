@@ -17,6 +17,7 @@ export default function AttentionButton() {
 	const navigate = useNavigate();
 
 	const sendAttention = () => {
+		if (!user) return;
 		if (isTrail) {
 			setTrail(false);
 			return;

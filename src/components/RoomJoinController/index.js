@@ -61,5 +61,5 @@ export default function RoomJoinController({ roomId }) {
 		};
 	}, [user, roomId]);
 
-	return <div></div>;
+	return <></>;
 }

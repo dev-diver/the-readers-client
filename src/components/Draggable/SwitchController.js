@@ -32,7 +32,7 @@ const listItems = [
 		text: "화상채팅",
 	},
 ];
-export default function SwitchListSecondary() {
+export default function SwitchController() {
 	const [checked, setChecked] = React.useState(["cursor"]);
 
 	const handleToggle = (value) => () => {
