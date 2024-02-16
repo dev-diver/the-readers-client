@@ -13,7 +13,6 @@ function RoomRouter() {
 
 	return (
 		<>
-			{/* <VideoChat /> */}
 			{/* <DraggableElement startX={window.innerWidth - 300} startY={120}>
 				<SwitchController />
 			</DraggableElement> */}

@@ -12,13 +12,14 @@ import { drawerFormState, userState, viewerScaleState, htmlContentState, eachPag
 import { Box, Grid, Hidden } from "@mui/material";
 import PenController from "./PenController";
 import { DraggableElement } from "components/DragNDrop/DraggableElement";
-// import { ReactiveDraggable } from "components/DragNDrop/ReactiveDraggable";
+// import ReactiveDraggable from "components/DragNDrop/ReactiveDraggable";
 import api from "api";
 import { baseURL } from "config/config";
 import { produce } from "immer";
 import RoomUserList from "components/RoomUserList";
 import Info from "components/Header/Info";
 import { styled } from "@mui/system";
+import AgVideoChat from "../../../components/AgVideoChat";
 
 const VIEWER_WIDTH = 800; //650;
 
@@ -182,67 +183,72 @@ function PDFViewer({ book }) {
 	}
 
 	return (
-		<div>
-			<Grid container spacing={2} style={{ position: "relative" }}>
-				<Grid item xs={true}>
-					<Chart />
-				</Grid>
-				<Grid item xs={12} sm={8} style={{ minWidth: "800px" }}>
-					<PdfScroller renderContent={renderContent}>
+		<>
+			<div>
+				<Grid container spacing={2} style={{ position: "relative" }}>
+					<Grid item xs={true}>
+						<Chart />
+					</Grid>
+					<Grid item xs={12} sm={8} style={{ minWidth: "800px" }}>
+						<PdfScroller renderContent={renderContent}>
+							<Box
+								ref={pdfContentsRef}
+								className="pdf-contents"
+								dangerouslySetInnerHTML={{ __html: pageContainerHTML }}
+								sx={{
+									width: "100%",
+									transform: `scale(${scale})`,
+									transformOrigin: "top left",
+									boxSizing: "border-box",
+								}}
+							/>
+						</PdfScroller>
+					</Grid>
+					<Grid item xs={true} style={{ position: "relative" }}>
+						{/* <RoomUserList /> */}
 						<Box
-							ref={pdfContentsRef}
-							className="pdf-contents"
-							dangerouslySetInnerHTML={{ __html: pageContainerHTML }}
-							sx={{
-								width: "100%",
-								transform: `scale(${scale})`,
-								transformOrigin: "top left",
-								boxSizing: "border-box",
-							}}
-						/>
-					</PdfScroller>
+						// onMouseEnter={() => {
+						// 	console.log("hover");
+						// 	setIsHovering(true);
+						// }}
+						// onMouseLeave={() => setIsHovering(false)}
+						// style={{
+						// 	position: "absolute",
+						// 	top: 0,
+						// 	bottom: 0,
+						// 	right: 0,
+						// 	width: "150px", // 서랍의 폭
+						// }}
+						>
+							<Highlights
+								// style={{
+								// 	position: "absolute",
+								// 	right: isHovering ? "0" : "-150px",
+								// 	transition: "right 0.5s",
+								// 	top: 0,
+								// 	bottom: 0,
+								// 	width: "150px", // 서랍의 폭
+								// }}
+								bookId={book.id}
+								renderContent={renderContent}
+							/>
+						</Box>
+					</Grid>
 				</Grid>
-				<Grid item xs={true} style={{ position: "relative" }}>
-					{/* <RoomUserList /> */}
-					<Box
-					// onMouseEnter={() => {
-					// 	console.log("hover");
-					// 	setIsHovering(true);
-					// }}
-					// onMouseLeave={() => setIsHovering(false)}
-					// style={{
-					// 	position: "absolute",
-					// 	top: 0,
-					// 	bottom: 0,
-					// 	right: 0,
-					// 	width: "150px", // 서랍의 폭
-					// }}
-					>
-						<Highlights
-							// style={{
-							// 	position: "absolute",
-							// 	right: isHovering ? "0" : "-150px",
-							// 	transition: "right 0.5s",
-							// 	top: 0,
-							// 	bottom: 0,
-							// 	width: "150px", // 서랍의 폭
-							// }}
-							bookId={book.id}
-							renderContent={renderContent}
-						/>
-					</Box>
-				</Grid>
-			</Grid>
-			<Info />
-			{canvasComponents.map(({ component, container }) => {
-				return component && createPortal(component, container);
-			})}
-			<DraggableElement startX={window.innerWidth / 2} startY={60}>
-				<PenController />
-			</DraggableElement>
-			<CursorCanvasController totalPage={canvasComponents.length} />
-			<DrawingCanvasController totalPage={canvasComponents.length} />
-		</div>
+				<Info />
+				{canvasComponents.map(({ component, container }) => {
+					return component && createPortal(component, container);
+				})}
+				<DraggableElement startX={window.innerWidth / 2} startY={60}>
+					<PenController />
+				</DraggableElement>
+				<DraggableElement startX={window.innerWidth - 100} startY={60}>
+					<AgVideoChat />
+				</DraggableElement>
+				<CursorCanvasController totalPage={canvasComponents.length} />
+				<DrawingCanvasController totalPage={canvasComponents.length} />
+			</div>
+		</>
 	);
 }
 

@@ -6,6 +6,9 @@ import api from "api";
 import { Box } from "@mui/material";
 import { useRecoilState } from "recoil";
 import { userState, isLeadState, isTrailState, roomState } from "recoil/atom";
+import AgVideoChat from "../../components/AgVideoChat";
+import { Grid } from "@mui/material";
+import { DraggableElement } from "components/DragNDrop/DraggableElement";
 
 function Room() {
 	const { bookId, roomId } = useParams();
@@ -57,20 +60,32 @@ function Room() {
 	}, [room, bookId]);
 
 	return (
-		<Box
-			className="container"
-			sx={{
-				display: "grid",
-				gridTemplateColumns: "1fr",
-				gridTemplateRows: "auto 1fr",
-				maxWidth: "1400px",
-				width: "100%",
-				margin: "0 auto",
-				overflow: "hidden",
-			}}
-		>
-			{book && <PDFViewer book={book} />}
-		</Box>
+		<>
+			{/* <DraggableElement>
+				<h1>홍홍홍</h1>
+				<h1>홍홍홍</h1>
+				<h1>홍홍홍</h1>
+				<h1>홍홍홍</h1>
+				<h1>홍홍홍</h1>
+			</DraggableElement>
+			<DraggableElement>{book && <AgVideoChat book={book} />}</DraggableElement> */}
+			<Grid>
+				<Box
+					className="container"
+					sx={{
+						display: "grid",
+						gridTemplateColumns: "1fr",
+						gridTemplateRows: "auto 1fr",
+						maxWidth: "1400px",
+						width: "100%",
+						margin: "0 auto",
+						overflow: "hidden",
+					}}
+				>
+					{book && <PDFViewer book={book} />}
+				</Box>
+			</Grid>
+		</>
 	);
 }
 

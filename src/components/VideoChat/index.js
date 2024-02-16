@@ -18,7 +18,7 @@ import {
 } from "./style";
 import { useRecoilState } from "recoil";
 import { userState, isVideoExitState } from "recoil/atom";
-import { ReactiveDraggable } from "components/DragNDrop/ReactiveDraggable";
+// import { ReactiveDraggable } from "components/DragNDrop/ReactiveDraggable";
 
 const APPLICATION_SERVER_URL = "https://demos.openvidu.io/";
 
@@ -193,63 +193,63 @@ const VideoChat = () => {
 
 	return (
 		<div>
-			<ReactiveDraggable startX={window.innerWidth - 300} startY={100}>
-				<VideoContainer style={{ zIndex: 100 }}>
-					<Header>
-						<NameTag id="session-title">방 이름: {mySessionId}</NameTag>
-					</Header>
-					<VideoButtonBox>
-						{mainStreamManager === undefined ? (
-							<a>
-								<StartButton
-									onClick={() => {
-										startToSession();
-										setIsVideoExit(true);
-									}}
-								>
-									Start
-								</StartButton>
-							</a>
-						) : (
-							// <a href={`/room/${roomId}/book`}>
-							<a>
-								<OutButton
-									onClick={() => {
-										leaveSession();
-										setIsVideoExit(false);
-									}}
-								>
-									Exit!
-								</OutButton>
-							</a>
-						)}
-					</VideoButtonBox>
-					{/* <Session> */}
-					{isVideoExit !== false ? (
-						<p>
-							<VideoBox>
-								<div id="main-video" className="col-md-6">
-									<UserVideoComponent streamManager={mainStreamManager} />
-								</div>
-							</VideoBox>
-							<div id="video-container" className="col-md-6">
-								{subscribers.map((sub, i) => (
-									<div
-										key={sub.id}
-										className="stream-container col-md-6 col-xs-6"
-										onClick={() => handleMainVideoStream(sub)}
-									>
-										<VideoBox>
-											<UserVideoComponent streamManager={sub} />
-										</VideoBox>
-									</div>
-								))}
+			{/* <ReactiveDraggable startX={window.innerWidth - 300} startY={100}> */}
+			<VideoContainer style={{ zIndex: 100 }}>
+				<Header>
+					<NameTag id="session-title">방 이름: {mySessionId}</NameTag>
+				</Header>
+				<VideoButtonBox>
+					{mainStreamManager === undefined ? (
+						<a>
+							<StartButton
+								onClick={() => {
+									startToSession();
+									setIsVideoExit(true);
+								}}
+							>
+								Start
+							</StartButton>
+						</a>
+					) : (
+						// <a href={`/room/${roomId}/book`}>
+						<a>
+							<OutButton
+								onClick={() => {
+									leaveSession();
+									setIsVideoExit(false);
+								}}
+							>
+								Exit!
+							</OutButton>
+						</a>
+					)}
+				</VideoButtonBox>
+				{/* <Session> */}
+				{isVideoExit !== false ? (
+					<p>
+						<VideoBox>
+							<div id="main-video" className="col-md-6">
+								<UserVideoComponent streamManager={mainStreamManager} />
 							</div>
-						</p>
-					) : null}
-					{/* </Session> */}
-				</VideoContainer>
-			</ReactiveDraggable>
+						</VideoBox>
+						<div id="video-container" className="col-md-6">
+							{subscribers.map((sub, i) => (
+								<div
+									key={sub.id}
+									className="stream-container col-md-6 col-xs-6"
+									onClick={() => handleMainVideoStream(sub)}
+								>
+									<VideoBox>
+										<UserVideoComponent streamManager={sub} />
+									</VideoBox>
+								</div>
+							))}
+						</div>
+					</p>
+				) : null}
+				{/* </Session> */}
+			</VideoContainer>
+			{/* </ReactiveDraggable> */}
 		</div>
 	);
 };
