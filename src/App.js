@@ -61,23 +61,6 @@ function App() {
 		[mode]
 	);
 
-	// const theme = useMemo(() => {
-	// 	const simpleTheme = createTheme({
-	// 		palette: {
-	// 			mode,
-	// 		},
-	// 	});
-
-	// 	simpleTheme.vars = {
-	// 		radius: {
-	// 			sm: "4px",
-	// 			md: "8px",
-	// 			lg: "12px",
-	// 		},
-	// 	};
-	// 	return simpleTheme;
-	// }, [mode]);
-
 	return (
 		<ColorModeContext.Provider value={colorMode}>
 			<ThemeProvider theme={theme}>
@@ -87,19 +70,17 @@ function App() {
 					}}
 				>
 					<Router>
-						<div>
-							<Header>
-								{theme.palette.mode} mode
-								<IconButton sx={{ ml: 1 }} onClick={colorMode.toggleColorMode} color="inherit">
-									{theme.palette.mode === "dark" ? <Brightness7Icon /> : <Brightness4Icon />}
-								</IconButton>
-							</Header>
-							<Routes>
-								<Route path="/" element={<Main />} />
-								<Route path="/room/:roomId/*" element={<RoomRouter />} />
-								<Route path="/intro" element={<Intro />} />
-							</Routes>
-						</div>
+						<Header>
+							{theme.palette.mode} mode
+							<IconButton sx={{ ml: 1 }} onClick={colorMode.toggleColorMode} color="inherit">
+								{theme.palette.mode === "dark" ? <Brightness7Icon /> : <Brightness4Icon />}
+							</IconButton>
+						</Header>
+						<Routes>
+							<Route path="/" element={<Main />} />
+							<Route path="/room/:roomId/*" element={<RoomRouter />} />
+							<Route path="/intro" element={<Intro />} />
+						</Routes>
 					</Router>
 				</Box>
 			</ThemeProvider>

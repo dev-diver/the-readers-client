@@ -1,37 +1,35 @@
 import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 import { AppBar, Toolbar, Typography, Container, Box, IconButton, Menu, MenuItem, Button } from "@mui/material";
 import HomeIcon from "./HomeIcon";
 import SideDrawer from "./SideDrawer";
-import Info from "./Info";
 import { Link } from "react-router-dom";
-import { isMainState } from "recoil/atom";
-import { useRecoilState } from "recoil";
 
 export default function Header({ children }) {
 	const [isHovering, setIsHovering] = useState(false);
-	const [isMain, setIsMain] = useRecoilState(isMainState);
+	const location = useLocation();
 
 	const appTitle = "The Readers";
 	const pages = [];
 
 	useEffect(() => {
-		if (isMain) {
+		if (location.pathname === "/") {
 			setIsHovering(true);
 		} else {
 			setIsHovering(false);
 		}
-	}, [isMain]);
+	}, [location]);
 
 	return (
 		<div
 			onMouseOver={() => {
-				if (!isMain) setIsHovering(true);
+				if (location.pathname !== "/") setIsHovering(true);
 			}}
 			onMouseLeave={() => {
-				if (!isMain) setIsHovering(false);
+				if (location.pathname !== "/") setIsHovering(false);
 			}}
-			style={{ height: "25px", position: "absolute", top: 0, width: "100%" }}
+			style={{ height: "25px", position: "absolute", top: 0, width: "100%", zIndex: 100 }}
 		>
 			<AppBar
 				position="absolute"
