@@ -22,10 +22,10 @@ export function DraggableElement({ children, startX, startY }) {
 		updatePosition();
 
 		// 윈도우 크기가 변경될 때마다 위치 업데이트
-		window.addEventListener("resize", updatePosition);
+		// window.addEventListener("resize", updatePosition);
 
-		// 이벤트 리스너 정리
-		return () => window.removeEventListener("resize", updatePosition);
+		// // 이벤트 리스너 정리
+		// return () => window.removeEventListener("resize", updatePosition);
 	}, [width]);
 
 	useEffect(() => {

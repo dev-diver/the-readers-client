@@ -1,50 +1,102 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect } from "react";
+import { useParams } from "react-router-dom";
 import socket from "socket";
-import { useRecoilState } from "recoil";
-import { getCanvasRef, imageToCanvas } from "./util";
-import { bookChangedState, roomUsersState, drawingCanvasRefsState } from "recoil/atom";
+import { useRecoilCallback, useRecoilState } from "recoil";
+import { canvasElementsFamily, canvasHistoryFamily, userState } from "recoil/atom";
+import { Button } from "@mui/material";
+import { debounceDrawSave } from "./utils";
 
-export default function DrawingCanvasController({ totalPage }) {
-	const [drawingCanvasRefs, setDrawingCanvasRefs] = useRecoilState(drawingCanvasRefsState);
-	const [bookChanged, setBookChanged] = useRecoilState(bookChangedState);
-	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
-	const [initialize, setInitialize] = useState(false);
+const useUndoRedo = () => {
+	const undo = useRecoilCallback(
+		({ snapshot, set }) =>
+			async (roomId, bookId, pageNum, userId) => {
+				const Key = { roomId: roomId, bookId: bookId, pageNum: pageNum, userId: userId };
+				const currentElements = await snapshot.getPromise(canvasElementsFamily(Key));
+				//const currentHistory = snapshot.getLoadable(canvasHistoryFamily(elementsKey)).getValue();
+				if (currentElements.length > 0) {
+					const newHistoryItem = currentElements[currentElements.length - 1];
 
-	useEffect(() => {
-		console.log("totalPage", totalPage, "roomUsers", roomUsers, "initialize", initialize);
-		if (totalPage === 0 || roomUsers?.length == 0 || initialize) return;
-		// console.log("roomUsers", roomUsers);
-		const newRefs = new Array(totalPage).fill(null).map((e, i) => {
-			const roomRefs = roomUsers.reduce((acc, user) => {
-				acc[user] = React.createRef();
-				return acc;
-			}, {});
-			return { page: i + 1, userRefs: roomRefs };
-		});
-		// console.log("newRefs", newRefs);
-		setInitialize(true);
-		setBookChanged((prev) => !prev);
-		setDrawingCanvasRefs(newRefs);
-	}, [totalPage, roomUsers, initialize]);
+					const newElements = await snapshot
+						.getPromise(canvasElementsFamily(Key))
+						.then((prevElements) => prevElements.filter((ele, index) => index !== currentElements.length - 1));
+					set(canvasHistoryFamily(Key), (prevHistory) => [...prevHistory, newHistoryItem]);
+					set(canvasElementsFamily(Key), newElements);
 
-	useEffect(() => {
-		setInitialize(false);
-	}, [totalPage, roomUsers]);
+					debounceDrawSave(newElements, Key, userId);
+				}
+			},
+		[]
+	);
+
+	const redo = useRecoilCallback(
+		({ snapshot, set }) =>
+			async (roomId, bookId, pageNum, userId) => {
+				const Key = { roomId: roomId, bookId: bookId, pageNum: pageNum, userId: userId };
+				// const currentElements = snapshot.getLoadable(canvasElementsFamily(Key)).getValue();
+				const currentHistory = await snapshot.getPromise(canvasHistoryFamily(Key));
+				if (currentHistory.length > 0) {
+					const currentHistoryItem = currentHistory[currentHistory.length - 1];
+					const newElements = await snapshot
+						.getPromise(canvasElementsFamily(Key))
+						.then((prevElements) => [...prevElements, currentHistoryItem]);
+
+					set(canvasElementsFamily(Key), newElements);
+					set(canvasHistoryFamily(Key), (prevHistory) =>
+						prevHistory.filter((ele, index) => index !== currentHistory.length - 1)
+					);
+					debounceDrawSave(newElements, Key, userId);
+				}
+			},
+		[]
+	);
+
+	return { undo, redo };
+};
+
+export default function DrawingCanvasController() {
+	const { roomId, bookId } = useParams();
+	const { undo, redo } = useUndoRedo();
+	const [user, setUser] = useRecoilState(userState);
+
+	const handleUndoClick = (pageNum, userId) => {
+		undo(roomId, bookId, pageNum, userId);
+	};
+
+	const handleRedoClick = (pageNum, userId) => {
+		redo(roomId, bookId, pageNum, userId);
+	};
+
+	const updateCanvasElement = useRecoilCallback(
+		({ set }) =>
+			(roomId, bookId, pageNum, userId, elements) => {
+				const elementKey = { roomId: roomId, bookId: bookId, pageNum: pageNum, userId: userId };
+				set(canvasElementsFamily(elementKey), elements);
+			},
+		[]
+	);
 
 	useEffect(() => {
 		const handleShareCanvas = (data) => {
-			if (data) {
-				const { user, canvasImage, location } = data;
-				const canvasRef = getCanvasRef(drawingCanvasRefs, location.pageNum, user.id);
-				imageToCanvas(canvasImage, canvasRef);
-			}
+			// console.log("share-canvas", data);
+			// const dataBlob = data;
+			const { user, location, elements } = data;
+			// arrayBufferToJson(dataBlob).then((json) => {
+			// 	console.log("복호화", json);
+			// 	const { user, location, elements } = json;
+			// 	updateCanvasElement(bookId, location.pageNum, user.id, elements);
+			// });
+			updateCanvasElement(roomId, bookId, location.pageNum, user.id, elements);
 		};
-
 		socket.on("share-canvas", handleShareCanvas);
 		return () => {
-			socket.off("canvasImage", handleShareCanvas);
+			socket.off("share-canvas", handleShareCanvas);
 		};
-	}, [drawingCanvasRefs]);
+	}, [updateCanvasElement]);
 
-	return <></>;
+	return (
+		<>
+			<Button onClick={() => handleUndoClick(1, user.id)}>Undo</Button>
+			<Button onClick={() => handleRedoClick(1, user.id)}>Redo</Button>
+		</>
+	);
 }

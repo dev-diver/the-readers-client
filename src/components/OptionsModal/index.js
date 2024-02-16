@@ -14,7 +14,6 @@ function OptionsModal({
 	isOpen,
 	onClose,
 	user,
-	userId,
 	highlightId,
 	bookId,
 	roomId,
@@ -30,7 +29,6 @@ function OptionsModal({
 		if (!user) {
 			return null; // 세미콜론은 여기서 선택적이지만, 명확성을 위해 사용할 수 있습니다.
 		}
-
 		// ER_DATA_TOO_LONG 에러 방지를 위해 텍스트 길이 제한
 		// WARN_DATA_TRUNCATED 에러 방지를 위해 텍스트 길이 제한
 		const MAX_TEXT_LENGTH = 255; // 서버에서 허용하는 최대 길이
@@ -39,7 +37,7 @@ function OptionsModal({
 		}
 
 		return api
-			.post(`/highlights/user/${userId}`, highlightInfo)
+			.post(`/highlights/user/${user.id}`, highlightInfo)
 			.then((response) => {
 				logger.log(response);
 				const highlightId = response.data.data[0].HighlightId;
@@ -57,6 +55,7 @@ function OptionsModal({
 		event.preventDefault();
 		if (selectedHighlightInfo) {
 			selectedHighlightInfo.forEach(async (highlightInfo) => {
+				console.log("하이라이트 정보", highlightInfo);
 				const newRange = InfoToRange(highlightInfo);
 				highlightInfo = {
 					...highlightInfo,
@@ -64,21 +63,17 @@ function OptionsModal({
 				};
 				const highlightId = await sendHighlightToServer(highlightInfo); // 형광펜 서버로 전송
 				console.log("하이라이트 아이디입니다.", highlightId);
-				highlightInfo = {
-					...highlightInfo,
-					id: highlightId,
-					roomId: roomId,
-					userId: userId,
-					bookId: bookId,
-				};
-				socket.emit("insert-highlight", highlightInfo); //소켓에 전송
 				const drawHighlightInfo = {
 					id: highlightId,
-					userId: userId,
+					userId: user.id,
 					color: color,
 					bookId: bookId,
 				};
-
+				highlightInfo = {
+					...highlightInfo,
+					...drawHighlightInfo,
+				};
+				socket.emit("insert-highlight", highlightInfo); //소켓에 전송
 				drawHighlight(newRange, drawHighlightInfo); // 형관펜 화면에 그림
 				appendHighlightListItem(highlightInfo); //형광펜 리스트 생성
 			});
@@ -123,7 +118,7 @@ function OptionsModal({
 					<InsertMemo
 						isOpen={InsertMemoOpen}
 						onClose={() => setInsertMemoOpen(false)}
-						userId={userId}
+						userId={user.id}
 						handleCreateHighlight={handleCreateHighlight}
 					/>
 				)}

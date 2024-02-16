@@ -12,7 +12,9 @@ export const smoothScrollTo = (container, destinationY, duration = 300) => {
 
 	const animateScroll = (currentTime) => {
 		const elapsedTime = currentTime - startTime;
-		const fraction = elapsedTime / duration;
+		let fraction = elapsedTime / duration;
+
+		fraction = Math.min(fraction, 1);
 
 		container.scrollTop = start + change * fraction;
 

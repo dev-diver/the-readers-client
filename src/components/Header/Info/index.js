@@ -6,17 +6,23 @@ import MenuItem from "@mui/material/MenuItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
 import Tooltip from "@mui/material/Tooltip";
-import { Link } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import BookShelf from "components/BookShelf";
 import AddBook from "pages/RoomLobby/Addbook";
 import { BookOpen, LampDeskIcon, LibrarySquare } from "lucide-react";
 import { ThemeProvider, useTheme } from "@mui/material/styles";
+import { useRecoilState } from "recoil";
+import { roomState, isTrailState } from "recoil/atom";
 
-export default function Info({ room, bookId, bookClickHandler, setRoomRefresh }) {
+export default function Info() {
 	const [anchorEl, setAnchorEl] = React.useState(null);
+	const [room, setRoom] = useRecoilState(roomState);
+	const [roomRefresh, setRoomRefresh] = useRecoilState(roomState);
+	const [trail, setTrail] = useRecoilState(isTrailState);
+	const { roomId, bookId } = useParams();
 	const theme = useTheme();
+	const navigate = useNavigate();
 
 	const open = Boolean(anchorEl);
 
@@ -32,22 +38,34 @@ export default function Info({ room, bookId, bookClickHandler, setRoomRefresh })
 		event.stopPropagation(); // 이벤트 전파 방지. 메뉴 계속 켜져있게 하기 위함임.
 	};
 
+	const bookClickHandler = (book) => {
+		//for animation
+		setTrail(false);
+		navigate(`/room/${roomId}/book/${book.id}`);
+	};
+
 	return (
 		<React.Fragment>
-			<Box sx={{ display: "flex", alignItems: "center", textAlign: "center" }}>
-				<Tooltip title="Account settings">
-					<IconButton
-						onClick={handleClick}
-						size="small"
-						sx={{ ml: 2 }}
-						aria-controls={open ? "account-menu" : undefined}
-						aria-haspopup="true"
-						aria-expanded={open ? "true" : undefined}
-					>
-						<Avatar sx={{ width: 32, height: 32, margin: 1 }}>i</Avatar>
-					</IconButton>
-				</Tooltip>
-			</Box>
+			<Tooltip title="Account settings">
+				<IconButton
+					onClick={handleClick}
+					size="small"
+					sx={{
+						position: "absoulute",
+						// right: 16, // 오른쪽에서 16px 떨어진 위치
+						bottom: 16, // 아래쪽에서 16px 떨어진 위치
+						width: 32,
+						height: 32,
+						margin: 1,
+					}}
+					aria-controls={open ? "account-menu" : undefined}
+					aria-haspopup="true"
+					aria-expanded={open ? "true" : undefined}
+				>
+					<Avatar sx={{ width: 32, height: 32, margin: 1 }}>i</Avatar>
+				</IconButton>
+			</Tooltip>
+
 			<ThemeProvider theme={theme}>
 				<Menu
 					anchorEl={anchorEl}

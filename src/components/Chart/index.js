@@ -297,9 +297,6 @@ function Chart() {
 	return (
 		// width="25%" height={650} style={{ position: "sticky", top: "20px" }}
 		<div style={{ height: "100vh", display: "flex", flexDirection: "column", alignItems: "center" }}>
-			<Button variant="outlined" sx={{ width: "30%" }}>
-				갱신
-			</Button>
 			<ResponsiveContainer>
 				<AreaChart
 					layout="vertical"
