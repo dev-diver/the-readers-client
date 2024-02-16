@@ -31,7 +31,7 @@ const VideoChat = () => {
 	const [user, setUser] = useRecoilState(userState);
 	const { roomId } = useParams();
 	const [mySessionId, setMySessionId] = useState(roomId);
-	const [myUserName, setMyUserName] = useState(user.nick);
+	const [myUserName, setMyUserName] = useState(user?.nick || "");
 	const [isVideoExit, setIsVideoExit] = useRecoilState(isVideoExitState);
 
 	const navigate = useNavigate();
@@ -192,8 +192,13 @@ const VideoChat = () => {
 	};
 
 	return (
+<<<<<<< HEAD
 		<div>
 			<ReactiveDraggable startX={window.innerWidth - 300} startY={100}>
+=======
+		<div className="container" style={{ backgroundColor: "gray" }}>
+			<ReactiveDraggable startX={150} startY={60}>
+>>>>>>> upstream/dev
 				<VideoContainer style={{ zIndex: 100 }}>
 					<Header>
 						<NameTag id="session-title">방 이름: {mySessionId}</NameTag>

@@ -7,11 +7,12 @@ import D3Graph from "components/D3Graph";
 import { set } from "react-hook-form";
 import Outerlinks from "components/Outerlinks";
 
-function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, userId, highlightId, bookId, children }) {
+function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, children }) {
 	const [highlights, setHighlights] = useState([]);
 	const [onClickOptions, setOnClickOptions] = useState(false);
 	const [memoData, setMemoData] = useState("");
 	const [isTooltipOpen, setIsTooltipOpen] = useState(false); // Tooltip을 제어하기 위한 상태
+	const { id: highlightId, userId, bookId } = highlightInfo;
 	const [D3GraphOpen, setD3GraphOpen] = useState(false);
 	const [linkData, setLinkData] = useState({ nodes: [], links: [] }); // API로부터 받은 링크 데이터를 저장
 	const [outerlinks, setOuterlinks] = useState([]);
@@ -126,12 +127,7 @@ function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, userId, highl
 
 	return (
 		<>
-			<mark
-				data-highlight-id={highlightId}
-				data-page-num={pageNum}
-				data-user-id={userId}
-				onClick={() => handleComponentClick()}
-			>
+			<span onClick={() => handleComponentClick()}>
 				{children}
 				{IsMemoOpen && (
 					<>
@@ -189,7 +185,7 @@ function MyMarkerComponent({ isOpen, onClose, IsMemoOpen, pageNum, userId, highl
 						</Button>
 					</>
 				)}
-			</mark>
+			</span>
 			{onClickOptions && (
 				<OnclickOptions
 					isOpen={onClickOptions}

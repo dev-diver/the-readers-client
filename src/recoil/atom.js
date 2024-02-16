@@ -1,4 +1,4 @@
-import { atom } from "recoil";
+import { atom, atomFamily } from "recoil";
 
 export const roomState = atom({
 	key: "room",
@@ -66,9 +66,19 @@ export const highlightState = atom({
 	default: [],
 });
 
-export const drawingCanvasRefsState = atom({
-	key: "drawingCanvasRefs",
+export const canvasElementsFamily = atomFamily({
+	key: "canvasElementsFamily",
 	default: [],
+});
+
+export const canvasHistoryFamily = atomFamily({
+	key: "canvasHistoryFamily",
+	default: [],
+});
+
+export const pageScrollTopFamily = atomFamily({
+	key: "pageScrollTopFamily",
+	default: -1,
 });
 
 export const bookChangedState = atom({
@@ -79,10 +89,11 @@ export const bookChangedState = atom({
 /* pen mode */
 export const penModeState = atom({
 	key: "penMode",
-	default: "pointer",
+	default: "highlight",
 });
 
 /* domRef */
+//커서
 export const cursorCanvasRefsState = atom({
 	key: "canvasRefsState",
 	default: [],
@@ -96,12 +107,6 @@ export const scrollerRefState = atom({
 export const eachPageLoadingState = atom({
 	key: "eachPageLoading",
 	default: [],
-});
-
-/*main 여부. useLoation()으로 대체 가능 */
-export const isMainState = atom({
-	key: "isMain",
-	default: false,
 });
 
 export const isVideoExitState = atom({

@@ -54,14 +54,15 @@ export default function PdfScroller({ renderContent, children }) {
 		console.log("is Trail", isTrail);
 		if (isTrail) {
 			socket.on("receive-attention-scroll", (data) => {
-				console.log("receive-attention-scroll", data);
+				console.log("receive-attention-scroll", data.scale, scale);
+				if (data.scale != scale) setScale(data.scale);
 				smoothScrollTo(scrollerRef, data.scrollTop);
 			});
 		}
 		return () => {
 			socket.off("receive-attention-scroll");
 		};
-	}, [scrollerRef, isTrail]);
+	}, [scrollerRef, isTrail, scale]);
 
 	const debounceSetScroll = useCallback(
 		debounce(() => {
@@ -72,27 +73,26 @@ export default function PdfScroller({ renderContent, children }) {
 
 	const handleScroll = useCallback(
 		(event) => {
-			console.log("handleScroll");
-
 			const scrollTop = event.currentTarget.scrollTop;
 			if (isLead) {
 				console.log("lead-scroll", scrollTop);
 				socket.emit("request-attention-scroll", {
 					userId: user.id,
+					scale: scale,
 					scrollTop: scrollTop,
 				});
 			}
 			// setAttention(false);
 			debounceSetScroll(); //for chart
 		},
-		[isLead, debounceSetScroll, user, socket]
+		[isLead, debounceSetScroll, user, scale]
 	);
 
 	const onCtrlWheelHandler = useCallback(
 		(event) => {
-			console.log("ctrlWheel");
 			const ratio = 1.1;
 			if (event.ctrlKey) {
+				console.log("ctrlWheel");
 				event.preventDefault();
 				if (event.deltaY < 0) {
 					setScale((prev) => prev * ratio);
