@@ -4,8 +4,11 @@ import { Tooltip, Box, Button, Typography, Modal } from "@mui/material";
 import "./style.css";
 import D3Graph from "components/D3Graph";
 import Outerlinks from "components/Outerlinks";
+import { getRelativeTopLeft } from "pages/Room/PDFViewer/PdfScroller/util";
+// import { useRecoilState } from "recoil";
+// import { currentHighlightIdState } from "recoil/atom";
 
-function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, setButtonGroupsPos, children }) {
+function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, setButtonGroupsPos, scrollerRef, children }) {
 	const [highlights, setHighlights] = useState([]);
 	const [onClickOptions, setOnClickOptions] = useState(false);
 	const [memoData, setMemoData] = useState("");
@@ -18,13 +21,26 @@ function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, setButtonGroups
 	const [isOuterlinksOpen, setIsOuterlinksOpen] = useState(false);
 	const [activePage, setActivePage] = useState(null); // 현재 활성화된 페이지 번호
 
+	// const [currentHighlightId, setCurrentHighlightId] = useRecoilState(currentHighlightIdState);
+
+	// const popButtonGroup = (e) => {
+	// 	// console.log("popButtonGroup", setButtonGroupsPos);
+
+	// 	const rect = e.target.getBoundingClientRect();
+	// 	const x = rect.left + rect.width / 2;
+	// 	const y = rect.top - 30; // 하이라이트 위에 렌더링하기 위해 조정
+	// 	console.log("handle highlight Click", x, y);
+	// 	setButtonGroupsPos({ visible: true, x, y });
+	// };
+
 	const popButtonGroup = (e) => {
-		// console.log("popButtonGroup", setButtonGroupsPos);
-		const rect = e.target.getBoundingClientRect();
-		const x = rect.left + rect.width / 2;
-		const y = rect.top - 30; // 하이라이트 위에 렌더링하기 위해 조정
-		console.log("handle highlight Click", x, y);
-		setButtonGroupsPos({ visible: true, x, y });
+		console.log("popButtonGroup", scrollerRef);
+		if (!scrollerRef) return; // scrollerRef가 유효한지 확인
+		const { top, left } = getRelativeTopLeft(e.target, scrollerRef); // 상대 좌표를 계산
+		console.log(e.target);
+		console.log("top", top, "left", left);
+
+		setButtonGroupsPos({ visible: true, x: left, y: top }); // 계산된 위치를 사용하여 상태 업데이트
 	};
 
 	useEffect(() => {
@@ -70,6 +86,7 @@ function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, setButtonGroups
 			console.log("북아이디", bookId);
 			console.log("하이라이트아이디", highlightId);
 			setHighlights(response.data.data); // 상태 업데이트
+			// setCurrentHighlightId(highlightId);
 			// setOnClickOptions(true);
 			popButtonGroup(e);
 		} catch (error) {

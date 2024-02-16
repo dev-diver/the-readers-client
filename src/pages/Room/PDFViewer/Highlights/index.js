@@ -17,7 +17,7 @@ import socket from "socket.js";
 import "./styles.css";
 
 import HighlightList from "./HighlightList";
-// 진태 추가 코드
+
 import OptionsModal from "components/OptionsModal";
 function Highlighter({ bookId, renderContent }) {
 	const { roomId } = useParams();
@@ -113,13 +113,13 @@ function Highlighter({ bookId, renderContent }) {
 				...data,
 				color: "pink",
 			};
-			console.log(setButtonGroupsPos, "PDFVIEWER setButtonGroupsPos");
-			drawHighlight(newRange, drawHighlightInfo, setButtonGroupsPos);
+			// console.log(setButtonGroupsPos, "PDFVIEWER setButtonGroupsPos");
+			drawHighlight(newRange, drawHighlightInfo, setButtonGroupsPos, scrollerRef);
 		});
 		return () => {
 			socket.off("draw-highlight");
 		};
-	}, [user]);
+	}, [user, scrollerRef]);
 
 	useEffect(() => {
 		socket.on("erase-highlight", (data) => {
@@ -129,7 +129,7 @@ function Highlighter({ bookId, renderContent }) {
 		return () => {
 			socket.off("erase-highlight");
 		};
-	}, [user]);
+	}, [user, scrollerRef]);
 
 	/* Server */
 	const applyServerHighlight = (userId, bookId, pageNum, color, set = false) => {
@@ -146,8 +146,8 @@ function Highlighter({ bookId, renderContent }) {
 						color: color || highlightInfo.color,
 						bookId: bookId,
 					};
-					console.log(setButtonGroupsPos, "PDFVIEWER setButtonGroupsPos2");
-					drawHighlight(newRange, drawHighlightInfo, setButtonGroupsPos);
+					// console.log(setButtonGroupsPos, "PDFVIEWER setButtonGroupsPos2");
+					drawHighlight(newRange, drawHighlightInfo, setButtonGroupsPos, scrollerRef);
 					if (set) {
 						highlights.push(highlightInfo);
 					}

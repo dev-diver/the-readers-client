@@ -81,6 +81,11 @@ export const bookChangedState = atom({
 	default: false,
 });
 
+export const currentHighlightIdState = atom({
+	key: "currentHighlightId",
+	default: null,
+});
+
 /* pen mode */
 export const penModeState = atom({
 	key: "penMode",

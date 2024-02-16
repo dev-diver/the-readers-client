@@ -54,15 +54,9 @@ function PDFViewer({ book }) {
 	const [eachPageLoading, setEachPageLoading] = useRecoilState(eachPageLoadingState);
 	const [isHovering, setIsHovering] = useState(false);
 
-	// ButtonGroups 렌더링 위치 및 가시성 상태
-	const [buttonGroupsPos, setButtonGroupsPos] = useRecoilState(buttonGroupsPosState);
-
 	// 하이라이트 클릭 이벤트 핸들러
 
 	// 하이라이트에 이벤트 리스너 추가
-	useEffect(() => {
-		console.log(buttonGroupsPos, "buttonGroupsPos");
-	}, [buttonGroupsPos]);
 
 	useEffect(() => {
 		setRenderContent(false);
@@ -213,7 +207,7 @@ function PDFViewer({ book }) {
 							dangerouslySetInnerHTML={{ __html: pageContainerHTML }}
 							sx={{
 								width: "100%",
-								transform: `scale(${scale})`,
+								// transform: `scale(${scale})`,
 								transformOrigin: "top left",
 								boxSizing: "border-box",
 							}}
@@ -260,9 +254,6 @@ function PDFViewer({ book }) {
 			</DraggableElement>
 			<CursorCanvasController totalPage={canvasComponents.length} />
 			<DrawingCanvasController totalPage={canvasComponents.length} />
-			{buttonGroupsPos.visible && (
-				<ButtonGroups style={{ position: "absolute", left: buttonGroupsPos.x + "px", top: buttonGroupsPos.y + "px" }} />
-			)}
 		</div>
 	);
 }

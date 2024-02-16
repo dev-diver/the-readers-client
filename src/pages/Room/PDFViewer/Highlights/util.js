@@ -170,8 +170,9 @@ export function rangeToInfo(range, additionalInfo) {
 
 /* Draw ,Erase */
 
-export function drawHighlight(range, highlightInfo, setButtonGroupsPos) {
+export function drawHighlight(range, highlightInfo, setButtonGroupsPos, scrollerRef) {
 	console.log(setButtonGroupsPos, "setButtonGroupPos");
+	console.log(scrollerRef, "scrollerRef");
 	//같은 경우 처리
 	if (range.startContainer === range.endContainer) {
 		const startOffset = range.startOffset;
@@ -183,7 +184,7 @@ export function drawHighlight(range, highlightInfo, setButtonGroupsPos) {
 		// console.log("(after) end-start", range.endOffset);
 		// console.log("const", endOffset - startOffset);
 		part.splitText(endOffset - startOffset);
-		createMarkTag(part, highlightInfo, range, true, 2, setButtonGroupsPos);
+		createMarkTag(part, highlightInfo, range, true, 2, setButtonGroupsPos, scrollerRef);
 		return;
 	}
 
@@ -212,7 +213,7 @@ export function drawHighlight(range, highlightInfo, setButtonGroupsPos) {
 	let currentNode = walker.nextNode();
 	//처음
 	const part = currentNode.splitText(range.startOffset);
-	createMarkTag(part, highlightInfo, range, false, 1, setButtonGroupsPos);
+	createMarkTag(part, highlightInfo, range, false, 1, setButtonGroupsPos, scrollerRef);
 
 	currentNode = walker.nextNode();
 	while (currentNode) {
@@ -221,7 +222,7 @@ export function drawHighlight(range, highlightInfo, setButtonGroupsPos) {
 		if (isEnd) {
 			currentNode.splitText(range.endOffset);
 		}
-		createMarkTag(currentNode, highlightInfo, range, isEnd, isEnd ? 1 : 0, setButtonGroupsPos);
+		createMarkTag(currentNode, highlightInfo, range, isEnd, isEnd ? 1 : 0, setButtonGroupsPos, scrollerRef);
 		currentNode = nextNode;
 	}
 	// let currentNode = walker.nextNode();
@@ -231,7 +232,15 @@ export function drawHighlight(range, highlightInfo, setButtonGroupsPos) {
 	// }
 }
 
-const createMarkTag = (currentNode, highlightInfo, range, isEnd = false, split = 0, setButtonGroupsPos) => {
+const createMarkTag = (
+	currentNode,
+	highlightInfo,
+	range,
+	isEnd = false,
+	split = 0,
+	setButtonGroupsPos,
+	scrollerRef
+) => {
 	const marker = document.createElement("mark");
 	marker.classList.add(highlightInfo.color);
 	marker.classList.add("marker");
@@ -245,9 +254,14 @@ const createMarkTag = (currentNode, highlightInfo, range, isEnd = false, split =
 	const IsMemoOpen = isEnd;
 	// marker 요소에 대한 새로운 root를 생성하고, MyMarkerComponent를 렌더링합니다.
 	const markerRoot = createRoot(marker); // marker 요소에 대한 root 생성
-	console.log(setButtonGroupsPos, "createMarkTag setButtonGroupPos");
+	console.log(setButtonGroupsPos, scrollerRef, "createMarkTag setButtonGroupPos");
 	markerRoot.render(
-		<MyMarkerComponent highlightInfo={highlightInfo} IsMemoOpen={IsMemoOpen} setButtonGroupsPos={setButtonGroupsPos}>
+		<MyMarkerComponent
+			highlightInfo={highlightInfo}
+			IsMemoOpen={IsMemoOpen}
+			setButtonGroupsPos={setButtonGroupsPos}
+			scrollerRef={scrollerRef}
+		>
 			{currentNode.textContent}
 		</MyMarkerComponent>
 	);

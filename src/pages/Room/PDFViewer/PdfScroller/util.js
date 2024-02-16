@@ -62,3 +62,15 @@ const getRelativeTop = (element, container) => {
 
 	return top;
 };
+
+export const getRelativeTopLeft = (element, container) => {
+	let top = 0;
+	let left = 0;
+	let currentElement = element;
+	while (currentElement && container.contains(currentElement) && currentElement !== container) {
+		top += currentElement.offsetTop;
+		left += currentElement.offsetLeft;
+		currentElement = currentElement.offsetParent;
+	}
+	return { top, left };
+};

@@ -8,12 +8,16 @@ import {
 	scrollerRefState,
 	highlightState,
 	viewerScaleState,
+	buttonGroupsPosState,
+	currentHighlightIdState,
 } from "recoil/atom";
 import { debounce } from "lodash";
 import socket from "socket";
 import { scrollToPage, scrollToHighlight, calculateScrollY, smoothScrollTo } from "./util";
 import { Box } from "@mui/material";
 import { useLocation } from "react-router-dom";
+import ButtonGroups from "components/ButtonGroups";
+import { on } from "events";
 
 export default function PdfScroller({ renderContent, children }) {
 	const location = useLocation();
@@ -29,7 +33,9 @@ export default function PdfScroller({ renderContent, children }) {
 	const [highlightList, setHighlightList] = useRecoilState(highlightState);
 	const [scale, setScale] = useRecoilState(viewerScaleState);
 	const [urlScrolled, setUrlScrolled] = useState(false);
-
+	// ButtonGroups 렌더링 위치 및 가시성 상태
+	const [buttonGroupsPos, setButtonGroupsPos] = useRecoilState(buttonGroupsPosState);
+	const [currentHighlightId, setCurrentHighlightId] = useRecoilState(currentHighlightIdState);
 	useEffect(() => {
 		setUrlScrolled(false);
 	}, [location]);
@@ -121,6 +127,16 @@ export default function PdfScroller({ renderContent, children }) {
 			}}
 		>
 			{children}
+			{buttonGroupsPos.visible && (
+				<ButtonGroups
+					style={{
+						position: "absolute",
+						top: buttonGroupsPos.y - 20 + "px",
+						left: buttonGroupsPos.x + "px",
+					}}
+					highlightId={currentHighlightId}
+				/>
+			)}
 		</Box>
 	);
 }

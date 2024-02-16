@@ -8,7 +8,7 @@ import socket from "socket.js";
 
 import InsertMemo from "./InsertMemo";
 import { useRecoilState } from "recoil";
-import { buttonGroupsPosState } from "recoil/atom";
+import { buttonGroupsPosState, scrollerRefState, currentHighlightIdState } from "recoil/atom";
 
 // 세 가지의 옵션 제공 : 하이라이트 생성, 메모 삽입, 링크 삽입
 function OptionsModal({
@@ -25,7 +25,8 @@ function OptionsModal({
 }) {
 	const [InsertMemoOpen, setInsertMemoOpen] = useState(false);
 	const [buttonGroupPos, setButtonGroupPos] = useRecoilState(buttonGroupsPosState);
-
+	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
+	const [currentHighlightId, setCurrentHighlightId] = useRecoilState(currentHighlightIdState);
 	const sendHighlightToServer = async (highlightInfo) => {
 		console.log("user", user, "하이라이트 정보", highlightInfo);
 		if (!user) {
@@ -65,6 +66,7 @@ function OptionsModal({
 				};
 				const highlightId = await sendHighlightToServer(highlightInfo); // 형광펜 서버로 전송
 				console.log("하이라이트 아이디입니다.", highlightId);
+				setCurrentHighlightId(highlightId);
 				const drawHighlightInfo = {
 					id: highlightId,
 					userId: user.id,
@@ -77,7 +79,7 @@ function OptionsModal({
 				};
 				socket.emit("insert-highlight", highlightInfo); //소켓에 전송
 				console.log("OptionalModal", setButtonGroupPos);
-				drawHighlight(newRange, drawHighlightInfo, setButtonGroupPos); // 형관펜 화면에 그림
+				drawHighlight(newRange, drawHighlightInfo, setButtonGroupPos, scrollerRef); // 형관펜 화면에 그림
 				appendHighlightListItem(highlightInfo); //형광펜 리스트 생성
 			});
 
