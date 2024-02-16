@@ -7,7 +7,6 @@ import { logger } from "logger";
 import socket from "socket.js";
 
 import InsertMemo from "./InsertMemo";
-import InsertLink from "./InsertLink";
 
 // 세 가지의 옵션 제공 : 하이라이트 생성, 메모 삽입, 링크 삽입
 function OptionsModal({

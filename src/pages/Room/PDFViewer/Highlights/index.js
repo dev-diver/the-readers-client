@@ -11,13 +11,10 @@ import "./styles.css";
 import HighlightList from "./HighlightList";
 // 진태 추가 코드
 import OptionsModal from "components/OptionsModal";
-
 function Highlighter({ bookId, renderContent }) {
 	const { roomId } = useParams();
 	const [user, setUser] = useRecoilState(userState);
 	const [color, setColor] = useState("yellow");
-
-	// 진태 추가 코드
 	const [optionsModalOpen, setOptionsModalOpen] = useState(false);
 	const [highlightId, setHighlightId] = useState(null);
 	const [highlightInfos, setHighlightInfos] = useState(null);
