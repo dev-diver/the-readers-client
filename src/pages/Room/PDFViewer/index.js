@@ -17,7 +17,6 @@ import { DraggableElement } from "components/DragNDrop/DraggableElement";
 // import { ReactiveDraggable } from "components/DragNDrop/ReactiveDraggable";
 import api from "api";
 import { baseURL } from "config/config";
-import HareAndTortoise from "components/HareAndTortoise";
 import { produce } from "immer";
 import RoomUserList from "components/RoomUserList";
 
@@ -188,15 +187,12 @@ function PDFViewer({ book }) {
 				paddingTop: 25,
 			}}
 		>
-			<VideoChat />
+			{/* <VideoChat /> */}
 			{/* <ReactiveDraggable startX={window.innerWidth - 300} startY={60}> */}
 			{/* </ReactiveDraggable> */}
 			{/* <DrawingCanvas /> */}
 			<Grid container spacing={2}>
 				<Hidden mdDown>
-					<Grid item xs={false} sm={false} md={1} lg={21}>
-						<HareAndTortoise />
-					</Grid>
 					<Grid item xs={false} sm={false} md={1.5} lg={2}>
 						<Chart />
 					</Grid>

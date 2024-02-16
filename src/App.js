@@ -12,6 +12,8 @@ import IconButton from "@mui/material/IconButton";
 import { useTheme, ThemeProvider, createTheme } from "@mui/material/styles";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
+// global.css 파일을 import 합니다.
+import "./global.css";
 
 export const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
 
@@ -31,10 +33,22 @@ function App() {
 			createTheme({
 				palette: {
 					mode,
+					primary: {
+						// global.css에서 정의한 변수를 사용합니다. --color-primary-0
+						main: "#d0a970",
+						light: "#e1c69e",
+						dark: "#b8863c",
+						contrastText: "#fff",
+					},
+					secondary: {
+						main: "#e1c69e",
+					},
 				},
 				typography: {
-					allVariants: {
-						fontSize: 10,
+					fontFamily: '"Noto Sans KR", "Helvetica", "Arial", sans-serif', // 여기에 원하는 폰트 패밀리를 설정
+					fontSize: 16, // 기본 폰트 사이즈 설정
+					h1: {
+						fontSize: "2.5rem", // 개별 타이틀 크기 조정
 					},
 				},
 				components: {
@@ -53,6 +67,24 @@ function App() {
 							root: {
 								// MenuItem 내부의 커서 스타일을 auto로 설정
 								cursor: "auto",
+							},
+						},
+					},
+					MuiInput: {
+						styleOverrides: {
+							root: {
+								"&:focus": {
+									backgroundColor: "#f5e6cf", // 입력 필드에 포커스 됐을 때의 배경색
+								},
+							},
+						},
+					},
+					MuiInputLabel: {
+						styleOverrides: {
+							root: {
+								"&.Mui-focused": {
+									color: " #f5e6cf", // 라벨 포커스 시 색상 변경
+								},
 							},
 						},
 					},

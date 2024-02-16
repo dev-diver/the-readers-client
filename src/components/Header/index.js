@@ -49,13 +49,13 @@ export default function Header({ children }) {
 							component={Link}
 							to="/"
 							sx={{
+								ml: 2,
 								mr: 2,
 								display: { xs: "none", md: "flex" },
-								fontFamily: "monospace",
-								fontWeight: 700,
-								letterSpacing: ".3rem",
-								color: "inherit",
+								letterSpacing: ".15rem",
+								color: "#333",
 								textDecoration: "none",
+								fontWeight: 700,
 							}}
 						>
 							{appTitle}

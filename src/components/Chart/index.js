@@ -184,7 +184,7 @@ function Chart() {
 
 		const filteredData = filterDataByUserId(updatedData, userKey);
 		// console.log("*****send data from client to server*****");
-		// console.log("filteredData", filteredData);
+		console.log("filteredData", filteredData);
 		const room = roomUser.roomId;
 		socket.emit("send-chart", { filteredData, userKey, room });
 	}, [scroll, roomUser]);
@@ -297,9 +297,6 @@ function Chart() {
 	return (
 		// width="25%" height={650} style={{ position: "sticky", top: "20px" }}
 		<div style={{ height: "100vh", display: "flex", flexDirection: "column", alignItems: "center" }}>
-			<Button variant="outlined" sx={{ width: "30%" }}>
-				갱신
-			</Button>
 			<ResponsiveContainer>
 				<AreaChart
 					layout="vertical"
