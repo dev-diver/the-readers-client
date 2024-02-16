@@ -1,3 +1,5 @@
+import { useRecoilCallback } from "recoil";
+import { canvasElementsFamily, canvasHistoryFamily } from "recoil/atom";
 import { debounce } from "lodash";
 import api from "api";
 
@@ -80,3 +82,50 @@ export const debounceDrawSave = debounce((elements, location, userId) => {
 		console.log(err);
 	});
 }, 1000);
+
+export const useUndoRedo = () => {
+	const undo = useRecoilCallback(
+		({ snapshot, set }) =>
+			async (bookId, pageNum, userId) => {
+				const Key = { bookId: bookId, pageNum: pageNum, userId: userId };
+				const currentElements = await snapshot.getPromise(canvasElementsFamily(Key));
+				//const currentHistory = snapshot.getLoadable(canvasHistoryFamily(elementsKey)).getValue();
+				if (currentElements.length > 0) {
+					const newHistoryItem = currentElements[currentElements.length - 1];
+
+					const newElements = await snapshot
+						.getPromise(canvasElementsFamily(Key))
+						.then((prevElements) => prevElements.filter((ele, index) => index !== currentElements.length - 1));
+					set(canvasHistoryFamily(Key), (prevHistory) => [...prevHistory, newHistoryItem]);
+					set(canvasElementsFamily(Key), newElements);
+
+					debounceDrawSave(newElements, Key, userId);
+				}
+			},
+		[]
+	);
+
+	const redo = useRecoilCallback(
+		({ snapshot, set }) =>
+			async (bookId, pageNum, userId) => {
+				const Key = { bookId: bookId, pageNum: pageNum, userId: userId };
+				// const currentElements = snapshot.getLoadable(canvasElementsFamily(Key)).getValue();
+				const currentHistory = await snapshot.getPromise(canvasHistoryFamily(Key));
+				if (currentHistory.length > 0) {
+					const currentHistoryItem = currentHistory[currentHistory.length - 1];
+					const newElements = await snapshot
+						.getPromise(canvasElementsFamily(Key))
+						.then((prevElements) => [...prevElements, currentHistoryItem]);
+
+					set(canvasElementsFamily(Key), newElements);
+					set(canvasHistoryFamily(Key), (prevHistory) =>
+						prevHistory.filter((ele, index) => index !== currentHistory.length - 1)
+					);
+					debounceDrawSave(newElements, Key, userId);
+				}
+			},
+		[]
+	);
+
+	return { undo, redo };
+};
