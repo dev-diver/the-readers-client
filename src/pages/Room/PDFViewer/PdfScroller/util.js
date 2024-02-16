@@ -68,10 +68,10 @@ export const getRelativeTop = (element, container) => {
 export const useDetermineCurrentPage = () => {
 	const determineCurrentPage = useRecoilCallback(
 		({ snapshot }) =>
-			async (bookId, userId, totalPage, currentScrollY) => {
+			async (totalPage, currentScrollY) => {
 				let currentPageKey = null;
 				for (let page = 1; page <= totalPage; page++) {
-					const Key = { bookId: bookId, pageNum: page, userId: userId };
+					const Key = { pageNum: page };
 					const scrollTop = await snapshot.getPromise(pageScrollTopFamily(Key));
 					if (currentScrollY >= scrollTop) {
 						currentPageKey = page;

@@ -86,7 +86,7 @@ export default function PdfScroller({ renderContent, totalPage, children }) {
 			});
 		}
 		// setAttention(false);
-		determineCurrentPage(bookId, user?.id || "guest", totalPage, scrollTop).then((currentPage) => {
+		determineCurrentPage(totalPage, scrollTop).then((currentPage) => {
 			console.info("currentPage", currentPage);
 			//debounceSetScroll(); //for chart
 		});
