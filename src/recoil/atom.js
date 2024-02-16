@@ -108,3 +108,8 @@ export const isVideoExitState = atom({
 	key: "isVideoExit",
 	default: false,
 });
+
+export const buttonGroupsPosState = atom({
+	key: "buttonGroupsPos",
+	default: { visible: false, x: 0, y: 0, page: null },
+});

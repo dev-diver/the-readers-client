@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { logger } from "logger";
 import Highlights from "./Highlights";
@@ -8,7 +8,14 @@ import PdfScroller from "./PdfScroller/index";
 import CursorCanvasController from "./PageCanvasGroup/CursorCanvasController";
 import DrawingCanvasController from "./PageCanvasGroup/DrawingCanvasController";
 import { useRecoilState } from "recoil";
-import { drawerFormState, userState, viewerScaleState, htmlContentState, eachPageLoadingState } from "recoil/atom";
+import {
+	drawerFormState,
+	userState,
+	viewerScaleState,
+	htmlContentState,
+	eachPageLoadingState,
+	buttonGroupsPosState,
+} from "recoil/atom";
 import { Box, Grid, Hidden } from "@mui/material";
 import PenController from "./PenController";
 import { DraggableElement } from "components/DragNDrop/DraggableElement";
@@ -19,6 +26,7 @@ import { produce } from "immer";
 import RoomUserList from "components/RoomUserList";
 import Info from "components/Header/Info";
 import { styled } from "@mui/system";
+import ButtonGroups from "components/ButtonGroups";
 
 const VIEWER_WIDTH = 800; //650;
 
@@ -45,6 +53,16 @@ function PDFViewer({ book }) {
 	const pdfContentsRef = useRef(null);
 	const [eachPageLoading, setEachPageLoading] = useRecoilState(eachPageLoadingState);
 	const [isHovering, setIsHovering] = useState(false);
+
+	// ButtonGroups 렌더링 위치 및 가시성 상태
+	const [buttonGroupsPos, setButtonGroupsPos] = useRecoilState(buttonGroupsPosState);
+
+	// 하이라이트 클릭 이벤트 핸들러
+
+	// 하이라이트에 이벤트 리스너 추가
+	useEffect(() => {
+		console.log(buttonGroupsPos, "buttonGroupsPos");
+	}, [buttonGroupsPos]);
 
 	useEffect(() => {
 		setRenderContent(false);
@@ -242,6 +260,9 @@ function PDFViewer({ book }) {
 			</DraggableElement>
 			<CursorCanvasController totalPage={canvasComponents.length} />
 			<DrawingCanvasController totalPage={canvasComponents.length} />
+			{buttonGroupsPos.visible && (
+				<ButtonGroups style={{ position: "absolute", left: buttonGroupsPos.x + "px", top: buttonGroupsPos.y + "px" }} />
+			)}
 		</div>
 	);
 }

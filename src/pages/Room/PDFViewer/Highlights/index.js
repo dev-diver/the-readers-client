@@ -11,6 +11,7 @@ import {
 	userState,
 	scrollerRefState,
 	highlightState,
+	buttonGroupsPosState,
 } from "recoil/atom";
 import socket from "socket.js";
 import "./styles.css";
@@ -32,6 +33,7 @@ function Highlighter({ bookId, renderContent }) {
 	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
 	const [penMode, setPenMode] = useRecoilState(penModeState);
 	const [bookChanged, setBookChanged] = useRecoilState(bookChangedState);
+	const [buttonGroupsPos, setButtonGroupsPos] = useRecoilState(buttonGroupsPosState);
 
 	useEffect(() => {
 		scrollerRef?.addEventListener("mouseup", selectionToHighlight);
@@ -111,7 +113,8 @@ function Highlighter({ bookId, renderContent }) {
 				...data,
 				color: "pink",
 			};
-			drawHighlight(newRange, drawHighlightInfo);
+			console.log(setButtonGroupsPos, "PDFVIEWER setButtonGroupsPos");
+			drawHighlight(newRange, drawHighlightInfo, setButtonGroupsPos);
 		});
 		return () => {
 			socket.off("draw-highlight");
@@ -143,7 +146,8 @@ function Highlighter({ bookId, renderContent }) {
 						color: color || highlightInfo.color,
 						bookId: bookId,
 					};
-					drawHighlight(newRange, drawHighlightInfo);
+					console.log(setButtonGroupsPos, "PDFVIEWER setButtonGroupsPos2");
+					drawHighlight(newRange, drawHighlightInfo, setButtonGroupsPos);
 					if (set) {
 						highlights.push(highlightInfo);
 					}

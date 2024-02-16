@@ -2,12 +2,10 @@ import React, { useState, useEffect } from "react";
 import api from "api";
 import { Tooltip, Box, Button, Typography, Modal } from "@mui/material";
 import "./style.css";
-import OnclickOptions from "components/OnclickOptions";
 import D3Graph from "components/D3Graph";
-import { set } from "react-hook-form";
 import Outerlinks from "components/Outerlinks";
 
-function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, children }) {
+function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, setButtonGroupsPos, children }) {
 	const [highlights, setHighlights] = useState([]);
 	const [onClickOptions, setOnClickOptions] = useState(false);
 	const [memoData, setMemoData] = useState("");
@@ -18,6 +16,16 @@ function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, children }) {
 	const [outerlinks, setOuterlinks] = useState([]);
 	// MyMarkerComponent에서 outerlinks 상태를 boolean으로 관리하기 위한 새로운 상태 추가
 	const [isOuterlinksOpen, setIsOuterlinksOpen] = useState(false);
+	const [activePage, setActivePage] = useState(null); // 현재 활성화된 페이지 번호
+
+	const popButtonGroup = (e) => {
+		// console.log("popButtonGroup", setButtonGroupsPos);
+		const rect = e.target.getBoundingClientRect();
+		const x = rect.left + rect.width / 2;
+		const y = rect.top - 30; // 하이라이트 위에 렌더링하기 위해 조정
+		console.log("handle highlight Click", x, y);
+		setButtonGroupsPos({ visible: true, x, y });
+	};
 
 	useEffect(() => {
 		if (D3GraphOpen) {
@@ -56,13 +64,14 @@ function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, children }) {
 		return { nodes, links: linksTransformed };
 	};
 
-	const handleComponentClick = async () => {
+	const handleComponentClick = async (e) => {
 		try {
 			const response = await api.get(`/highlights/book/${bookId}`);
 			console.log("북아이디", bookId);
 			console.log("하이라이트아이디", highlightId);
 			setHighlights(response.data.data); // 상태 업데이트
-			setOnClickOptions(true);
+			// setOnClickOptions(true);
+			popButtonGroup(e);
 		} catch (error) {
 			console.error("Failed to fetch highlights", error);
 		}
@@ -127,7 +136,7 @@ function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, children }) {
 
 	return (
 		<>
-			<span onClick={() => handleComponentClick()}>
+			<span onClick={(e) => handleComponentClick(e)}>
 				{children}
 				{IsMemoOpen && (
 					<>
@@ -186,7 +195,7 @@ function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, children }) {
 					</>
 				)}
 			</span>
-			{onClickOptions && (
+			{/* {onClickOptions && (
 				<OnclickOptions
 					isOpen={onClickOptions}
 					onClose={() => setOnClickOptions(false)}
@@ -194,7 +203,7 @@ function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, children }) {
 					handleCreateHighlight={handleCreateHighlight}
 					bookId={bookId}
 				/>
-			)}
+			)} */}
 			{D3GraphOpen && (
 				<Modal open={D3GraphOpen} onClose={() => setD3GraphOpen(false)}>
 					<Box sx={modalStyle}>

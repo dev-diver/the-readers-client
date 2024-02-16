@@ -1,5 +1,6 @@
 import { createRoot } from "react-dom/client";
-import React from "react";
+import React, { useEffect } from "react";
+import { RecoilRoot } from "recoil";
 import MyMarkerComponent from "components/MyMarkerComponent";
 import { current } from "immer";
 
@@ -169,9 +170,8 @@ export function rangeToInfo(range, additionalInfo) {
 
 /* Draw ,Erase */
 
-export function drawHighlight(range, highlightInfo) {
-	// console.log("drawHighlight", range, highlightInfo);
-
+export function drawHighlight(range, highlightInfo, setButtonGroupsPos) {
+	console.log(setButtonGroupsPos, "setButtonGroupPos");
 	//같은 경우 처리
 	if (range.startContainer === range.endContainer) {
 		const startOffset = range.startOffset;
@@ -183,7 +183,7 @@ export function drawHighlight(range, highlightInfo) {
 		// console.log("(after) end-start", range.endOffset);
 		// console.log("const", endOffset - startOffset);
 		part.splitText(endOffset - startOffset);
-		createMarkTag(part, highlightInfo, range, true, 2);
+		createMarkTag(part, highlightInfo, range, true, 2, setButtonGroupsPos);
 		return;
 	}
 
@@ -212,7 +212,7 @@ export function drawHighlight(range, highlightInfo) {
 	let currentNode = walker.nextNode();
 	//처음
 	const part = currentNode.splitText(range.startOffset);
-	createMarkTag(part, highlightInfo, range, false, 1);
+	createMarkTag(part, highlightInfo, range, false, 1, setButtonGroupsPos);
 
 	currentNode = walker.nextNode();
 	while (currentNode) {
@@ -221,7 +221,7 @@ export function drawHighlight(range, highlightInfo) {
 		if (isEnd) {
 			currentNode.splitText(range.endOffset);
 		}
-		createMarkTag(currentNode, highlightInfo, range, isEnd, isEnd ? 1 : 0);
+		createMarkTag(currentNode, highlightInfo, range, isEnd, isEnd ? 1 : 0, setButtonGroupsPos);
 		currentNode = nextNode;
 	}
 	// let currentNode = walker.nextNode();
@@ -231,7 +231,7 @@ export function drawHighlight(range, highlightInfo) {
 	// }
 }
 
-const createMarkTag = (currentNode, highlightInfo, range, isEnd = false, split = 0) => {
+const createMarkTag = (currentNode, highlightInfo, range, isEnd = false, split = 0, setButtonGroupsPos) => {
 	const marker = document.createElement("mark");
 	marker.classList.add(highlightInfo.color);
 	marker.classList.add("marker");
@@ -245,12 +245,14 @@ const createMarkTag = (currentNode, highlightInfo, range, isEnd = false, split =
 	const IsMemoOpen = isEnd;
 	// marker 요소에 대한 새로운 root를 생성하고, MyMarkerComponent를 렌더링합니다.
 	const markerRoot = createRoot(marker); // marker 요소에 대한 root 생성
+	console.log(setButtonGroupsPos, "createMarkTag setButtonGroupPos");
 	markerRoot.render(
-		<MyMarkerComponent highlightInfo={highlightInfo} IsMemoOpen={IsMemoOpen}>
+		<MyMarkerComponent highlightInfo={highlightInfo} IsMemoOpen={IsMemoOpen} setButtonGroupsPos={setButtonGroupsPos}>
 			{currentNode.textContent}
 		</MyMarkerComponent>
 	);
 	currentNode.parentElement.replaceChild(marker, currentNode);
+
 	return marker;
 };
 
