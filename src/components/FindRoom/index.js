@@ -53,10 +53,10 @@ function FindRoom() {
 					</Grid>
 				</Grid>
 			</Box>
-			<Grid sx={{ width: 800, marginTop: 5 }}>
-				<Masonry columns={3} spacing={2}>
+			<Grid sx={{ width: "1000px", marginTop: 5 }}>
+				<Masonry columns={3} spacing={5}>
 					{searchResults.map((room, index) => (
-						<RoomCard key={index} room={room} />
+						<RoomCard key={index} room={room} sx={{ textDecoration: "none", padding: "2px" }} />
 					))}
 				</Masonry>
 			</Grid>

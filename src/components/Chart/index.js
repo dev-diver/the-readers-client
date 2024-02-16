@@ -184,7 +184,7 @@ function Chart() {
 
 		const filteredData = filterDataByUserId(updatedData, userKey);
 		// console.log("*****send data from client to server*****");
-		// console.log("filteredData", filteredData);
+		console.log("filteredData", filteredData);
 		const room = roomUser.roomId;
 		socket.emit("send-chart", { filteredData, userKey, room });
 	}, [scroll, roomUser]);
