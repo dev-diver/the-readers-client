@@ -4,6 +4,7 @@ import socket from "socket";
 import { useRecoilCallback, useRecoilState } from "recoil";
 import { canvasElementsFamily, userState } from "recoil/atom";
 import { Button } from "@mui/material";
+import { useUndoRedo } from "./utils";
 
 export default function DrawingCanvasController() {
 	const { roomId, bookId } = useParams();
@@ -11,17 +12,17 @@ export default function DrawingCanvasController() {
 	const [user, setUser] = useRecoilState(userState);
 
 	const handleUndoClick = (pageNum, userId) => {
-		undo(roomId, bookId, pageNum, userId);
+		undo(bookId, pageNum, userId);
 	};
 
 	const handleRedoClick = (pageNum, userId) => {
-		redo(roomId, bookId, pageNum, userId);
+		redo(bookId, pageNum, userId);
 	};
 
 	const updateCanvasElement = useRecoilCallback(
 		({ set }) =>
-			(roomId, bookId, pageNum, userId, elements) => {
-				const elementKey = { roomId: roomId, bookId: bookId, pageNum: pageNum, userId: userId };
+			(bookId, pageNum, userId, elements) => {
+				const elementKey = { bookId: bookId, pageNum: pageNum, userId: userId };
 				set(canvasElementsFamily(elementKey), elements);
 			},
 		[]
@@ -37,7 +38,7 @@ export default function DrawingCanvasController() {
 			// 	const { user, location, elements } = json;
 			// 	updateCanvasElement(bookId, location.pageNum, user.id, elements);
 			// });
-			updateCanvasElement(roomId, bookId, location.pageNum, user.id, elements);
+			updateCanvasElement(bookId, location.pageNum, user.id, elements);
 		};
 		socket.on("share-canvas", handleShareCanvas);
 		return () => {

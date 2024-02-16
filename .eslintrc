@@ -10,8 +10,9 @@
       "eslint:recommended", 
       "plugin:react/recommended", 
       "plugin:react-hooks/recommended",
+      "eslint-config-prettier",
       "plugin:@typescript-eslint/recommended",//타입스크립트
-      "eslint-config-prettier"
+      "plugin:@react-three/recommended"
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
@@ -21,8 +22,15 @@
         "jsx": true
       }
     },
-    "plugins": ["react", "react-hooks", "prettier", "@typescript-eslint"],
+    "plugins": [
+      "react", 
+      "react-hooks", 
+      "prettier", 
+      "@typescript-eslint",
+      "@react-three"
+    ],
     "rules": {
+        "react/no-unknown-property": ["off", { "ignore": ["args"] }],
         "@typescript-eslint/no-unused-vars": "warn",
         "prettier/prettier": "warn",
         "react/prop-types": 0
@@ -32,4 +40,4 @@
         "version": "detect"
       }
     }
-  }
+}

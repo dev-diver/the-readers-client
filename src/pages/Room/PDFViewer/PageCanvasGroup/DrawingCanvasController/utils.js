@@ -1,3 +1,4 @@
+import { useRecoilCallback } from "recoil";
 import { canvasElementsFamily, canvasHistoryFamily } from "recoil/atom";
 import { debounce } from "lodash";
 import api from "api";
@@ -85,8 +86,8 @@ export const debounceDrawSave = debounce((elements, location, userId) => {
 export const useUndoRedo = () => {
 	const undo = useRecoilCallback(
 		({ snapshot, set }) =>
-			async (roomId, bookId, pageNum, userId) => {
-				const Key = { roomId: roomId, bookId: bookId, pageNum: pageNum, userId: userId };
+			async (bookId, pageNum, userId) => {
+				const Key = { bookId: bookId, pageNum: pageNum, userId: userId };
 				const currentElements = await snapshot.getPromise(canvasElementsFamily(Key));
 				//const currentHistory = snapshot.getLoadable(canvasHistoryFamily(elementsKey)).getValue();
 				if (currentElements.length > 0) {
@@ -106,8 +107,8 @@ export const useUndoRedo = () => {
 
 	const redo = useRecoilCallback(
 		({ snapshot, set }) =>
-			async (roomId, bookId, pageNum, userId) => {
-				const Key = { roomId: roomId, bookId: bookId, pageNum: pageNum, userId: userId };
+			async (bookId, pageNum, userId) => {
+				const Key = { bookId: bookId, pageNum: pageNum, userId: userId };
 				// const currentElements = snapshot.getLoadable(canvasElementsFamily(Key)).getValue();
 				const currentHistory = await snapshot.getPromise(canvasHistoryFamily(Key));
 				if (currentHistory.length > 0) {

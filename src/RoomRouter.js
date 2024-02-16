@@ -6,13 +6,13 @@ import RoomJoinController from "components/RoomJoinController";
 import VideoChat from "components/VideoChat";
 import SwitchController from "components/Draggable/SwitchController";
 import { DraggableElement } from "components/DragNDrop/DraggableElement";
+import DRoom from "pages/3DRoom";
 
 function RoomRouter() {
 	const { roomId } = useParams();
 
 	return (
-		<div style={{ position: "relative" }}>
-			<RoomJoinController roomId={roomId} />
+		<>
 			{/* <VideoChat /> */}
 			{/* <DraggableElement startX={window.innerWidth - 300} startY={120}>
 				<SwitchController />
@@ -20,8 +20,10 @@ function RoomRouter() {
 			<Routes>
 				<Route path="/" element={<RoomLobby />} />
 				<Route path="/book/:bookId" element={<Room />} />
+				<Route path="/3d" element={<DRoom />} />
 			</Routes>
-		</div>
+			<RoomJoinController roomId={roomId} />
+		</>
 	);
 }
 

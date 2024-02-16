@@ -6,7 +6,7 @@ import { userState, roomUsersState, cursorCanvasRefsState, penModeState, bookCha
 
 import UserPageDrawingCanvas from "./DrawingCanvasController/UserPageDrawingCanvas";
 import { getRelativeTop } from "../PdfScroller/util";
-import PdfScroller from "../PdfScroller";
+import { pageScrollTopFamily, scrollerRefState } from "recoil/atom";
 
 function PageCanvasGroup({ pageNum, canvasFrame }) {
 	const { bookId, roomId } = useParams();
@@ -33,13 +33,13 @@ function PageCanvasGroup({ pageNum, canvasFrame }) {
 		[pageNum, bookChanged, setCursorCanvasRefs]
 	);
 
-	const setCanvasScrollTop = useSetRecoilState(
+	const setPageScrollTop = useSetRecoilState(
 		pageScrollTopFamily({ bookId: bookId, pageNum: pageNum, userId: user.id })
 	);
 
 	useEffect(() => {
 		const canvasScrollTop = getRelativeTop(canvasFrame, scroller);
-		setCanvasScrollTop(canvasScrollTop);
+		setPageScrollTop(canvasScrollTop);
 	}, [canvasFrame]);
 
 	const info = { user: user, bookId: bookId, pageNum: pageNum };

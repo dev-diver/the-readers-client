@@ -20,12 +20,10 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 
 	const [isDrawing, setIsDrawing] = useState(false);
 	const canvasRef = useRef(null);
-	const elements = useRecoilValue(
-		canvasElementsFamily({ roomId: roomId, bookId: bookId, pageNum: pageNum, userId: roomUser.id })
-	);
+	const elements = useRecoilValue(canvasElementsFamily({ bookId: bookId, pageNum: pageNum, userId: roomUser.id }));
 
 	const setElements = useSetRecoilState(
-		canvasElementsFamily({ roomId: roomId, bookId: bookId, pageNum: pageNum, userId: roomUser.id })
+		canvasElementsFamily({ bookId: bookId, pageNum: pageNum, userId: roomUser.id })
 	);
 
 	const updateElement = useCallback(
