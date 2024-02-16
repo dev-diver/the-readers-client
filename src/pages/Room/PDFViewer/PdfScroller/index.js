@@ -13,13 +13,17 @@ import { debounce } from "lodash";
 import socket from "socket";
 import { scrollToPage, scrollToHighlight, calculateScrollY, smoothScrollTo } from "./util";
 import { Box } from "@mui/material";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
+import { useDetermineCurrentPage } from "./util";
 
-export default function PdfScroller({ renderContent, children }) {
+export default function PdfScroller({ renderContent, totalPage, children }) {
 	const location = useLocation();
 	const queryParams = new URLSearchParams(location.search);
 	const pageNum = queryParams.get("page");
 	const highlightId = queryParams.get("highlightId");
+	const determineCurrentPage = useDetermineCurrentPage();
+
+	const { bookId } = useParams();
 
 	const [user, setUser] = useRecoilState(userState);
 	const [scroll, setScroll] = useRecoilState(scrollYState); //forChart
@@ -71,22 +75,24 @@ export default function PdfScroller({ renderContent, children }) {
 		[scrollerRef, setScroll]
 	);
 
-	const handleScroll = useCallback(
-		(event) => {
-			const scrollTop = event.currentTarget.scrollTop;
-			if (isLead) {
-				console.log("lead-scroll", scrollTop);
-				socket.emit("request-attention-scroll", {
-					userId: user.id,
-					scale: scale,
-					scrollTop: scrollTop,
-				});
-			}
-			// setAttention(false);
-			debounceSetScroll(); //for chart
-		},
-		[isLead, debounceSetScroll, user, scale]
-	);
+	const handleScroll = (event) => {
+		const scrollTop = event.currentTarget.scrollTop;
+		if (isLead) {
+			console.log("lead-scroll", scrollTop);
+			socket.emit("request-attention-scroll", {
+				userId: user?.id,
+				scale: scale,
+				scrollTop: scrollTop,
+			});
+		}
+		// setAttention(false);
+		determineCurrentPage(bookId, user?.id || "guest", totalPage, scrollTop).then((currentPage) => {
+			console.info("currentPage", currentPage);
+			//debounceSetScroll(); //for chart
+		});
+		debounceSetScroll(); //for chart
+	};
+	//[isLead, debounceSetScroll, user, scale, bookId]
 
 	const onCtrlWheelHandler = useCallback(
 		(event) => {

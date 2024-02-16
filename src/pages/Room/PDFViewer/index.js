@@ -188,7 +188,7 @@ function PDFViewer({ book }) {
 					<Chart />
 				</Grid>
 				<Grid item xs={12} sm={8} style={{ minWidth: "800px" }}>
-					<PdfScroller renderContent={renderContent}>
+					<PdfScroller renderContent={renderContent} totalPage={canvasComponents.length}>
 						<Box
 							ref={pdfContentsRef}
 							className="pdf-contents"

@@ -79,7 +79,6 @@ export const useDetermineCurrentPage = () => {
 						break;
 					}
 				}
-				console.log(`Current Page: ${currentPageKey}`);
 				return currentPageKey;
 			},
 		[]

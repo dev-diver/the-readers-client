@@ -34,7 +34,7 @@ function PageCanvasGroup({ pageNum, canvasFrame }) {
 	);
 
 	const setPageScrollTop = useSetRecoilState(
-		pageScrollTopFamily({ bookId: bookId, pageNum: pageNum, userId: user.id })
+		pageScrollTopFamily({ bookId: bookId, pageNum: pageNum, userId: user?.id || "guest" })
 	);
 
 	useEffect(() => {
