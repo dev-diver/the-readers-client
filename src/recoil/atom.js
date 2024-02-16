@@ -76,6 +76,11 @@ export const canvasHistoryFamily = atomFamily({
 	default: [],
 });
 
+export const pageScrollTopFamily = atomFamily({
+	key: "pageScrollTopFamily",
+	default: -1,
+});
+
 export const bookChangedState = atom({
 	key: "bookChanged",
 	default: false,
