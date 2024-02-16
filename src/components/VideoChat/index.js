@@ -192,13 +192,8 @@ const VideoChat = () => {
 	};
 
 	return (
-<<<<<<< HEAD
 		<div>
 			<ReactiveDraggable startX={window.innerWidth - 300} startY={100}>
-=======
-		<div className="container" style={{ backgroundColor: "gray" }}>
-			<ReactiveDraggable startX={150} startY={60}>
->>>>>>> upstream/dev
 				<VideoContainer style={{ zIndex: 100 }}>
 					<Header>
 						<NameTag id="session-title">방 이름: {mySessionId}</NameTag>
