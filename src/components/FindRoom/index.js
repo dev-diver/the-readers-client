@@ -20,7 +20,7 @@ function FindRoom() {
 				console.log("검색 결과:", response.data.data);
 			})
 			.catch((error) => {
-				console.error(error.response.data.message);
+				console.error(error.response?.data?.message);
 			});
 	};
 

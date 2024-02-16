@@ -1,16 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import socket from "socket.js";
-import RtcViewer from "./RtcViewer";
 import PDFViewer from "./PDFViewer";
-import BookShelf from "components/BookShelf";
-import AddBook from "pages/RoomLobby/Addbook";
-import { Link } from "react-router-dom";
 import api from "api";
 import { Box } from "@mui/material";
 import { useRecoilState } from "recoil";
 import { userState, isLeadState, isTrailState, roomState } from "recoil/atom";
-import Info from "components/Header/Info";
 
 function Room() {
 	const { bookId, roomId } = useParams();
@@ -55,13 +50,11 @@ function Room() {
 	useEffect(() => {
 		const findBook = room.Books?.find((book) => book.id == bookId);
 		setBook(findBook);
+		return () => {
+			console.log("set book empty");
+			setBook({});
+		};
 	}, [room, bookId]);
-
-	const bookClickHandler = (book) => {
-		//for animation
-		setTrail(false);
-		navigate(`/room/${roomId}/book/${book.id}`);
-	};
 
 	return (
 		<Box
@@ -76,11 +69,7 @@ function Room() {
 				overflow: "hidden",
 			}}
 		>
-			{/* <RtcViewer/> */}
-			<Box sx={{ gridColumn: "1", gridRow: "1", justifySelf: "end" }}>
-				<Info room={room} bookClickHandler={bookClickHandler} setRoomRefresh={setRoomRefresh} bookId={bookId} />
-			</Box>
-			<Box>{book && <PDFViewer book={book} />}</Box>
+			{book && <PDFViewer book={book} />}
 		</Box>
 	);
 }

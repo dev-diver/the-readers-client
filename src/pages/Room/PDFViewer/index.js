@@ -4,7 +4,6 @@ import { logger } from "logger";
 import Highlights from "./Highlights";
 import PageCanvasGroup from "./PageCanvasGroup";
 import Chart from "components/Chart";
-import VideoChat from "components/VideoChat";
 import PdfScroller from "./PdfScroller/index";
 import CursorCanvasController from "./PageCanvasGroup/CursorCanvasController";
 import DrawingCanvasController from "./PageCanvasGroup/DrawingCanvasController";
@@ -12,38 +11,40 @@ import { useRecoilState } from "recoil";
 import { drawerFormState, userState, viewerScaleState, htmlContentState, eachPageLoadingState } from "recoil/atom";
 import { Box, Grid, Hidden } from "@mui/material";
 import PenController from "./PenController";
-import SwitchController from "./SwitchController";
 import { DraggableElement } from "components/DragNDrop/DraggableElement";
 // import { ReactiveDraggable } from "components/DragNDrop/ReactiveDraggable";
 import api from "api";
 import { baseURL } from "config/config";
 import { produce } from "immer";
 import RoomUserList from "components/RoomUserList";
+import Info from "components/Header/Info";
+import { styled } from "@mui/system";
 
 const VIEWER_WIDTH = 800; //650;
 
+const CustomSidebar = styled(Box)(({ theme }) => ({
+	width: "100%",
+	height: "100%",
+	overflow: "hidden",
+	transition: "transform .5s ease",
+	transform: "translateX(-100%)", // 기본적으로 숨김
+	"&:hover": {
+		transform: "translateX(0%)", // 마우스 오버 시 나타남
+	},
+	[theme.breakpoints.up("sm")]: {
+		transform: "translateX(0%)", // 화면이 sm 이상일 때는 항상 나타남
+	},
+}));
+
 function PDFViewer({ book }) {
-	const notesData = [
-		{
-			id: "1",
-			content: "",
-			position: {
-				x: 550,
-				y: 100,
-			},
-		},
-	];
 	const [pageContainerHTML, setPageContainerHTML] = useRecoilState(htmlContentState);
 	const [renderContent, setRenderContent] = useState(false);
 	const [canvasComponents, setCanvasComponents] = useState([]);
 	const [originalWidth, setOriginalWidth] = useState(0);
 	const [scale, setScale] = useRecoilState(viewerScaleState);
-	const [notes, setNotes] = useState(notesData);
 	const pdfContentsRef = useRef(null);
 	const [eachPageLoading, setEachPageLoading] = useRecoilState(eachPageLoadingState);
-
-	const [drawState, setDrawState] = useRecoilState(drawerFormState);
-	const [user, setUser] = useRecoilState(userState);
+	const [isHovering, setIsHovering] = useState(false);
 
 	useEffect(() => {
 		setRenderContent(false);
@@ -80,6 +81,7 @@ function PDFViewer({ book }) {
 			if (link) {
 				link.remove();
 			}
+			setEachPageLoading([]);
 		};
 	}, [book]);
 
@@ -96,7 +98,9 @@ function PDFViewer({ book }) {
 
 	useEffect(() => {
 		if (renderContent && pdfContentsRef) {
-			setOriginalWidth(pdfContentsRef.current.getBoundingClientRect().width);
+			const wrapper = pdfContentsRef.current.querySelector(".page-wrapper");
+			const originalWidth = wrapper.getBoundingClientRect().width;
+			setOriginalWidth(originalWidth);
 		}
 	}, [renderContent, pdfContentsRef]);
 
@@ -178,26 +182,12 @@ function PDFViewer({ book }) {
 	}
 
 	return (
-		<div
-			style={{
-				display: "flex",
-				justifyContent: "center",
-				alignItems: "flex-start",
-				minHeight: "100vh",
-				paddingTop: 25,
-			}}
-		>
-			{/* <VideoChat /> */}
-			{/* <ReactiveDraggable startX={window.innerWidth - 300} startY={60}> */}
-			{/* </ReactiveDraggable> */}
-			{/* <DrawingCanvas /> */}
-			<Grid container spacing={2}>
-				<Hidden mdDown>
-					<Grid item xs={false} sm={false} md={1.5} lg={2}>
-						<Chart />
-					</Grid>
-				</Hidden>
-				<Grid item xs={7} sm={7} md={7} lg={7}>
+		<div>
+			<Grid container spacing={2} style={{ position: "relative" }}>
+				<Grid item xs={true}>
+					<Chart />
+				</Grid>
+				<Grid item xs={12} sm={8} style={{ minWidth: "800px" }}>
 					<PdfScroller renderContent={renderContent}>
 						<Box
 							ref={pdfContentsRef}
@@ -212,26 +202,44 @@ function PDFViewer({ book }) {
 						/>
 					</PdfScroller>
 				</Grid>
-				<Hidden smDown>
-					<Grid item xs={false} sm={false} md={1} lg={3}>
-						<RoomUserList />
-						<Highlights bookId={book.id} renderContent={renderContent} />
-					</Grid>
-				</Hidden>
-				{notes.map((note) => (
-					<Grid item style={{ flex: 1 }} key={note.id}>
-						{/* <DraggableElement startX={window.innerWidth - 300} startY={120}>
-							<SwitchController />
-						</DraggableElement> */}
-						<DraggableElement startX={window.innerWidth - 300} startY={60}>
-							<PenController />
-						</DraggableElement>
-					</Grid>
-				))}
+				<Grid item xs={true} style={{ position: "relative" }}>
+					{/* <RoomUserList /> */}
+					<Box
+					// onMouseEnter={() => {
+					// 	console.log("hover");
+					// 	setIsHovering(true);
+					// }}
+					// onMouseLeave={() => setIsHovering(false)}
+					// style={{
+					// 	position: "absolute",
+					// 	top: 0,
+					// 	bottom: 0,
+					// 	right: 0,
+					// 	width: "150px", // 서랍의 폭
+					// }}
+					>
+						<Highlights
+							// style={{
+							// 	position: "absolute",
+							// 	right: isHovering ? "0" : "-150px",
+							// 	transition: "right 0.5s",
+							// 	top: 0,
+							// 	bottom: 0,
+							// 	width: "150px", // 서랍의 폭
+							// }}
+							bookId={book.id}
+							renderContent={renderContent}
+						/>
+					</Box>
+				</Grid>
 			</Grid>
+			<Info />
 			{canvasComponents.map(({ component, container }) => {
 				return component && createPortal(component, container);
 			})}
+			<DraggableElement startX={window.innerWidth / 2} startY={60}>
+				<PenController />
+			</DraggableElement>
 			<CursorCanvasController totalPage={canvasComponents.length} />
 			<DrawingCanvasController totalPage={canvasComponents.length} />
 		</div>
