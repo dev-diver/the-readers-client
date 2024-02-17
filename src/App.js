@@ -10,8 +10,8 @@ import IconButton from "@mui/material/IconButton";
 import { useTheme, ThemeProvider, createTheme } from "@mui/material/styles";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
-// global.css 파일을 import 합니다.
 import "./global.css";
+import AgVideoChat from "components/AgVideoChat";
 
 export const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
 
@@ -110,6 +110,7 @@ function App() {
 							<Route path="/" element={<Main />} />
 							<Route path="/room/:roomId/*" element={<RoomRouter />} />
 							<Route path="/intro" element={<Intro />} />
+							<Route path="/video" element={<AgVideoChat />} />
 						</Routes>
 					</Router>
 				</Box>

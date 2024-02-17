@@ -65,6 +65,13 @@ export default function VideoCall(props) {
 		}
 	}, [channelName, client, ready, tracks]);
 
+	// useEffect(() => {
+	// 	const videoElement = document.querySelector("#video_track-cam-e2f20af6");
+	// 	if (videoElement) {
+	// 		videoElement.style.position = "relative";
+	// 	}
+	// }, [start]);
+
 	return (
 		<>
 			<Grid container direction="column" style={{ height: "100%" }}>

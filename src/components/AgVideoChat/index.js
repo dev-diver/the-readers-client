@@ -36,6 +36,10 @@ function AgVideoChat() {
 					<h1>App</h1>
 					<h1>App</h1>
 					<h1>App</h1>
+					<h1>App</h1>
+					<h1>App</h1>
+					<h1>App</h1>
+					<h1>App</h1>
 					<button onClick={() => setInCall(true)}>Join Call</button>
 				</>
 			)}
