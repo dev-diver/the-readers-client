@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import socket from "socket";
 import { useRecoilCallback, useRecoilState } from "recoil";
-import { canvasElementsFamily, userState } from "recoil/atom";
+import { canvasElementsFamily, userState, currentPageState } from "recoil/atom";
 import { Button } from "@mui/material";
 import { useUndoRedo } from "./utils";
 
@@ -10,6 +10,7 @@ export default function DrawingCanvasController() {
 	const { roomId, bookId } = useParams();
 	const { undo, redo } = useUndoRedo();
 	const [user, setUser] = useRecoilState(userState);
+	const [currentPage, setCurrentPage] = useRecoilState(currentPageState);
 
 	const handleUndoClick = (pageNum, userId) => {
 		undo(bookId, pageNum, userId);
@@ -48,8 +49,8 @@ export default function DrawingCanvasController() {
 
 	return (
 		<>
-			<Button onClick={() => handleUndoClick(1, user.id)}>Undo</Button>
-			<Button onClick={() => handleRedoClick(1, user.id)}>Redo</Button>
+			<Button onClick={() => handleUndoClick(currentPage, user.id)}>Undo</Button>
+			<Button onClick={() => handleRedoClick(currentPage, user.id)}>Redo</Button>
 		</>
 	);
 }
