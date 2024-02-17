@@ -118,3 +118,15 @@ export const buttonGroupsPosState = atom({
 	key: "buttonGroupsPos",
 	default: { visible: false, x: 0, y: 0, page: null },
 });
+
+// userId
+export const userIdState = atom({
+	key: "userId",
+	default: null,
+});
+
+// bookId
+export const bookIdState = atom({
+	key: "bookId",
+	default: null,
+});

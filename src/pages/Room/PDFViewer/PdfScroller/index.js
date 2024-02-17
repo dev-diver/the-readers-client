@@ -10,6 +10,8 @@ import {
 	viewerScaleState,
 	buttonGroupsPosState,
 	currentHighlightIdState,
+	userIdState,
+	bookIdState,
 } from "recoil/atom";
 import { debounce } from "lodash";
 import socket from "socket";
@@ -36,6 +38,8 @@ export default function PdfScroller({ renderContent, children }) {
 	// ButtonGroups 렌더링 위치 및 가시성 상태
 	const [buttonGroupsPos, setButtonGroupsPos] = useRecoilState(buttonGroupsPosState);
 	const [currentHighlightId, setCurrentHighlightId] = useRecoilState(currentHighlightIdState);
+	const [userId, setUserId] = useRecoilState(userIdState);
+	const [bookId, setBookId] = useRecoilState(bookIdState);
 
 	useEffect(() => {
 		setUrlScrolled(false);
@@ -140,6 +144,8 @@ export default function PdfScroller({ renderContent, children }) {
 						left: buttonGroupsPos.x + "px",
 					}}
 					highlightId={currentHighlightId}
+					userId={userId}
+					bookId={bookId}
 					onClose={() => {
 						closebuttonGroups();
 					}}
