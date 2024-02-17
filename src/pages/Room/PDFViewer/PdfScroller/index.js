@@ -2,7 +2,6 @@ import React, { useEffect, useCallback, useState } from "react";
 import { useRecoilState } from "recoil";
 import {
 	userState,
-	scrollYState,
 	isTrailState,
 	isLeadState,
 	scrollerRefState,
@@ -13,7 +12,7 @@ import {
 } from "recoil/atom";
 import { debounce } from "lodash";
 import socket from "socket";
-import { scrollToPage, scrollToHighlight, calculateScrollY, smoothScrollTo } from "./util";
+import { scrollToPage, scrollToHighlight, smoothScrollTo } from "./util";
 import { Box } from "@mui/material";
 import { useLocation, useParams } from "react-router-dom";
 import { useDetermineCurrentPage } from "./util";
@@ -28,7 +27,6 @@ export default function PdfScroller({ renderContent, children }) {
 	const { bookId } = useParams();
 
 	const [user, setUser] = useRecoilState(userState);
-	// const [scroll, setScroll] = useRecoilState(scrollYState); //forChart
 	const [isTrail, setAttention] = useRecoilState(isTrailState);
 	const [isLead, setLead] = useRecoilState(isLeadState);
 	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
@@ -72,13 +70,6 @@ export default function PdfScroller({ renderContent, children }) {
 		};
 	}, [scrollerRef, isTrail, scale]);
 
-	// const debounceSetScroll = useCallback(
-	// 	debounce(() => {
-	// 		setScroll(calculateScrollY(scrollerRef));
-	// 	}, 1000),
-	// 	[scrollerRef, setScroll]
-	// );
-
 	const handleScroll = (event) => {
 		const scrollTop = event.currentTarget.scrollTop;
 		if (isLead) {
@@ -89,15 +80,11 @@ export default function PdfScroller({ renderContent, children }) {
 				scrollTop: scrollTop,
 			});
 		}
-		// setAttention(false);
 		determineCurrentPage(totalPage, scrollTop).then((currentPage) => {
 			console.info("currentPage", currentPage);
-			//debounceSetScroll(); //for chart
 			setCurrentPage(currentPage);
 		});
-		// debounceSetScroll(); //for chart
 	};
-	//[isLead, debounceSetScroll, user, scale, bookId]
 
 	const onCtrlWheelHandler = useCallback(
 		(event) => {

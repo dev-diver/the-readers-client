@@ -180,7 +180,7 @@ function PDFViewer({ book }) {
 		<div>
 			<Grid container spacing={2} style={{ position: "relative" }}>
 				<Grid item xs={true}>
-					{/* <Chart /> */}
+					<Chart />
 				</Grid>
 				<Grid item xs={12} sm={8} style={{ minWidth: "800px" }}>
 					<PdfScroller renderContent={renderContent}>

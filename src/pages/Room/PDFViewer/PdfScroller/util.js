@@ -27,15 +27,6 @@ export const smoothScrollTo = (container, destinationY, duration = 300) => {
 	requestAnimationFrame(animateScroll);
 };
 
-export const calculateScrollY = (pageContainer) => {
-	const scrollY = pageContainer.scrollTop;
-	const containerHeight = pageContainer.scrollHeight;
-	const clientHeight = pageContainer.clientHeight;
-	const totalScrollableHeight = containerHeight - clientHeight;
-	// (스크롤 위치 / 전체 스크롤 가능한 길이) * 10 = (전체 길이상대적인 스크롤 위치)
-	return Math.round((scrollY / totalScrollableHeight) * 30);
-};
-
 export const scrollToHighlight = (scroller, highlightId, scale) => {
 	const highlight = scroller.querySelector(`[data-highlight-id="${highlightId}"]`);
 	console.log("find highlight", highlight, scroller, scale);
