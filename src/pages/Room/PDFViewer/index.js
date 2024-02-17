@@ -26,7 +26,6 @@ import { produce } from "immer";
 import RoomUserList from "components/RoomUserList";
 import Info from "components/Header/Info";
 import { styled } from "@mui/system";
-import ButtonGroups from "components/ButtonGroups";
 
 const VIEWER_WIDTH = 800; //650;
 

@@ -36,6 +36,7 @@ export default function PdfScroller({ renderContent, children }) {
 	// ButtonGroups 렌더링 위치 및 가시성 상태
 	const [buttonGroupsPos, setButtonGroupsPos] = useRecoilState(buttonGroupsPosState);
 	const [currentHighlightId, setCurrentHighlightId] = useRecoilState(currentHighlightIdState);
+
 	useEffect(() => {
 		setUrlScrolled(false);
 	}, [location]);
@@ -110,6 +111,10 @@ export default function PdfScroller({ renderContent, children }) {
 		[setScale]
 	);
 
+	const closebuttonGroups = (e) => {
+		setButtonGroupsPos({ visible: false, x: 0, y: 0 });
+	};
+
 	const setRef = useCallback((el) => setScrollerRef(el), [setScrollerRef]);
 
 	return (
@@ -135,6 +140,9 @@ export default function PdfScroller({ renderContent, children }) {
 						left: buttonGroupsPos.x + "px",
 					}}
 					highlightId={currentHighlightId}
+					onClose={() => {
+						closebuttonGroups();
+					}}
 				/>
 			)}
 		</Box>
