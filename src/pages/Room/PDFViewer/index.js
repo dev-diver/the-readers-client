@@ -19,6 +19,7 @@ import { produce } from "immer";
 import RoomUserList from "components/RoomUserList";
 import Info from "components/Header/Info";
 import { styled } from "@mui/system";
+import AgVideoChat2 from "components/AgVideoChat2";
 
 const VIEWER_WIDTH = 800; //650;
 
@@ -237,6 +238,9 @@ function PDFViewer({ book }) {
 			{canvasComponents.map(({ component, container }) => {
 				return component && createPortal(component, container);
 			})}
+			<DraggableElement startX={window.innerWidth - 100} startY={60} style={{ zIndex: 999 }}>
+				<AgVideoChat2 />
+			</DraggableElement>
 			<DraggableElement startX={window.innerWidth / 2} startY={60}>
 				<PenController />
 			</DraggableElement>

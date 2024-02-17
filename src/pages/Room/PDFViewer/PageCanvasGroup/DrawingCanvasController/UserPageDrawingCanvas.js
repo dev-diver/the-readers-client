@@ -59,7 +59,7 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 	}, [canvasRef.current]);
 
 	useLayoutEffect(() => {
-		console.log("draw-canvas", elements, roomUser.id);
+		// console.log("draw-canvas", elements, roomUser.id);
 		if (!canvasRef || !user) return;
 		const roughCanvas = rough.canvas(canvasRef.current);
 		canvasRef.current.getContext("2d").clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
