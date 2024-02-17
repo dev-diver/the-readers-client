@@ -5,8 +5,6 @@ import "./style.css";
 import D3Graph from "components/D3Graph";
 import Outerlinks from "components/Outerlinks";
 import { getRelativeTopLeft } from "pages/Room/PDFViewer/PdfScroller/util";
-// import { useRecoilState } from "recoil";
-// import { currentHighlightIdState } from "recoil/atom";
 
 function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, setButtonGroupsPos, scrollerRef, children }) {
 	const [highlights, setHighlights] = useState([]);
@@ -21,7 +19,6 @@ function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, setButtonGroups
 	const [isOuterlinksOpen, setIsOuterlinksOpen] = useState(false);
 	const [activePage, setActivePage] = useState(null); // 현재 활성화된 페이지 번호
 	// const [currentHighlightId, setCurrentHighlightId] = useRecoilState(currentHighlightIdState);
-
 	// const popButtonGroup = (e) => {
 	// 	// console.log("popButtonGroup", setButtonGroupsPos);
 

@@ -5,7 +5,7 @@ import PDFViewer from "./PDFViewer";
 import api from "api";
 import { Box } from "@mui/material";
 import { useRecoilState } from "recoil";
-import { userState, isLeadState, isTrailState, roomState } from "recoil/atom";
+import { userState, isLeadState, isTrailState, roomState, userIdState } from "recoil/atom";
 
 function Room() {
 	const { bookId, roomId } = useParams();
@@ -15,7 +15,8 @@ function Room() {
 	const [isLead, setLead] = useRecoilState(isLeadState);
 	const [user, setUser] = useRecoilState(userState);
 	const [room, setRoom] = useRecoilState(roomState);
-
+	const [userId, setUserId] = useRecoilState(userIdState);
+	setUserId(user.id);
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -27,6 +28,7 @@ function Room() {
 	useEffect(() => {
 		if (isLead) {
 			console.log("request-attention-book", user.id, book.id);
+
 			socket.emit("request-attention-book", {
 				userId: user.id,
 				bookId: bookId,

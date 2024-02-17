@@ -32,9 +32,9 @@ function MarkerViewer({ isOpen, onClose, bookId, userId, fromHighlightId, MyMark
 			try {
 				// 단일 링크 생성 API 호출 // 선택된 ID에 해당하는 note 값
 				const response = await api.post(`/link`, {
+					userId: userId,
 					fromHighlightId: fromHighlightId,
-					toHighlightId: selectedIDs,
-					// note: "링크 설명",
+					toHighlightId: selectedIDs[0],
 					note: singleNote, // 실제로 입력된 note 값을 사용
 				});
 				console.log("링크 생성 성공:", response.data);
@@ -52,6 +52,7 @@ function MarkerViewer({ isOpen, onClose, bookId, userId, fromHighlightId, MyMark
 				}));
 				const response = await api.post(`/link/many`, { userId: userId, links: linksData });
 				console.log("다중 링크 생성 성공:", response.data);
+				console.log("userId", userId, "linksData", linksData);
 			} catch (error) {
 				console.error("다중 링크 생성 실패:", error);
 			}

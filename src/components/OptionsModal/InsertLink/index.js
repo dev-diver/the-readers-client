@@ -5,11 +5,14 @@ import api from "api";
 import InsertInner from "./InsertInner";
 import InsertOuter from "./InsertOuter";
 import MarkerViewer from "components/MarkerViewer";
+import { useRecoilState } from "recoil";
+import { userIdState } from "recoil/atom";
 
-function InsertLink({ isOpen, onClose, userId, highlightId, bookId, onCloseEntire }) {
+function InsertLink({ isOpen, onClose, highlightId, bookId, onCloseEntire }) {
 	const [activeModal, setActiveModal] = useState(null);
 	const [showMarkerViewer, setMarkerViewer] = useState(false);
 	const [highlights, setHighlights] = useState([]); // highlights 상태 추가
+	const [userId, setUserId] = useRecoilState(userIdState);
 
 	useEffect(() => {
 		console.log("useParams bookId", bookId);
