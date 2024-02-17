@@ -20,7 +20,6 @@ function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, setButtonGroups
 	// MyMarkerComponent에서 outerlinks 상태를 boolean으로 관리하기 위한 새로운 상태 추가
 	const [isOuterlinksOpen, setIsOuterlinksOpen] = useState(false);
 	const [activePage, setActivePage] = useState(null); // 현재 활성화된 페이지 번호
-
 	// const [currentHighlightId, setCurrentHighlightId] = useRecoilState(currentHighlightIdState);
 
 	// const popButtonGroup = (e) => {
@@ -85,6 +84,7 @@ function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, setButtonGroups
 			const response = await api.get(`/highlights/book/${bookId}`);
 			console.log("북아이디", bookId);
 			console.log("하이라이트아이디", highlightId);
+			console.log("유저아이디", userId);
 			setHighlights(response.data.data); // 상태 업데이트
 			// setCurrentHighlightId(highlightId);
 			// setOnClickOptions(true);

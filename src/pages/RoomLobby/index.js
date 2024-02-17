@@ -4,12 +4,15 @@ import { useParams, useNavigate } from "react-router-dom";
 import BookShelf from "components/BookShelf";
 import api from "api";
 import AddBook from "./Addbook";
+import { useRecoilState } from "recoil";
+import { bookIdState } from "recoil/atom";
 
 const RoomPage = () => {
 	const { roomId } = useParams();
 	const navigate = useNavigate();
 	const [room, setRoom] = useState(null);
 	const [roomRefresh, setRoomRefresh] = useState(false);
+	const [bookId, setBookId] = useRecoilState(bookIdState);
 
 	useEffect(() => {
 		api.get(`/rooms/${roomId}`).then((response) => {
@@ -19,6 +22,7 @@ const RoomPage = () => {
 
 	const bookClickHandler = (book) => {
 		navigate(`/room/${roomId}/book/${book.id}`);
+		setBookId(book.id);
 	};
 
 	return (

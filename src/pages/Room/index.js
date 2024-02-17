@@ -27,7 +27,6 @@ function Room() {
 	useEffect(() => {
 		if (isLead) {
 			console.log("request-attention-book", user.id, book.id);
-
 			socket.emit("request-attention-book", {
 				userId: user.id,
 				bookId: bookId,
