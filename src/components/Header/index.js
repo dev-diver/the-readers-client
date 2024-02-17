@@ -5,10 +5,15 @@ import { AppBar, Toolbar, Typography, Container, Box, IconButton, Menu, MenuItem
 import HomeIcon from "./HomeIcon";
 import SideDrawer from "./SideDrawer";
 import { Link } from "react-router-dom";
+import PushPinIcon from "@mui/icons-material/PushPin";
+import { PushPinOutlined } from "@mui/icons-material";
+import { useRecoilState } from "recoil";
+import { isAppBarPinnedState } from "recoil/atom";
 
 export default function Header({ children }) {
 	const [isHovering, setIsHovering] = useState(false);
 	const location = useLocation();
+	const [isAppBarPinned, setIsAppBarPinned] = useRecoilState(isAppBarPinnedState);
 
 	const appTitle = "The Readers";
 	const pages = [];
@@ -20,6 +25,10 @@ export default function Header({ children }) {
 			setIsHovering(false);
 		}
 	}, [location]);
+
+	const handlePinToggle = () => {
+		setIsAppBarPinned(!isAppBarPinned);
+	};
 
 	return (
 		<div
@@ -34,7 +43,7 @@ export default function Header({ children }) {
 			<AppBar
 				position="absolute"
 				style={{
-					top: isHovering ? "0" : "-64px",
+					top: isHovering || isAppBarPinned ? "0" : "-64px",
 					transition: "top 0.5s",
 				}}
 			>
@@ -85,6 +94,8 @@ export default function Header({ children }) {
 							))}
 						</Box>
 						{children}
+						<IconButton onClick={handlePinToggle}>{isAppBarPinned ? <PushPinIcon /> : <PushPinOutlined />}</IconButton>
+
 						<SideDrawer />
 					</Toolbar>
 				</Container>

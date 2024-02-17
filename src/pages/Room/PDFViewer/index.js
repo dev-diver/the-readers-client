@@ -16,9 +16,10 @@ import { DraggableElement } from "components/DragNDrop/DraggableElement";
 import api from "api";
 import { baseURL } from "config/config";
 import { produce } from "immer";
-import RoomUserList from "components/RoomUserList";
 import Info from "components/Header/Info";
 import { styled } from "@mui/system";
+import "./styles.css";
+import RoomUserList from "components/RoomUserList";
 
 const VIEWER_WIDTH = 800; //650;
 
@@ -182,12 +183,35 @@ function PDFViewer({ book }) {
 	}
 
 	return (
-		<div>
-			<Grid container spacing={2} style={{ position: "relative" }}>
-				<Grid item xs={true}>
+		<div style={{ display: "flex", justifyContent: "center" }}>
+			<Box
+				sx={{
+					display: "flex",
+					position: "relative",
+					boxShadow: "0px 4px 6px rgba(33, 33, 33, 0.1)",
+					width: "100%", // 전체 너비를 차지하도록 설정
+				}}
+			>
+				<Box
+					sx={{
+						flex: 2,
+						backgroundColor: "#e1c69e",
+						padding: 0,
+						margin: 0,
+						minWidth: "100px",
+					}}
+				>
 					<Chart />
-				</Grid>
-				<Grid item xs={12} sm={8} style={{ minWidth: "800px" }}>
+				</Box>
+
+				<Box
+					sx={{
+						flex: 8,
+						backgroundColor: "#e1c69e",
+						paddingLeft: 0,
+						minWidth: "800px", // 최소 너비 설정
+					}}
+				>
 					<PdfScroller renderContent={renderContent}>
 						<Box
 							ref={pdfContentsRef}
@@ -201,39 +225,15 @@ function PDFViewer({ book }) {
 							}}
 						/>
 					</PdfScroller>
-				</Grid>
-				<Grid item xs={true} style={{ position: "relative" }}>
-					{/* <RoomUserList /> */}
-					<Box
-					// onMouseEnter={() => {
-					// 	console.log("hover");
-					// 	setIsHovering(true);
-					// }}
-					// onMouseLeave={() => setIsHovering(false)}
-					// style={{
-					// 	position: "absolute",
-					// 	top: 0,
-					// 	bottom: 0,
-					// 	right: 0,
-					// 	width: "150px", // 서랍의 폭
-					// }}
-					>
-						<Highlights
-							// style={{
-							// 	position: "absolute",
-							// 	right: isHovering ? "0" : "-150px",
-							// 	transition: "right 0.5s",
-							// 	top: 0,
-							// 	bottom: 0,
-							// 	width: "150px", // 서랍의 폭
-							// }}
-							bookId={book.id}
-							renderContent={renderContent}
-						/>
-					</Box>
-				</Grid>
-			</Grid>
-			<Info />
+				</Box>
+				<Box sx={{ flex: 0.5, position: "relative" }}>
+					<Info />
+				</Box>
+				<Box sx={{ flex: 3.5 }}>
+					<Highlights bookId={book.id} renderContent={renderContent} />
+				</Box>
+			</Box>
+
 			{canvasComponents.map(({ component, container }) => {
 				return component && createPortal(component, container);
 			})}
@@ -241,7 +241,7 @@ function PDFViewer({ book }) {
 				<PenController />
 			</DraggableElement>
 			<CursorCanvasController totalPage={canvasComponents.length} />
-			<DrawingCanvasController totalPage={canvasComponents.length} />
+			{/* <DrawingCanvasController totalPage={canvasComponents.length} /> undo redo*/}
 		</div>
 	);
 }
