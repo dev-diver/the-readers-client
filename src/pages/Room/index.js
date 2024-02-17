@@ -16,8 +16,12 @@ function Room() {
 	const [user, setUser] = useRecoilState(userState);
 	const [room, setRoom] = useRecoilState(roomState);
 	const [userId, setUserId] = useRecoilState(userIdState);
-	setUserId(user.id);
 	const navigate = useNavigate();
+
+	// 성능 향상
+	useEffect(() => {
+		setUserId(user.id);
+	}, []);
 
 	useEffect(() => {
 		api.get(`/rooms/${roomId}`).then((response) => {
@@ -28,7 +32,6 @@ function Room() {
 	useEffect(() => {
 		if (isLead) {
 			console.log("request-attention-book", user.id, book.id);
-
 			socket.emit("request-attention-book", {
 				userId: user.id,
 				bookId: bookId,
