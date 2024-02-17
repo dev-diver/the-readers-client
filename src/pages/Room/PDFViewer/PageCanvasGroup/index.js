@@ -1,21 +1,23 @@
 import React, { useCallback, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState, useRecoilCallback, useRecoilValue } from "recoil";
 import { canvasMouse, canvasMouseOut } from "./CursorCanvasController/util";
 import {
 	userState,
 	roomUsersState,
-	cursorCanvasRefsState,
+	cursorCanvasRefFamily,
 	penModeState,
 	bookChangedState,
-	eachPageLoadingState,
+	pageLoadingStateFamily,
 	viewerScaleState,
+	pageScrollTopFamily,
+	scrollerRefState,
+	currentPageState,
 } from "recoil/atom";
 import api from "api";
 
 import UserPageDrawingCanvas from "./DrawingCanvasController/UserPageDrawingCanvas";
 import { getRelativeTop } from "../PdfScroller/util";
-import { pageScrollTopFamily, scrollerRefState, currentPageState } from "recoil/atom";
 
 function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 	const { bookId, roomId } = useParams();
@@ -23,54 +25,49 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 	const [user, setUser] = useRecoilState(userState);
 	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
 	const [bookChanged, setBookChanged] = useRecoilState(bookChangedState);
-	const [cursorCanvasRefs, setCursorCanvasRefs] = useRecoilState(cursorCanvasRefsState);
+	const [cursorCanvasRef, setCursorCanvasRef] = useRecoilState(
+		cursorCanvasRefFamily({ bookId: book.id, pageNum: pageNum })
+	);
 	const [penMode, setPenMode] = useRecoilState(penModeState);
 	const [scroller, setScroller] = useRecoilState(scrollerRefState);
-	const [eachPageLoading, setEachPageLoading] = useRecoilState(eachPageLoadingState);
 	const [scale, setScale] = useRecoilState(viewerScaleState);
 	const [currentPage, setCurrentPage] = useRecoilState(currentPageState);
-
-	const loadingState = eachPageLoading[pageNum];
+	const loadingState = useRecoilValue(pageLoadingStateFamily({ pageNum: pageNum }));
 
 	const setRef = useCallback(
 		(el) => {
-			setCursorCanvasRefs((oldRefs) => {
-				const newRefs = oldRefs.map((pageRef) => {
-					if (pageRef.page === pageNum) {
-						return { ...pageRef, ref: { current: el } };
-					}
-					return pageRef;
-				});
-				return newRefs;
-			});
+			setCursorCanvasRef({ ref: el });
 		},
-		[pageNum, bookChanged, setCursorCanvasRefs]
+		[pageNum, bookChanged, setCursorCanvasRef]
+	);
+
+	const updatePageLoadingState = useRecoilCallback(
+		({ set }) =>
+			(loadingState) => {
+				set(pageLoadingStateFamily({ pageNum: pageNum }), loadingState);
+			},
+		[]
 	);
 
 	const setPageScrollTop = useSetRecoilState(pageScrollTopFamily({ pageNum: pageNum }));
 
 	useEffect(() => {
+		console.log("loadingState", pageNum, loadingState);
 		if (!loadingState) return;
 		const canvasScrollTop = getRelativeTop(canvasFrame, scroller);
-		// console.log("loadingState", loadingState, pageNum, canvasScrollTop * scale);
 		setPageScrollTop(canvasScrollTop * scale);
 	}, [loadingState, scale]);
 
 	useEffect(() => {
 		if (currentPage == pageNum && loadingState == "lazy-loading") {
-			console.log("load page", pageNum);
+			console.log("load page", pageNum, loadingState);
 			loadPageContent(pageNum);
 		}
 	}, [currentPage]);
 
 	const loadPageContent = async (pageNum) => {
-		setEachPageLoading((oldState) => {
-			const newState = [...oldState];
-			newState[pageNum] = "loading";
-			return newState;
-		});
+		updatePageLoadingState("loading");
 		const pageHexNum = pageNum.toString(16);
-		console.log(pageHexNum, "pageHexNum");
 		const pageDiv = document.getElementById(`pf${pageHexNum}`);
 		const fileName = pageDiv.getAttribute("data-page-url");
 		const url = `/storage/pdf/${book.urlName}/pages/${fileName}`;
@@ -86,12 +83,7 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 			});
 
 		pageDiv.parentNode.replaceChild(pageDivLoad, pageDiv);
-
-		setEachPageLoading((oldState) => {
-			const newState = [...oldState];
-			newState[pageNum] = "loaded";
-			return newState;
-		});
+		updatePageLoadingState("loaded");
 	};
 
 	const info = { user: user, bookId: bookId, pageNum: pageNum };

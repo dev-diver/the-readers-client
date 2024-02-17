@@ -7,15 +7,14 @@ import Chart from "components/Chart";
 import PdfScroller from "./PdfScroller/index";
 import CursorCanvasController from "./PageCanvasGroup/CursorCanvasController";
 import DrawingCanvasController from "./PageCanvasGroup/DrawingCanvasController";
-import { useRecoilState } from "recoil";
-import { drawerFormState, userState, viewerScaleState, htmlContentState, eachPageLoadingState } from "recoil/atom";
+import { useRecoilState, useRecoilCallback } from "recoil";
+import { totalPageState, viewerScaleState, htmlContentState, pageLoadingStateFamily } from "recoil/atom";
 import { Box, Grid, Hidden } from "@mui/material";
 import PenController from "./PenController";
 import { DraggableElement } from "components/DragNDrop/DraggableElement";
 // import { ReactiveDraggable } from "components/DragNDrop/ReactiveDraggable";
 import api from "api";
 import { baseURL } from "config/config";
-import { produce } from "immer";
 import RoomUserList from "components/RoomUserList";
 import Info from "components/Header/Info";
 import { styled } from "@mui/system";
@@ -43,8 +42,16 @@ function PDFViewer({ book }) {
 	const [originalWidth, setOriginalWidth] = useState(0);
 	const [scale, setScale] = useRecoilState(viewerScaleState);
 	const pdfContentsRef = useRef(null);
-	const [eachPageLoading, setEachPageLoading] = useRecoilState(eachPageLoadingState);
 	const [isHovering, setIsHovering] = useState(false);
+	const [totalPage, setTotalPage] = useRecoilState(totalPageState);
+
+	const updatePageLoadingState = useRecoilCallback(
+		({ set }) =>
+			(pageNum, loadingState) => {
+				set(pageLoadingStateFamily({ pageNum: pageNum }), loadingState);
+			},
+		[]
+	);
 
 	useEffect(() => {
 		setRenderContent(false);
@@ -72,7 +79,6 @@ function PDFViewer({ book }) {
 				const pageContainer = doc.querySelector("#page-container");
 				const htmlContent = pageContainer ? pageContainer.outerHTML : "";
 				setPageContainerHTML(htmlContent);
-				setEachPageLoading([]);
 			})
 			.catch((err) => {
 				logger.log(err);
@@ -83,7 +89,7 @@ function PDFViewer({ book }) {
 			if (link) {
 				link.remove();
 			}
-			setEachPageLoading([]);
+			setTotalPage(0);
 		};
 	}, [book]);
 
@@ -93,10 +99,17 @@ function PDFViewer({ book }) {
 			const pageContainer = pdfContentsRef.current.querySelector("#page-container");
 			if (!pageContainer) return;
 			const pageDivs = pageContainer.querySelectorAll(".pf"); //페이지 div
-			setEachPageLoading(new Array(pageDivs.length).fill(false));
+			setTotalPage(pageDivs.length);
 			mapContainer(pageDivs);
 		}
 	}, [pageContainerHTML, book]);
+
+	useEffect(() => {
+		if (totalPage === 0) return;
+		for (let page = 1; page <= totalPage; page++) {
+			updatePageLoadingState(page, false);
+		}
+	}, [book, totalPage]);
 
 	useEffect(() => {
 		if (renderContent && pdfContentsRef) {
@@ -149,11 +162,7 @@ function PDFViewer({ book }) {
 				await api(url)
 					.then((svgData) => {
 						pageDivClone.innerHTML = svgData.data;
-						setEachPageLoading((prev) =>
-							produce(prev, (draft) => {
-								draft[index + 1] = "lazy-loading";
-							})
-						);
+						updatePageLoadingState(index + 1, "lazy-loading");
 					})
 					.catch((error) => console.error("SVG 못 가져옴", error));
 
@@ -174,7 +183,7 @@ function PDFViewer({ book }) {
 					{/* <Chart /> */}
 				</Grid>
 				<Grid item xs={12} sm={8} style={{ minWidth: "800px" }}>
-					<PdfScroller renderContent={renderContent} totalPage={canvasComponents.length}>
+					<PdfScroller renderContent={renderContent}>
 						<Box
 							ref={pdfContentsRef}
 							className="pdf-contents"
@@ -202,8 +211,8 @@ function PDFViewer({ book }) {
 			<DraggableElement startX={window.innerWidth / 2} startY={60}>
 				<PenController />
 			</DraggableElement>
-			<CursorCanvasController totalPage={canvasComponents.length} />
-			<DrawingCanvasController totalPage={canvasComponents.length} />
+			<CursorCanvasController />
+			<DrawingCanvasController />
 		</div>
 	);
 }

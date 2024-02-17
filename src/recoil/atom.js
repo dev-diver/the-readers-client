@@ -81,6 +81,16 @@ export const pageScrollTopFamily = atomFamily({
 	default: -1,
 });
 
+export const pageLoadingStateFamily = atomFamily({
+	key: "pageLoadingStateFamily",
+	default: false,
+});
+
+export const totalPageState = atom({
+	key: "totalPage",
+	default: 0,
+});
+
 export const currentPageState = atom({
 	key: "currentPage",
 	default: 1,
@@ -99,19 +109,14 @@ export const penModeState = atom({
 
 /* domRef */
 //커서
-export const cursorCanvasRefsState = atom({
-	key: "canvasRefsState",
-	default: [],
+export const cursorCanvasRefFamily = atomFamily({
+	key: "cursorCanvasRefFamily",
+	default: null,
 });
 
 export const scrollerRefState = atom({
 	key: "scrollerRefState",
 	default: null,
-});
-
-export const eachPageLoadingState = atom({
-	key: "eachPageLoading",
-	default: [],
 });
 
 export const isVideoExitState = atom({

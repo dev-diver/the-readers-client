@@ -9,6 +9,7 @@ import {
 	highlightState,
 	viewerScaleState,
 	currentPageState,
+	totalPageState,
 } from "recoil/atom";
 import { debounce } from "lodash";
 import socket from "socket";
@@ -17,7 +18,7 @@ import { Box } from "@mui/material";
 import { useLocation, useParams } from "react-router-dom";
 import { useDetermineCurrentPage } from "./util";
 
-export default function PdfScroller({ renderContent, totalPage, children }) {
+export default function PdfScroller({ renderContent, children }) {
 	const location = useLocation();
 	const queryParams = new URLSearchParams(location.search);
 	const pageNum = queryParams.get("page");
@@ -35,6 +36,7 @@ export default function PdfScroller({ renderContent, totalPage, children }) {
 	const [scale, setScale] = useRecoilState(viewerScaleState);
 	const [urlScrolled, setUrlScrolled] = useState(false);
 	const [currentPage, setCurrentPage] = useRecoilState(currentPageState);
+	const [totalPage, setTotalPage] = useRecoilState(totalPageState);
 
 	useEffect(() => {
 		setUrlScrolled(false);
