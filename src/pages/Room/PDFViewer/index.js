@@ -51,19 +51,8 @@ function PDFViewer({ book }) {
 		if (!book?.urlName) {
 			return;
 		}
-		const HTMLurl = `/storage/pdf/${book.urlName}`;
-		api(HTMLurl)
-			.then((response) => {
-				const parser = new DOMParser();
-				const doc = parser.parseFromString(response.data, "text/html");
-				const pageContainer = doc.querySelector("#page-container");
-				const htmlContent = pageContainer ? pageContainer.outerHTML : "";
-				setPageContainerHTML(htmlContent);
-			})
-			.catch((err) => {
-				logger.log(err);
-			});
 
+		//css는 href로 들어가서 써줘야함
 		const CSSurl = `${baseURL}/api/storage/pdf/${book.urlName}/css`;
 		const linkId = `css-${book.urlName}`;
 
@@ -73,8 +62,21 @@ function PDFViewer({ book }) {
 		link.rel = "stylesheet";
 		link.id = linkId;
 		document.head.appendChild(link);
+		console.log("css loaded");
 
-		setEachPageLoading([]);
+		const HTMLurl = `/storage/pdf/${book.urlName}`;
+		api(HTMLurl)
+			.then((response) => {
+				const parser = new DOMParser();
+				const doc = parser.parseFromString(response.data, "text/html");
+				const pageContainer = doc.querySelector("#page-container");
+				const htmlContent = pageContainer ? pageContainer.outerHTML : "";
+				setPageContainerHTML(htmlContent);
+				setEachPageLoading([]);
+			})
+			.catch((err) => {
+				logger.log(err);
+			});
 
 		return () => {
 			const link = document.getElementById(linkId);
@@ -98,11 +100,13 @@ function PDFViewer({ book }) {
 
 	useEffect(() => {
 		if (renderContent && pdfContentsRef) {
-			const wrapper = pdfContentsRef.current.querySelector(".page-wrapper");
-			const originalWidth = wrapper.getBoundingClientRect().width;
-			setOriginalWidth(originalWidth);
+			requestAnimationFrame(() => {
+				const wrapper = pdfContentsRef.current.querySelector(".page-wrapper");
+				const originalWidth = wrapper.getBoundingClientRect().width;
+				setOriginalWidth(originalWidth);
+			});
 		}
-	}, [renderContent, pdfContentsRef]);
+	}, [renderContent]);
 
 	useEffect(() => {
 		if (originalWidth) {
@@ -119,31 +123,6 @@ function PDFViewer({ book }) {
 	async function mapContainer(pageDivs) {
 		const mapCanvasContainer = await Promise.all(
 			Array.from(pageDivs).map(async (pageDiv, index) => {
-				const fileName = pageDiv.getAttribute("data-page-url");
-				console.log(fileName, "fileName", eachPageLoading[index]);
-				if (!fileName || !pageDiv.parentNode || eachPageLoading[index])
-					return {
-						component: null,
-						container: null,
-					};
-				setEachPageLoading((prev) =>
-					produce(prev, (draft) => {
-						draft[index] = "loading";
-					})
-				);
-				const url = `/storage/pdf/${book.urlName}/pages/${fileName}`;
-				const pageDivLoad = await api(url)
-					.then((response) => {
-						const parser = new DOMParser();
-						const doc = parser.parseFromString(response.data, "text/html");
-						const div = doc.querySelector(".pf");
-						return div;
-					})
-					.catch((err) => {
-						logger.log(err);
-					});
-				// console.log(pageDivLoad, "pageDivLoad");
-
 				const container = document.createElement("div");
 				container.classList.add("page-wrapper");
 				container.style.display = "inline-block"; //content에 크기 맞추기
@@ -160,19 +139,26 @@ function PDFViewer({ book }) {
 				textLayer.style.display = "inline-block";
 				textLayer.style.height = "auto";
 
-				// textLayer.addEventListener("mousemove", (e) => canvasMouse(e, index));
-				// textLayer.addEventListener("mouseout", (e) => clearCanvas(index));
+				const pageDivClone = pageDiv.cloneNode(true);
 				pageDiv.parentNode.replaceChild(container, pageDiv);
 				container.appendChild(textLayer);
 				container.appendChild(canvasLayer);
-				textLayer.appendChild(pageDivLoad);
-				setEachPageLoading((prev) =>
-					produce(prev, (draft) => {
-						draft[index] = "loaded";
+				textLayer.appendChild(pageDivClone);
+
+				const url = `${baseURL}/src/homeIcon.svg`;
+				await api(url)
+					.then((svgData) => {
+						pageDivClone.innerHTML = svgData.data;
+						setEachPageLoading((prev) =>
+							produce(prev, (draft) => {
+								draft[index + 1] = "lazy-loading";
+							})
+						);
 					})
-				);
+					.catch((error) => console.error("SVG 못 가져옴", error));
+
 				return {
-					component: <PageCanvasGroup pageNum={index + 1} canvasFrame={textLayer} />,
+					component: <PageCanvasGroup pageNum={index + 1} canvasFrame={textLayer} book={book} />,
 					container: canvasLayer,
 				};
 			})
@@ -185,7 +171,7 @@ function PDFViewer({ book }) {
 		<div>
 			<Grid container spacing={2} style={{ position: "relative" }}>
 				<Grid item xs={true}>
-					<Chart />
+					{/* <Chart /> */}
 				</Grid>
 				<Grid item xs={12} sm={8} style={{ minWidth: "800px" }}>
 					<PdfScroller renderContent={renderContent} totalPage={canvasComponents.length}>
@@ -204,32 +190,8 @@ function PDFViewer({ book }) {
 				</Grid>
 				<Grid item xs={true} style={{ position: "relative" }}>
 					{/* <RoomUserList /> */}
-					<Box
-					// onMouseEnter={() => {
-					// 	console.log("hover");
-					// 	setIsHovering(true);
-					// }}
-					// onMouseLeave={() => setIsHovering(false)}
-					// style={{
-					// 	position: "absolute",
-					// 	top: 0,
-					// 	bottom: 0,
-					// 	right: 0,
-					// 	width: "150px", // 서랍의 폭
-					// }}
-					>
-						<Highlights
-							// style={{
-							// 	position: "absolute",
-							// 	right: isHovering ? "0" : "-150px",
-							// 	transition: "right 0.5s",
-							// 	top: 0,
-							// 	bottom: 0,
-							// 	width: "150px", // 서랍의 폭
-							// }}
-							bookId={book.id}
-							renderContent={renderContent}
-						/>
+					<Box>
+						<Highlights bookId={book.id} renderContent={renderContent} />
 					</Box>
 				</Grid>
 			</Grid>

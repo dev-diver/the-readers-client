@@ -81,6 +81,11 @@ export const pageScrollTopFamily = atomFamily({
 	default: -1,
 });
 
+export const currentPageState = atom({
+	key: "currentPage",
+	default: 1,
+});
+
 export const bookChangedState = atom({
 	key: "bookChanged",
 	default: false,

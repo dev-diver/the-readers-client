@@ -73,6 +73,7 @@ export const useDetermineCurrentPage = () => {
 				for (let page = 1; page <= totalPage; page++) {
 					const Key = { pageNum: page };
 					const scrollTop = await snapshot.getPromise(pageScrollTopFamily(Key));
+					// console.log("page", page, "scrollTop", scrollTop);
 					if (currentScrollY >= scrollTop) {
 						currentPageKey = page;
 					} else {

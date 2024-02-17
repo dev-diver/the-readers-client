@@ -8,6 +8,7 @@ import {
 	scrollerRefState,
 	highlightState,
 	viewerScaleState,
+	currentPageState,
 } from "recoil/atom";
 import { debounce } from "lodash";
 import socket from "socket";
@@ -26,13 +27,14 @@ export default function PdfScroller({ renderContent, totalPage, children }) {
 	const { bookId } = useParams();
 
 	const [user, setUser] = useRecoilState(userState);
-	const [scroll, setScroll] = useRecoilState(scrollYState); //forChart
+	// const [scroll, setScroll] = useRecoilState(scrollYState); //forChart
 	const [isTrail, setAttention] = useRecoilState(isTrailState);
 	const [isLead, setLead] = useRecoilState(isLeadState);
 	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
 	const [highlightList, setHighlightList] = useRecoilState(highlightState);
 	const [scale, setScale] = useRecoilState(viewerScaleState);
 	const [urlScrolled, setUrlScrolled] = useState(false);
+	const [currentPage, setCurrentPage] = useRecoilState(currentPageState);
 
 	useEffect(() => {
 		setUrlScrolled(false);
@@ -68,12 +70,12 @@ export default function PdfScroller({ renderContent, totalPage, children }) {
 		};
 	}, [scrollerRef, isTrail, scale]);
 
-	const debounceSetScroll = useCallback(
-		debounce(() => {
-			setScroll(calculateScrollY(scrollerRef));
-		}, 1000),
-		[scrollerRef, setScroll]
-	);
+	// const debounceSetScroll = useCallback(
+	// 	debounce(() => {
+	// 		setScroll(calculateScrollY(scrollerRef));
+	// 	}, 1000),
+	// 	[scrollerRef, setScroll]
+	// );
 
 	const handleScroll = (event) => {
 		const scrollTop = event.currentTarget.scrollTop;
@@ -89,16 +91,17 @@ export default function PdfScroller({ renderContent, totalPage, children }) {
 		determineCurrentPage(totalPage, scrollTop).then((currentPage) => {
 			console.info("currentPage", currentPage);
 			//debounceSetScroll(); //for chart
+			setCurrentPage(currentPage);
 		});
-		debounceSetScroll(); //for chart
+		// debounceSetScroll(); //for chart
 	};
 	//[isLead, debounceSetScroll, user, scale, bookId]
 
 	const onCtrlWheelHandler = useCallback(
 		(event) => {
 			const ratio = 1.1;
-			if (event.ctrlKey) {
-				console.log("ctrlWheel");
+			if (event.altKey) {
+				console.log("altWheel");
 				event.preventDefault();
 				if (event.deltaY < 0) {
 					setScale((prev) => prev * ratio);
