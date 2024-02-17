@@ -52,10 +52,13 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 	const setPageScrollTop = useSetRecoilState(pageScrollTopFamily({ pageNum: pageNum }));
 
 	useEffect(() => {
-		console.log("loadingState", pageNum, loadingState);
 		if (!loadingState) return;
-		const canvasScrollTop = getRelativeTop(canvasFrame, scroller);
-		setPageScrollTop(canvasScrollTop * scale);
+		requestAnimationFrame(() => {
+			const canvasScrollTop = getRelativeTop(canvasFrame, scroller);
+			const scaledScrollTop = canvasScrollTop * scale;
+			setPageScrollTop(scaledScrollTop);
+			// console.log("setScaledScrollTop", pageNum, loadingState, scaledScrollTop);
+		});
 	}, [loadingState, scale]);
 
 	useEffect(() => {
