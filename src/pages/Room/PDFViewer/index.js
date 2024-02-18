@@ -7,15 +7,14 @@ import Chart from "components/Chart";
 import PdfScroller from "./PdfScroller/index";
 import CursorCanvasController from "./PageCanvasGroup/CursorCanvasController";
 import DrawingCanvasController from "./PageCanvasGroup/DrawingCanvasController";
-import { useRecoilState } from "recoil";
-import { drawerFormState, userState, viewerScaleState, htmlContentState, eachPageLoadingState } from "recoil/atom";
+import { useRecoilState, useRecoilCallback } from "recoil";
+import { totalPageState, viewerScaleState, htmlContentState, pageLoadingStateFamily } from "recoil/atom";
 import { Box, Grid, Hidden } from "@mui/material";
 import PenController from "./PenController";
 import { DraggableElement } from "components/DragNDrop/DraggableElement";
 // import { ReactiveDraggable } from "components/DragNDrop/ReactiveDraggable";
 import api from "api";
 import { baseURL } from "config/config";
-import { produce } from "immer";
 import Info from "components/Header/Info";
 import { styled } from "@mui/system";
 import "./styles.css";
@@ -44,14 +43,35 @@ function PDFViewer({ book }) {
 	const [originalWidth, setOriginalWidth] = useState(0);
 	const [scale, setScale] = useRecoilState(viewerScaleState);
 	const pdfContentsRef = useRef(null);
-	const [eachPageLoading, setEachPageLoading] = useRecoilState(eachPageLoadingState);
 	const [isHovering, setIsHovering] = useState(false);
+	const [totalPage, setTotalPage] = useRecoilState(totalPageState);
+
+	const updatePageLoadingState = useRecoilCallback(
+		({ set }) =>
+			(pageNum, loadingState) => {
+				set(pageLoadingStateFamily({ pageNum: pageNum }), loadingState);
+			},
+		[]
+	);
 
 	useEffect(() => {
 		setRenderContent(false);
 		if (!book?.urlName) {
 			return;
 		}
+
+		//css는 href로 들어가서 써줘야함
+		const CSSurl = `${baseURL}/api/storage/pdf/${book.urlName}/css`;
+		const linkId = `css-${book.urlName}`;
+
+		const link = document.createElement("link");
+		link.href = CSSurl;
+		link.type = "text/css";
+		link.rel = "stylesheet";
+		link.id = linkId;
+		document.head.appendChild(link);
+		console.log("css loaded");
+
 		const HTMLurl = `/storage/pdf/${book.urlName}`;
 		api(HTMLurl)
 			.then((response) => {
@@ -65,24 +85,12 @@ function PDFViewer({ book }) {
 				logger.log(err);
 			});
 
-		const CSSurl = `${baseURL}/api/storage/pdf/${book.urlName}/css`;
-		const linkId = `css-${book.urlName}`;
-
-		const link = document.createElement("link");
-		link.href = CSSurl;
-		link.type = "text/css";
-		link.rel = "stylesheet";
-		link.id = linkId;
-		document.head.appendChild(link);
-
-		setEachPageLoading([]);
-
 		return () => {
 			const link = document.getElementById(linkId);
 			if (link) {
 				link.remove();
 			}
-			setEachPageLoading([]);
+			setTotalPage(0);
 		};
 	}, [book]);
 
@@ -92,18 +100,27 @@ function PDFViewer({ book }) {
 			const pageContainer = pdfContentsRef.current.querySelector("#page-container");
 			if (!pageContainer) return;
 			const pageDivs = pageContainer.querySelectorAll(".pf"); //페이지 div
-			setEachPageLoading(new Array(pageDivs.length).fill(false));
+			setTotalPage(pageDivs.length);
 			mapContainer(pageDivs);
 		}
 	}, [pageContainerHTML, book]);
 
 	useEffect(() => {
-		if (renderContent && pdfContentsRef) {
-			const wrapper = pdfContentsRef.current.querySelector(".page-wrapper");
-			const originalWidth = wrapper.getBoundingClientRect().width;
-			setOriginalWidth(originalWidth);
+		if (totalPage === 0) return;
+		for (let page = 1; page <= totalPage; page++) {
+			updatePageLoadingState(page, false);
 		}
-	}, [renderContent, pdfContentsRef]);
+	}, [book, totalPage]);
+
+	useEffect(() => {
+		if (renderContent && pdfContentsRef) {
+			requestAnimationFrame(() => {
+				const wrapper = pdfContentsRef.current.querySelector(".page-wrapper");
+				const originalWidth = wrapper.getBoundingClientRect().width;
+				setOriginalWidth(originalWidth);
+			});
+		}
+	}, [renderContent]);
 
 	useEffect(() => {
 		if (originalWidth) {
@@ -120,31 +137,6 @@ function PDFViewer({ book }) {
 	async function mapContainer(pageDivs) {
 		const mapCanvasContainer = await Promise.all(
 			Array.from(pageDivs).map(async (pageDiv, index) => {
-				const fileName = pageDiv.getAttribute("data-page-url");
-				console.log(fileName, "fileName", eachPageLoading[index]);
-				if (!fileName || !pageDiv.parentNode || eachPageLoading[index])
-					return {
-						component: null,
-						container: null,
-					};
-				setEachPageLoading((prev) =>
-					produce(prev, (draft) => {
-						draft[index] = "loading";
-					})
-				);
-				const url = `/storage/pdf/${book.urlName}/pages/${fileName}`;
-				const pageDivLoad = await api(url)
-					.then((response) => {
-						const parser = new DOMParser();
-						const doc = parser.parseFromString(response.data, "text/html");
-						const div = doc.querySelector(".pf");
-						return div;
-					})
-					.catch((err) => {
-						logger.log(err);
-					});
-				// console.log(pageDivLoad, "pageDivLoad");
-
 				const container = document.createElement("div");
 				container.classList.add("page-wrapper");
 				container.style.display = "inline-block"; //content에 크기 맞추기
@@ -161,19 +153,22 @@ function PDFViewer({ book }) {
 				textLayer.style.display = "inline-block";
 				textLayer.style.height = "auto";
 
-				// textLayer.addEventListener("mousemove", (e) => canvasMouse(e, index));
-				// textLayer.addEventListener("mouseout", (e) => clearCanvas(index));
+				const pageDivClone = pageDiv.cloneNode(true);
 				pageDiv.parentNode.replaceChild(container, pageDiv);
 				container.appendChild(textLayer);
 				container.appendChild(canvasLayer);
-				textLayer.appendChild(pageDivLoad);
-				setEachPageLoading((prev) =>
-					produce(prev, (draft) => {
-						draft[index] = "loaded";
+				textLayer.appendChild(pageDivClone);
+
+				const url = `${baseURL}/src/homeIcon.svg`;
+				await api(url)
+					.then((svgData) => {
+						pageDivClone.innerHTML = svgData.data;
+						updatePageLoadingState(index + 1, "lazy-loading");
 					})
-				);
+					.catch((error) => console.error("SVG 못 가져옴", error));
+
 				return {
-					component: <PageCanvasGroup pageNum={index + 1} canvasFrame={textLayer} />,
+					component: <PageCanvasGroup pageNum={index + 1} canvasFrame={textLayer} book={book} />,
 					container: canvasLayer,
 				};
 			})
@@ -233,7 +228,7 @@ function PDFViewer({ book }) {
 					<Highlights bookId={book.id} renderContent={renderContent} />
 				</Box>
 			</Box>
-
+			{/* <RoomUserList /> */}
 			{canvasComponents.map(({ component, container }) => {
 				return component && createPortal(component, container);
 			})}

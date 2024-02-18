@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect, useLayoutEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { useRecoilState, useSetRecoilState, useRecoilValue } from "recoil";
-import { userState, penModeState, canvasElementsFamily } from "recoil/atom";
+import { userState, penModeState, canvasElementsFamily, pageLoadingStateFamily } from "recoil/atom";
 import { debounceDrawSave } from "./utils";
 import { blobToJson } from "./utils";
 
@@ -21,6 +21,7 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 	const [isDrawing, setIsDrawing] = useState(false);
 	const canvasRef = useRef(null);
 	const elements = useRecoilValue(canvasElementsFamily({ bookId: bookId, pageNum: pageNum, userId: roomUser.id }));
+	const loadingState = useRecoilValue(pageLoadingStateFamily({ pageNum: pageNum }));
 
 	const setElements = useSetRecoilState(
 		canvasElementsFamily({ bookId: bookId, pageNum: pageNum, userId: roomUser.id })
@@ -40,7 +41,8 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 	};
 
 	useEffect(() => {
-		if (!canvasRef?.current) {
+		// console.log("draw-canvas", pageNum, loadingState);
+		if (!canvasRef?.current || loadingState != "loaded") {
 			return;
 		}
 		api
@@ -54,12 +56,12 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 				});
 			})
 			.catch((err) => {
-				// console.log("기존 자료 없음", bookId, pageNum, roomUser.id);
+				console.log("기존 자료 없음", bookId, pageNum, roomUser.id, loadingState);
 			});
-	}, [canvasRef.current]);
+	}, [canvasRef.current, loadingState]);
 
 	useLayoutEffect(() => {
-		console.log("draw-canvas", elements, roomUser.id);
+		// console.log("draw-canvas", elements, roomUser.id);
 		if (!canvasRef || !user) return;
 		const roughCanvas = rough.canvas(canvasRef.current);
 		canvasRef.current.getContext("2d").clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
