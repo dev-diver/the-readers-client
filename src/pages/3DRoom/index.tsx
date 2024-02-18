@@ -1,16 +1,34 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Environment, OrbitControls } from "@react-three/drei"
 import { Canvas } from '@react-three/fiber'
 import Carousel from "./Carousel";
 import './index.css'
+import api from 'api'
+import { Room, Book } from 'interface/interface';
 
-const planes = 13
-const urls=['algo.png','algorithm.jpg','cleancode.jpeg','csapp.jpeg','refactor.jpg']
+interface RoomResponse {
+    data: Room
+}
 
-function Room() {
-    const covers = Array.from({ length:planes },(_,i)=>{
-        return '/mock/'+urls[i % urls.length]    
-    })
+function RoomLobby() {
+
+    const { roomId } = useParams()
+    const navigate = useNavigate();
+    
+    const [room, setRoom] = useState<Room>({Books: [] as Book[]});
+    const [roomRefresh, setRoomRefresh] = useState(false);
+
+    useEffect(() => {
+        api.get<RoomResponse>(`/rooms/${roomId}`).then((res) => {
+            console.log(res.data)
+            setRoom(res.data.data);
+        });
+    },[roomId, roomRefresh])
+
+    const bookClickHandler = (book: Book)=>{
+        navigate(`/room/${roomId}/book/${book.id}`);
+    };
 
     return (
         <Canvas>
@@ -20,11 +38,11 @@ function Room() {
             <Environment
                 background
                 blur={0}
-                preset="apartment"
+                preset="warehouse"
             />
-            <Carousel numPlanes={planes} radius={3} covers={covers}/>
+            <Carousel numPlanes={13} radius={3} books={room.Books} bookClickHandler ={bookClickHandler}/>
         </Canvas>
     )
 }
 
-export default Room;
+export default RoomLobby;

@@ -27,15 +27,6 @@ export const smoothScrollTo = (container, destinationY, duration = 300) => {
 	requestAnimationFrame(animateScroll);
 };
 
-export const calculateScrollY = (pageContainer) => {
-	const scrollY = pageContainer.scrollTop;
-	const containerHeight = pageContainer.scrollHeight;
-	const clientHeight = pageContainer.clientHeight;
-	const totalScrollableHeight = containerHeight - clientHeight;
-	// (스크롤 위치 / 전체 스크롤 가능한 길이) * 10 = (전체 길이상대적인 스크롤 위치)
-	return Math.round((scrollY / totalScrollableHeight) * 30);
-};
-
 export const scrollToHighlight = (scroller, highlightId, scale) => {
 	const highlight = scroller.querySelector(`[data-highlight-id="${highlightId}"]`);
 	console.log("find highlight", highlight, scroller, scale);
@@ -68,18 +59,18 @@ export const getRelativeTop = (element, container) => {
 export const useDetermineCurrentPage = () => {
 	const determineCurrentPage = useRecoilCallback(
 		({ snapshot }) =>
-			async (bookId, userId, totalPage, currentScrollY) => {
+			async (totalPage, currentScrollY) => {
 				let currentPageKey = null;
 				for (let page = 1; page <= totalPage; page++) {
-					const Key = { bookId: bookId, pageNum: page, userId: userId };
+					const Key = { pageNum: page };
 					const scrollTop = await snapshot.getPromise(pageScrollTopFamily(Key));
+					// console.log("page", page, "scrollTop", scrollTop);
 					if (currentScrollY >= scrollTop) {
 						currentPageKey = page;
 					} else {
 						break;
 					}
 				}
-				console.log(`Current Page: ${currentPageKey}`);
 				return currentPageKey;
 			},
 		[]

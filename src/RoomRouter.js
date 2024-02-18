@@ -10,12 +10,11 @@ function RoomRouter() {
 
 	return (
 		<>
-			<Routes>
-				<Route path="/" element={<RoomLobby />} />
-				<Route path="/book/:bookId" element={<Room />} />
-				<Route path="/3d" element={<DRoom />} />
-			</Routes>
 			<RoomJoinController roomId={roomId} />
+			<Routes>
+				<Route path="/" element={<DRoom />} />
+				<Route path="/book/:bookId" element={<Room />} />
+			</Routes>
 		</>
 	);
 }
