@@ -10,7 +10,8 @@ export default function Controls(props) {
 	const { tracks } = props;
 	const [trackState, setTrackState] = useState({ video: true, audio: true });
 
-	console.warn("tracks", tracks);
+	console.warn("------Controls-------tracks[0]: 마이크", tracks[0]);
+	console.warn("------Controls-------tracks[1]: 카메라", tracks[1]);
 
 	const mute = async (type) => {
 		if (type === "audio") {
@@ -29,12 +30,13 @@ export default function Controls(props) {
 	return (
 		<div container spacing={2} alignItems="center">
 			<div item>
-				<button variant="contained" color={trackState.audio ? "primary" : "secondary"} onClick={() => mute("audio")}>
+				<button variant="contained" onClick={() => mute("audio")}>
 					{trackState.audio ? <MicIcon /> : <MicOffIcon />}
 				</button>
 			</div>
 			<div item>
-				<button variant="contained" color={trackState.video ? "primary" : "secondary"} onClick={() => mute("video")}>
+				{/* <button variant="contained" color={trackState.video ? "primary" : "secondary"} onClick={() => mute("video")}> */}
+				<button variant="contained" onClick={() => mute("video")}>
 					{trackState.video ? <VideocamIcon /> : <VideocamOffIcon />}
 				</button>
 			</div>

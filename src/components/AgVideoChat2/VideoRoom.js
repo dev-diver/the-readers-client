@@ -12,13 +12,11 @@ AgoraRTC.setLogLevel(4);
 
 let agoraCommandQueue = Promise.resolve();
 
-const createAgoraClient = ({ onVideoTrack, onUserDisconnected, setUsers }) => {
+const createAgoraClient = ({ onVideoTrack, onUserDisconnected, tracks, setUsers }) => {
 	const client = createClient({
 		mode: "rtc",
 		codec: "vp8",
 	});
-
-	let tracks;
 
 	const waitForConnectionState = (connectionState) => {
 		return new Promise((resolve) => {
@@ -89,7 +87,7 @@ const createAgoraClient = ({ onVideoTrack, onUserDisconnected, setUsers }) => {
 export const VideoRoom = () => {
 	const [users, setUsers] = useState([]);
 	const [uid, setUid] = useState(null);
-	let tracks;
+	const [tracks, setTracks] = useState([]);
 
 	useEffect(() => {
 		const onVideoTrack = (user) => {
@@ -103,11 +101,14 @@ export const VideoRoom = () => {
 		const { connect, disconnect } = createAgoraClient({
 			onVideoTrack,
 			onUserDisconnected,
+			tracks,
+			setTracks,
 		});
 
 		const setup = async () => {
 			const { tracks, uid } = await connect();
 			setUid(uid);
+			setTracks(tracks);
 			setUsers((previousUsers) => [
 				...previousUsers,
 				{
@@ -116,6 +117,8 @@ export const VideoRoom = () => {
 					videoTrack: tracks[1],
 				},
 			]);
+			console.warn("tracks[0]: 마이크", tracks[0]);
+			console.warn("tracks[1]: 카메라", tracks[1]);
 		};
 
 		const cleanup = async () => {
@@ -136,6 +139,7 @@ export const VideoRoom = () => {
 	return (
 		<>
 			{uid}
+			<Controls tracks={tracks} />
 			<div
 				style={{
 					display: "flex",
@@ -149,10 +153,7 @@ export const VideoRoom = () => {
 					}}
 				>
 					{users.map((user) => (
-						<>
-							<VideoPlayer key={user.uid} user={user} />
-							<Controls user={user} />
-						</>
+						<VideoPlayer key={user.uid} user={user} />
 					))}
 				</div>
 			</div>
