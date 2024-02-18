@@ -7,7 +7,6 @@ import AddBook from "components/Addbook";
 import './index.css'
 import api from 'api'
 import { Room, Book } from 'interface/interface';
-import { Add } from '@mui/icons-material';
 
 interface RoomResponse {
     data: Room
@@ -34,7 +33,7 @@ function RoomLobby() {
 
     return (
         <>
-        <Canvas>
+        <Canvas style={{ width: '100%', height: '100vh', backgroundColor: 'black' }}>
             <OrbitControls/>
 
             <directionalLight position ={[1,1,1]}/>
