@@ -1,37 +1,44 @@
 import React, { useRef, useEffect } from "react";
 import socket from "socket";
-import { useRecoilState } from "recoil";
-import { cursorCanvasRefsState, bookChangedState } from "recoil/atom";
+import { useRecoilState, useRecoilCallback } from "recoil";
+import { cursorCanvasRefFamily, bookChangedState, totalPageState } from "recoil/atom";
 import { redrawCanvas, updatePointers } from "./util";
 
-export default function CursorCanvasController({ totalPage }) {
+export default function CursorCanvasController() {
 	const pointers = useRef([]);
-	const [cursorCanvasRefs, setCursorCanvasRefs] = useRecoilState(cursorCanvasRefsState);
 	const [bookChanged, setBookChanged] = useRecoilState(bookChangedState);
+	const [totalPage, setTotalPage] = useRecoilState(totalPageState);
+
+	const updateCursorCanvasRefs = useRecoilCallback(
+		({ set }) =>
+			(pageNum, value) => {
+				set(cursorCanvasRefFamily({ pageNum }), value);
+			},
+		[]
+	);
 
 	useEffect(() => {
 		if (totalPage === 0) return;
-		const newRefs = new Array(totalPage).fill(null).map((e, i) => {
-			return { page: i + 1, ref: React.createRef() };
-		});
-
+		for (let page = 1; page <= totalPage; page++) {
+			updateCursorCanvasRefs(page, React.createRef());
+		}
 		setBookChanged((prev) => !prev);
-		setCursorCanvasRefs(newRefs);
 	}, [totalPage]);
 
+	const handleUpdatePointer = useRecoilCallback(({ snapshot }) => async (data) => {
+		const canvas = await snapshot.getPromise(cursorCanvasRefFamily({ pageNum: data.pageNum }));
+
+		if (!canvas) return;
+		updatePointers(pointers.current, data);
+		redrawCanvas(canvas, pointers.current);
+	});
+
 	useEffect(() => {
-		if (cursorCanvasRefs.length === 0) return;
-		socket.on("update-pointer", (data) => {
-			const canvasRefItem = cursorCanvasRefs.find((refItem) => refItem.page == data.pageNum);
-			const canvas = canvasRefItem ? canvasRefItem.ref : null;
-			if (!canvas) return;
-			updatePointers(pointers.current, data);
-			redrawCanvas(canvas, pointers.current);
-		});
+		socket.on("update-pointer", handleUpdatePointer);
 		return () => {
-			socket.off("update-pointer");
+			socket.off("update-pointer", handleUpdatePointer);
 		};
-	}, [cursorCanvasRefs]);
+	}, []);
 
 	return <></>;
 }

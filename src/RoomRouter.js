@@ -13,16 +13,15 @@ function RoomRouter() {
 
 	return (
 		<>
+			<RoomJoinController roomId={roomId} />
 			{/* <VideoChat /> */}
 			{/* <DraggableElement startX={window.innerWidth - 300} startY={120}>
 				<SwitchController />
 			</DraggableElement> */}
 			<Routes>
-				<Route path="/" element={<RoomLobby />} />
+				<Route path="/" element={<DRoom />} />
 				<Route path="/book/:bookId" element={<Room />} />
-				<Route path="/3d" element={<DRoom />} />
 			</Routes>
-			<RoomJoinController roomId={roomId} />
 		</>
 	);
 }

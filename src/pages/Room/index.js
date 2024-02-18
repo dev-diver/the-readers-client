@@ -10,7 +10,6 @@ import { userState, isLeadState, isTrailState, roomState } from "recoil/atom";
 function Room() {
 	const { bookId, roomId } = useParams();
 	const [book, setBook] = useState({});
-	const [roomRefresh, setRoomRefresh] = useState(false);
 	const [isTrail, setTrail] = useRecoilState(isTrailState);
 	const [isLead, setLead] = useRecoilState(isLeadState);
 	const [user, setUser] = useRecoilState(userState);
