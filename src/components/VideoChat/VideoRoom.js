@@ -4,8 +4,8 @@ import { VideoPlayer } from "./VideoPlayer";
 import Controls from "./Controls";
 import { VideoContainer, MuteContainer } from "./style";
 import { Box } from "@mui/material";
-import { userState } from "recoil/atom";
-import { useRecoilValue } from "recoil";
+import { userState, userMapState } from "recoil/atom";
+import { useRecoilValue, useRecoilState } from "recoil";
 
 const APP_ID = "76b0ac36b01048398d9b51ac87db712f";
 const TOKEN =
@@ -118,11 +118,6 @@ export const VideoRoom = () => {
 			setUsers([]);
 		};
 
-		// const userStateData = useRecoilValue(userState);
-
-		// const [userMap, setUserMap] = {};
-		// setUserMap[users.uid] = userStateData.nick;
-
 		// setup();
 		agoraCommandQueue = agoraCommandQueue.then(setup);
 
@@ -131,6 +126,23 @@ export const VideoRoom = () => {
 			agoraCommandQueue = agoraCommandQueue.then(cleanup);
 		};
 	}, []);
+
+	const userStateData = useRecoilValue(userState);
+	const [userMapState, setUserMapState] = useState({});
+
+	useEffect(() => {
+		if (uid === null) return;
+		setUserMapState((prevState) => ({
+			...prevState,
+			[uid]: userStateData.nick,
+		}));
+	}, [users]);
+
+	// useEffect(() => {
+	// 	console.error("userStateData.nick", userStateData.nick);
+	// 	console.error("@@@@@@@uid", uid);
+	// 	console.error("userMapState", userMapState);
+	// }, [userMapState]);
 
 	return (
 		<>
@@ -146,7 +158,7 @@ export const VideoRoom = () => {
 						}}
 					>
 						{users.map((user) => (
-							<VideoPlayer key={user.uid} user={user} />
+							<VideoPlayer key={user.uid} user={user} userMapState={userMapState} />
 						))}
 					</div>
 				</VideoContainer>
