@@ -124,7 +124,14 @@ export const isVideoExitState = atom({
 	default: false,
 });
 
+/* VideoChat */
 export const usersState = atom({
 	key: "users",
 	default: null,
+});
+
+/* Appbar */
+export const isAppBarPinnedState = atom({
+	key: "isAppBarPinned",
+	default: false,
 });

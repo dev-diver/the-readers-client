@@ -52,7 +52,7 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 				console.log("기존 자료 있음", elementsBlob);
 				blobToJson(elementsBlob).then((json) => {
 					console.log("복호화", json);
-					setElements(json);
+					setElements(json.data);
 				});
 			})
 			.catch((err) => {

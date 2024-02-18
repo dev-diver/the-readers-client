@@ -1,0 +1,23 @@
+/* Chrome, Safari 등을 위한 스타일 */
+::-webkit-scrollbar {
+	width: 16px; /* 스크롤바의 너비 */
+}
+
+::-webkit-scrollbar-track {
+	background: #e1c69e; /* 스크롤바 트랙의 배경 색상 (우드톤) */
+}
+
+::-webkit-scrollbar-thumb {
+	background: #a86e16; /* 스크롤바 썸의 배경 색상 (더 진한 우드톤) */
+	border-radius: 8px; /* 썸의 모서리 둥글기 */
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: #b8863c; /* 썸 위에 마우스를 올렸을 때의 색상 */
+}
+
+/* Firefox를 위한 스타일 */
+* {
+	scrollbar-width: thin; /* "auto" 또는 "thin" 중 선택 */
+	scrollbar-color: #a86e16 #e1c69e; /* 썸과 트랙의 색상 (썸 색상 트랙 색상) */
+}
