@@ -14,12 +14,14 @@ import { BookOpen, LampDeskIcon, LibrarySquare } from "lucide-react";
 import { ThemeProvider, useTheme } from "@mui/material/styles";
 import { useRecoilState } from "recoil";
 import { roomState, isTrailState } from "recoil/atom";
+import { Logout } from "@mui/icons-material";
 
 export default function Info() {
 	const [anchorEl, setAnchorEl] = React.useState(null);
 	const [room, setRoom] = useRecoilState(roomState);
 	const [roomRefresh, setRoomRefresh] = useRecoilState(roomState);
 	const [trail, setTrail] = useRecoilState(isTrailState);
+	const [isHovered, setIsHovered] = React.useState(false);
 	const { roomId, bookId } = useParams();
 	const theme = useTheme();
 	const navigate = useNavigate();
@@ -45,6 +47,34 @@ export default function Info() {
 			<Box onClick={handleOtherItemClick} sx={{ cursor: "auto" }}>
 				{room && <BookShelf books={room.Books} bookId={bookId} bookClickhandler={bookClickHandler} />}
 			</Box>
+			<Link
+				to={`/room/${room.id}`}
+				style={{
+					display: "flex",
+					flexDirection: "column",
+					alignItems: "center",
+					justifyContent: "center",
+					fontWeight: "bold",
+					position: "absolute",
+					bottom: "10px",
+					textDecoration: "none",
+					color: "#a86e16",
+					cursor: "pointer",
+					margin: "3px",
+					marginLeft: "10px",
+					marginBottom: "72px",
+					backgroundColor: isHovered ? "#d0a970" : "#e1c69e",
+					borderRadius: "5px",
+					width: "35px",
+					height: "45px",
+					transition: "background-color 0.1s ease-in-out",
+					boxShadow: "inset 0px 2px 4px rgba(0, 0, 0, 0.1)",
+				}}
+				onMouseEnter={() => setIsHovered(true)} // 마우스가 요소에 진입할 때
+				onMouseLeave={() => setIsHovered(false)} // 마우스가 요소를 벗어날 때
+			>
+				<Logout style={{ color: "#a86e16" }} />
+			</Link>
 			{/* <Box
 				anchorEl={anchorEl}
 				id="account-menu"
@@ -58,9 +88,7 @@ export default function Info() {
 					<ListItemIcon>
 						<LibrarySquare />
 					</ListItemIcon>
-					<Link to={`/room/${room.id}`} style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}>
-						방으로 이동 &#40;현재 방: {room && <>{room.title}</>}&#41;
-					</Link>
+	
 				</MenuItem>
 
 

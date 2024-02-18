@@ -45,6 +45,7 @@ export default function Header({ children }) {
 				style={{
 					top: isHovering || isAppBarPinned ? "0" : "-64px",
 					transition: "top 0.5s",
+					maxWidth: "100%",
 				}}
 			>
 				<Container maxWidth="false">

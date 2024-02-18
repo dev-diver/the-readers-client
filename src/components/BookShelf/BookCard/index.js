@@ -1,8 +1,9 @@
 import React from "react";
 import "./style.css";
 import { Box, Typography } from "@mui/material";
+import { Tooltip } from "@mui/material";
 
-function BookCard({ book, bookId, handler }) {
+function BookCard({ index, book, bookId, handler }) {
 	const isCurrentBook = book.id === Number(bookId);
 	// book.name을 글자 단위로 분리하여 배열로 변환
 	const letters = book.name.split("");
@@ -13,7 +14,7 @@ function BookCard({ book, bookId, handler }) {
 			onClick={handler}
 			sx={{
 				height: "70px",
-				width: " 30px",
+				width: "30px",
 				backgroundColor: isCurrentBook ? "#a86e16" : "#b8863c",
 				borderTopRightRadius: "12px",
 				borderBottomRightRadius: "12px",
@@ -24,17 +25,20 @@ function BookCard({ book, bookId, handler }) {
 				justifyContent: "flex-start",
 				alignItems: "center", // 가로 방향 중앙 정렬
 				overflow: "hidden", // 내용이 Box를 넘어가면 숨김
-				boxShadow:
-					"inset 0 4px 4px -4px rgba(0,0,0,0.2), 4px 4px 4px 0 rgba(0,0,0,0.2), -4px 4px 4px 0 rgba(0,0,0,0.2)",
+				boxShadow: "inset 0 4px 4px -4px rgba(0,0,0,0.2), 4px 4px 4px 0 rgba(0,0,0,0.2)",
 				marginBottom: "2px",
+				"&:hover": {
+					backgroundColor: isCurrentBook ? "#865811" : "#a86e16", // 호버 시 배경 색상 변경
+				},
+				"&:active": {
+					backgroundColor: isCurrentBook ? "#865811" : "#a86e16", // 클릭 시 배경 색상 변경
+				},
 			}}
 			py={1}
 		>
-			{letters.map((letter, index) => (
-				<Typography key={index} sx={{ lineHeight: 1 }}>
-					{letter}
-				</Typography>
-			))}
+			<Tooltip title={book.name} placement="right">
+				<Typography sx={{ lineHeight: 1 }}>{index + 1}</Typography>
+			</Tooltip>
 		</Box>
 	);
 }

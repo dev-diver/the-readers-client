@@ -17,26 +17,22 @@ export default function HighlightList({ highlights, deleteHandler }) {
 
 	useEffect(() => {
 		if (isMobile) {
-			setChevronIcon(ChevronLeft);
+			if (drawerOpen) {
+				setShowItems(true);
+				setChevronIcon(ChevronRight);
+			} else {
+				setShowItems(false);
+				setChevronIcon(ChevronLeft);
+			}
+		} else {
 			if (drawerOpen) {
 				setShowItems(true);
 			} else {
 				setShowItems(false);
 			}
-		} else {
 			setChevronIcon(ChevronDown);
 		}
-	}, [isMobile]);
-
-	useEffect(() => {
-		if (drawerOpen) {
-			setShowItems(true);
-			setChevronIcon(ChevronRight);
-		} else {
-			setShowItems(false);
-			setChevronIcon(ChevronLeft);
-		}
-	}, [drawerOpen]);
+	}, [isMobile, drawerOpen]);
 
 	// Drawer 토글 함수
 	const toggleDrawer = () => {

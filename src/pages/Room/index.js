@@ -63,7 +63,7 @@ function Room() {
 			<Box
 				className="container"
 				sx={{
-					maxWidth: "1400px",
+					maxWidth: "100vw",
 					width: "100%",
 					margin: "0 auto",
 					overflow: "hidden",
