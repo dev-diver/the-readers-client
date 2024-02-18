@@ -61,9 +61,9 @@ const VideoBox = styled.div`
 
 const NameTag = styled.div`
 	width: 100%;
-	color: white;
-	background-color:;
-	font-size: 10px;
+	color: black;
+	border-radius: 20px;
+	font-size: 20px;
 	width: 80px;
 	text-align: center;
 	box-shadow:
@@ -89,8 +89,8 @@ const OutButton = styled.button`
 const StartButton = styled.button`
 	align-self: flex-end;
 	cursor: pointer;
-	background-color: tomato;
-	color: white;
+	background-color: #f56c62;
+	color: black;
 	width: 50px;
 	height: 50px;
 	border-radius: 50%;
@@ -108,7 +108,26 @@ const VideoButtonBox = styled.div`
 	display: flex;
 	justify-content: space-around;
 	align-items: center;
-	background-color: #4a90e2;
+	background-color: #d0a970;
 `;
 
-export { Container, OutButton, VideoContainer, VideoBox, StartButton, VideoButtonBox, Session, NameTag, Header };
+const MuteContainer = styled.div`
+	padding: 5px;
+	width: 110px;
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+`;
+
+export {
+	Container,
+	OutButton,
+	VideoContainer,
+	VideoBox,
+	StartButton,
+	VideoButtonBox,
+	Session,
+	NameTag,
+	Header,
+	MuteContainer,
+};

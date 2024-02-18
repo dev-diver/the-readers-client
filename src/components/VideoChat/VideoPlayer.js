@@ -4,18 +4,24 @@ import { useRecoilValue } from "recoil";
 import { VideoBox, NameTag } from "./style";
 export const VideoPlayer = ({ user }) => {
 	const ref = useRef();
-	const { nick: nickName } = useRecoilValue(userState);
+	const userStateData = useRecoilValue(userState);
+
+	const userMap = {};
+	userMap[user.uid] = userStateData.nick;
+
+	const getNickById = (uid) => {
+		return userMap[uid] || "누구세요";
+	};
 
 	useEffect(() => {
-		console.warn("user", user);
 		user.videoTrack.play(ref.current);
 		user.audioTrack.play(ref.current);
 	}, []);
 
 	return (
 		<div>
-			<NameTag>{nickName}</NameTag>
 			<VideoBox ref={ref}></VideoBox>
+			<NameTag style={{ alignItems: "center" }}>{getNickById(user.uid)}</NameTag>
 		</div>
 	);
 };

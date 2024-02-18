@@ -3,6 +3,7 @@ import MicIcon from "@mui/icons-material/Mic";
 import MicOffIcon from "@mui/icons-material/MicOff";
 import VideocamIcon from "@mui/icons-material/Videocam";
 import VideocamOffIcon from "@mui/icons-material/VideocamOff";
+import { Box, Button } from "@mui/material";
 
 export default function Controls(props) {
 	const { tracks } = props;
@@ -26,18 +27,17 @@ export default function Controls(props) {
 	};
 
 	return (
-		<div container spacing={2} alignItems="center">
-			<div item>
-				<button variant="contained" onClick={() => mute("audio")}>
+		<Box sx={{ display: "flex", flexDirection: "row" }}>
+			<div style={{ flex: 1 }}>
+				<Button onClick={() => mute("audio")} sx={{ width: "100%" }}>
 					{trackState.audio ? <MicIcon /> : <MicOffIcon />}
-				</button>
+				</Button>
 			</div>
-			<div item>
-				{/* <button variant="contained" color={trackState.video ? "primary" : "secondary"} onClick={() => mute("video")}> */}
-				<button variant="contained" onClick={() => mute("video")}>
+			<div style={{ flex: 1 }}>
+				<Button onClick={() => mute("video")} sx={{ width: "100%" }}>
 					{trackState.video ? <VideocamIcon /> : <VideocamOffIcon />}
-				</button>
+				</Button>
 			</div>
-		</div>
+		</Box>
 	);
 }

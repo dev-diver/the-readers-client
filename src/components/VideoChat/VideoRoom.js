@@ -2,11 +2,14 @@ import React, { useEffect, useState } from "react";
 import AgoraRTC, { createClient } from "agora-rtc-sdk-ng";
 import { VideoPlayer } from "./VideoPlayer";
 import Controls from "./Controls";
-import { VideoContainer } from "./style";
+import { VideoContainer, MuteContainer } from "./style";
+import { Box } from "@mui/material";
+import { userState } from "recoil/atom";
+import { useRecoilValue } from "recoil";
 
 const APP_ID = "76b0ac36b01048398d9b51ac87db712f";
 const TOKEN =
-	"007eJxTYOByPyeZrOZU/FPr75MTEVukfgRPU9LM+d+4aK2ptQTbAwYFBnOzJIPEZGMgaWhgYmFsaZFimWRqmJhsYZ6SZG5olDan6EJqQyAjw2bubkZGBggE8VkYchMz8xgYANc/Hek=";
+	"007eJxTYKj7ffzBnf8qe2dNi/AznCRo+H//wyYvuaXT701XUrU8uLVdgcHcLMkgMdkYSBoamFgYW1qkWCaZGiYmW5inJJkbGqWVX7uY2hDIyCDBnc3EyACBID4LQ25iZh4DAwDmCiCg";
 const CHANNEL = "main";
 
 AgoraRTC.setLogLevel(4);
@@ -35,21 +38,11 @@ const createAgoraClient = ({ onVideoTrack, onUserDisconnected, tracks, users }) 
 
 		const uid = await client.join(APP_ID, CHANNEL, TOKEN, null);
 
-		// client.on("user-published", (user, mediaType) => {
-		// 	client.subscribe(user, mediaType).then(() => {
-		// 		if (mediaType === "video") {
-		// 			onVideoTrack(user);
-		// 		}
-		// 	});
-		// });
 		client.on("user-published", async (user, mediaType) => {
 			await client.subscribe(user, mediaType);
 			if (mediaType === "video") {
 				onVideoTrack(user);
 			}
-			// if (mediaType === "audio") {
-			// 	user.audioTrack.play();
-			// }
 		});
 
 		client.on("user-left", (user) => {
@@ -57,8 +50,9 @@ const createAgoraClient = ({ onVideoTrack, onUserDisconnected, tracks, users }) 
 		});
 
 		tracks = await AgoraRTC.createMicrophoneAndCameraTracks();
-
-		await client.publish(tracks);
+		if (uid) {
+			await client.publish(tracks);
+		}
 
 		return {
 			tracks,
@@ -116,8 +110,6 @@ export const VideoRoom = () => {
 					videoTrack: tracks[1],
 				},
 			]);
-			console.warn("tracks[0]: 마이크", tracks[0]);
-			console.warn("tracks[1]: 카메라", tracks[1]);
 		};
 
 		const cleanup = async () => {
@@ -125,6 +117,11 @@ export const VideoRoom = () => {
 			setUid(null);
 			setUsers([]);
 		};
+
+		// const userStateData = useRecoilValue(userState);
+
+		// const [userMap, setUserMap] = {};
+		// setUserMap[users.uid] = userStateData.nick;
 
 		// setup();
 		agoraCommandQueue = agoraCommandQueue.then(setup);
@@ -137,27 +134,23 @@ export const VideoRoom = () => {
 
 	return (
 		<>
-			{uid}
-			<Controls tracks={tracks} />
-			<div
-				style={{
-					display: "flex",
-					justifyContent: "center",
-				}}
-			>
+			<Box sx={{ flexDirection: "column", width: "10vw" }}>
+				<MuteContainer>
+					<Controls tracks={tracks} />
+				</MuteContainer>
 				<VideoContainer>
-					{/* <div
+					<div
 						style={{
 							display: "grid",
 							gridTemplateColumns: "repeat(1, 200px)",
 						}}
-					> */}
-					{users.map((user) => (
-						<VideoPlayer key={user.uid} user={user} />
-					))}
-					{/* </div> */}
+					>
+						{users.map((user) => (
+							<VideoPlayer key={user.uid} user={user} />
+						))}
+					</div>
 				</VideoContainer>
-			</div>
+			</Box>
 		</>
 	);
 };
