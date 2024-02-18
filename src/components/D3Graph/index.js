@@ -74,7 +74,7 @@ const D3Graph = ({ highlightId, data, width, height, onNodeClick = () => {} }) =
 			.attr("stroke", "#999")
 			.attr("stroke-opacity", 0.6)
 			.attr("stroke-width", (d) => Math.sqrt(d.value))
-			.attr("marker-end", "url(#arrowhead)");
+			.attr("marker-end", "url(#arrowhead)"); // 화살표 마커 적용
 
 		// 연결 선 위의 텍스트(note) 설정
 		const linkText = svg
@@ -94,7 +94,7 @@ const D3Graph = ({ highlightId, data, width, height, onNodeClick = () => {} }) =
 				// 여기에서 d는 바인딩된 데이터입니다.
 				console.log("Link data:", d.note); // 콘솔에 데이터 출력
 			});
-
+		// 처음 노드가 로딩될 때 퍼지는 정도를 조절하는 부분
 		const simulation = d3
 			.forceSimulation(data.nodes)
 			.force(
