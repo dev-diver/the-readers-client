@@ -18,7 +18,7 @@ function Room() {
 	const [userId, setUserId] = useRecoilState(userIdState);
 	const navigate = useNavigate();
 
-	// 성능 향상
+	// 성능 최적화
 	useEffect(() => {
 		setUserId(user.id);
 	}, []);

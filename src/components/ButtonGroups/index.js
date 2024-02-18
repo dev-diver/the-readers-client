@@ -60,10 +60,57 @@ function ButtonGroups({
 				setLinkData(transformData(response.data.data)); // transformData 함수가 있다고 가정
 			}
 			setShowD3Graph(true); // D3Graph 모달 표시
+			await updateGraphDataWithOuterlinks(); // 외부 링크 데이터를 가져와서 그래프에 반영
 		} catch (error) {
 			console.error("링크 데이터를 가져오는 데 실패했습니다.", error);
 		}
 	};
+
+	// Outerlink 데이터 가져오기
+	const fetchOuterlinksData = async () => {
+		try {
+			// API를 호출하여 외부 링크 데이터를 가져옵니다.
+			const response = await api.get(`/outerlinks/${highlightId}`);
+			// API 응답에서 데이터 부분을 반환합니다.
+			return response.data.data;
+		} catch (error) {
+			console.error("외부 링크를 가져오는 데 실패했습니다.", error);
+			// 에러 발생 시 빈 배열 또는 적절한 기본값을 반환할 수 있습니다.
+			return [];
+		}
+	};
+
+	async function updateGraphDataWithOuterlinks() {
+		try {
+			const outerlinksData = await fetchOuterlinksData();
+			// 가정: fetchOuterlinksData()는 외부 링크 데이터를 배열로 반환합니다.
+			const newNodes = outerlinksData.map((outerlink) => ({
+				id: outerlink.id.toString(), // ID를 문자열로 변환
+				label: "Outerlink Node", // 노드 레이블 지정
+				note: outerlink.note || "No note", // 노드에 메모 정보 추가
+				isOuterLink: true, // 외부 링크 플래그 추가
+			}));
+
+			setLinkData((prevData) => {
+				const updatedNodes = [...prevData.nodes, ...newNodes];
+				// 외부 링크를 나타내는 새 링크 객체 추가
+				const updatedLinks = [
+					...prevData.links,
+					...newNodes.map((node) => ({
+						source: highlightId.toString(), // 현재 하이라이트를 소스로 설정
+						target: node.id, // 새로운 외부 링크 노드를 타겟으로 설정
+						note: "외부 링크", // 선 위의 텍스트를 "외부 링크"로 설정
+					})),
+				];
+
+				return { nodes: updatedNodes, links: updatedLinks };
+			});
+
+			setShowD3Graph(true); // D3Graph 모달을 열어 변경사항 반영
+		} catch (error) {
+			console.error("Outerlinks 데이터를 가져오는 데 실패했습니다.", error);
+		}
+	}
 
 	const transformData = (links) => {
 		const nodes = [{ id: highlightId.toString(), label: "Highlight Node" }]; // ID를 문자열로 변환

@@ -126,9 +126,18 @@ const D3Graph = ({ highlightId, data, width, height, onNodeClick = () => {} }) =
 			.append("text")
 			.attr("dx", -10) // x 방향으로의 위치 조정
 			.attr("dy", ".35em") // y 방향으로의 위치 조정
-			.text(function (d) {
-				return nodeTexts[d.id] || "No text"; // 텍스트가 없을 경우 "No text" 출력
-			}) // nodeTexts 객체에서 텍스트 검색
+			// .text(function (d) {
+			// 	return nodeTexts[d.id] || "No text"; // 텍스트가 없을 경우 "No text" 출력
+			// }) // nodeTexts 객체에서 텍스트 검색
+			.text((d) => {
+				// 외부 링크인 경우, 사용자가 작성한 메모를 표시
+				if (d.isOuterLink) {
+					return d.note || ""; // 메모가 없는 경우 빈 문자열로 표시
+				} else {
+					// 내부 링크인 경우, 기존 논리에 따라 텍스트를 결정 (예: 하이라이트 텍스트)
+					return nodeTexts[d.id] || "No text"; // 하이라이트 텍스트가 없는 경우 "No text" 표시
+				}
+			})
 			.style("fill", "black") // 텍스트 색상
 			.each(function (d) {
 				console.log("Node data:", nodeTexts[d.id]); // 콘솔에 데이터 출력
