@@ -3,11 +3,10 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { EffectComposer, Outline, Selection } from '@react-three/postprocessing';
 import { Euler, Vector3 } from 'three';
 import Cover from './Cover';
+import { CarouselProps } from 'interface/interface';
+import { baseURL } from 'config/config'
 
-const defaultPlanes = 5
-const defaultCovers = Array(defaultPlanes).fill('/mock/algo.png')
-
-function Carousel({ numPlanes = defaultPlanes, radius = 5 , covers = defaultCovers}) {
+function Carousel({ numPlanes, radius , books, bookClickHandler} : CarouselProps) {
     const groupRef = useRef<THREE.Group>(null);
     const { camera } = useThree();
     // 각 프레임마다 그룹을 회전
@@ -37,10 +36,11 @@ function Carousel({ numPlanes = defaultPlanes, radius = 5 , covers = defaultCove
         >
             {planes.map((position, idx) => (
                 <Cover
+                    clickHandler = {()=>bookClickHandler(books[idx % books.length])}
                     key={idx}
                     position={position}
                     rotation={new Euler(0,-Math.PI/2 - (idx / numPlanes) * Math.PI*2,0)}
-                    url={covers[idx]}
+                    url={`${baseURL}/api/storage/pdf/${books[idx % books.length].urlName}/cover`}
                 />
             ))}
         </group>
