@@ -67,7 +67,7 @@ function OptionsModal({
 				};
 				const highlightId = await sendHighlightToServer(highlightInfo); // 형광펜 서버로 전송
 				console.log("하이라이트 아이디입니다.", highlightId);
-				setCurrentHighlightId(highlightId);
+				// setCurrentHighlightId(highlightId);
 				const drawHighlightInfo = {
 					id: highlightId,
 					userId: user.id,
@@ -87,6 +87,7 @@ function OptionsModal({
 			onClose(); // 모달 닫기
 		}
 	};
+	setCurrentHighlightId(highlightId);
 
 	// 모달 스타일 : 그냥 챗지피티에서 따옴
 	const modalStyle = {
