@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import AgoraRTC, { createClient } from "agora-rtc-sdk-ng";
 import { VideoPlayer } from "./VideoPlayer";
 import Controls from "./Controls";
+import { VideoContainer } from "./style";
 
 const APP_ID = "76b0ac36b01048398d9b51ac87db712f";
 const TOKEN =
@@ -12,7 +13,7 @@ AgoraRTC.setLogLevel(4);
 
 let agoraCommandQueue = Promise.resolve();
 
-const createAgoraClient = ({ onVideoTrack, onUserDisconnected, tracks, setUsers }) => {
+const createAgoraClient = ({ onVideoTrack, onUserDisconnected, tracks, users }) => {
 	const client = createClient({
 		mode: "rtc",
 		codec: "vp8",
@@ -44,13 +45,11 @@ const createAgoraClient = ({ onVideoTrack, onUserDisconnected, tracks, setUsers 
 		client.on("user-published", async (user, mediaType) => {
 			await client.subscribe(user, mediaType);
 			if (mediaType === "video") {
-				setUsers((prevUsers) => {
-					return [...prevUsers, user];
-				});
+				onVideoTrack(user);
 			}
-			if (mediaType === "audio") {
-				user.audioTrack.play();
-			}
+			// if (mediaType === "audio") {
+			// 	user.audioTrack.play();
+			// }
 		});
 
 		client.on("user-left", (user) => {
@@ -146,16 +145,18 @@ export const VideoRoom = () => {
 					justifyContent: "center",
 				}}
 			>
-				<div
-					style={{
-						display: "grid",
-						gridTemplateColumns: "repeat(2, 200px)",
-					}}
-				>
+				<VideoContainer>
+					{/* <div
+						style={{
+							display: "grid",
+							gridTemplateColumns: "repeat(1, 200px)",
+						}}
+					> */}
 					{users.map((user) => (
 						<VideoPlayer key={user.uid} user={user} />
 					))}
-				</div>
+					{/* </div> */}
+				</VideoContainer>
 			</div>
 		</>
 	);

@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef } from "react";
 import { userState } from "recoil/atom";
 import { useRecoilValue } from "recoil";
-
+import { VideoBox, NameTag } from "./style";
 export const VideoPlayer = ({ user }) => {
 	const ref = useRef();
 	const { nick: nickName } = useRecoilValue(userState);
@@ -14,8 +14,8 @@ export const VideoPlayer = ({ user }) => {
 
 	return (
 		<div>
-			NickName: {nickName}
-			<div ref={ref} style={{ width: "200px", height: "200px" }}></div>
+			<NameTag>{nickName}</NameTag>
+			<VideoBox ref={ref}></VideoBox>
 		</div>
 	);
 };

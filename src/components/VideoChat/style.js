@@ -36,6 +36,7 @@ const VideoContainer = styled.div`
 	backgroundColor: #f7f7f7,
 	border: 1px solid #ddd,
 	zIndex: 100,	
+	width: 100px,
 `;
 
 const VideoBox = styled.div`
@@ -61,7 +62,7 @@ const VideoBox = styled.div`
 const NameTag = styled.div`
 	width: 100%;
 	color: white;
-	background-color: #4a90e2;
+	background-color:;
 	font-size: 10px;
 	width: 80px;
 	text-align: center;
