@@ -18,7 +18,6 @@ import { scrollToPage, scrollToHighlight, calculateScrollY, smoothScrollTo } fro
 import { Box } from "@mui/material";
 import { useLocation } from "react-router-dom";
 import ButtonGroups from "components/ButtonGroups";
-import { on } from "events";
 
 export default function PdfScroller({ renderContent, children }) {
 	const location = useLocation();

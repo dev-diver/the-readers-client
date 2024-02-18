@@ -27,7 +27,6 @@ function OptionsModal({
 	const [buttonGroupPos, setButtonGroupPos] = useRecoilState(buttonGroupsPosState);
 	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
 	const [currentHighlightId, setCurrentHighlightId] = useRecoilState(currentHighlightIdState);
-
 	const sendHighlightToServer = async (highlightInfo) => {
 		console.log("user", user, "하이라이트 정보", highlightInfo);
 		if (!user) {
@@ -67,7 +66,6 @@ function OptionsModal({
 				};
 				const highlightId = await sendHighlightToServer(highlightInfo); // 형광펜 서버로 전송
 				console.log("하이라이트 아이디입니다.", highlightId);
-				// setCurrentHighlightId(highlightId);
 				const drawHighlightInfo = {
 					id: highlightId,
 					userId: user.id,
@@ -80,14 +78,13 @@ function OptionsModal({
 				};
 				socket.emit("insert-highlight", highlightInfo); //소켓에 전송
 				console.log("OptionalModal", setButtonGroupPos);
-				drawHighlight(newRange, drawHighlightInfo, setButtonGroupPos, scrollerRef); // 형관펜 화면에 그림
+				drawHighlight(newRange, drawHighlightInfo, setButtonGroupPos, scrollerRef, setCurrentHighlightId); // 형관펜 화면에 그림
 				appendHighlightListItem(highlightInfo); //형광펜 리스트 생성
 			});
 
 			onClose(); // 모달 닫기
 		}
 	};
-	setCurrentHighlightId(highlightId);
 
 	// 모달 스타일 : 그냥 챗지피티에서 따옴
 	const modalStyle = {

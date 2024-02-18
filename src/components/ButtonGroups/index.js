@@ -151,7 +151,6 @@ function ButtonGroups({
 				sx={{
 					".MuiButton-root": { color: "white", "&:hover": { backgroundColor: "darkblue" } },
 				}}
-				highlightId={highlightId}
 			>
 				<Button onClick={handleAddMemoClick}>메모 삽입</Button>
 				<Button onClick={handleInsertLinkClick}>링크 삽입</Button>
