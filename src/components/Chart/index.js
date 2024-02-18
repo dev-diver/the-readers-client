@@ -9,25 +9,31 @@ import api from "api";
 
 // 미리 정의된 색상 배열
 function coloringUser(userId) {
-	const colors = ["#8884d8", "#82ca9d", "#ffc658", "#ff7300", "#ff3864"];
+	const colors = ["#8884d8", "#82ca9d", "#E69F00", "#ff4b73", "#56B4E9"];
+
 	return colors[(Number(userId) - 1) % colors.length];
 }
 
 function Chart() {
 	const [currentPage, setCurrentPage] = useRecoilState(currentPageState);
 	const [prevPage, setPrevPage] = useState(0);
+	const [totalPage, setTotalPage] = useRecoilState(totalPageState);
+	const [currentUsersPage, setCurrentUsersPage] = useState([]);
 	const [data, setData] = useState([]);
 	const [count, setCount] = useState(0);
 	const [roomUser, setRoomUser] = useRecoilState(roomUserState);
 	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
-	const [currentUsersPage, setCurrentUsersPage] = useState([]);
-	const [totalPage, setTotalPage] = useRecoilState(totalPageState);
+
 	// useEffect(() => {
 	// 	console.log("roomUsers", roomUsers);
 	// 	console.log("roomUser", roomUser);
 	// }, []);
+	useEffect(() => {
+		console.log("TEST");
+		console.log("data", data);
+	}, [data]);
 
-	/* Server  수정중 */
+	/*** Server 수정중 (save, load) ***/
 	const applyServerChart = (UserId, BookId, page, time) => {
 		api
 			.get(`/chart/${BookId}/${UserId}`) //  /chart/book/:bookId/user/:userId 의 형식이 좋을 것 같아요.
@@ -38,7 +44,6 @@ function Chart() {
 				console.log("**CHART** error", error);
 			});
 	};
-	/*** */
 
 	useEffect(() => {
 		const handleApplyServerChart = (data) => {
@@ -52,6 +57,7 @@ function Chart() {
 			socket.off("room-users-changed", handleApplyServerChart);
 		};
 	}, []);
+	/*********************************/
 
 	useEffect(() => {
 		// 페이지 데이터를 초기화하는 함수
@@ -73,7 +79,7 @@ function Chart() {
 					const updatedPageObject = { ...pageObject }; // 기존 페이지 객체 복사
 					roomUsers?.forEach((user) => {
 						const userIdKey = user?.id; // 각 사용자 ID에 대한 키
-						// 해당 사용자 ID 키가 없거나 새로운 유저일 경우 0으로 초기화
+						// 해당 사용자 ID 키가 없는(새로운 유저일 경우) 0으로 초기화
 						if (!Object.hasOwnProperty.call(updatedPageObject, userIdKey)) {
 							updatedPageObject[userIdKey] = 0;
 						}
@@ -141,7 +147,7 @@ function Chart() {
 		// data가 {}일 때는 !data로 잡히지 않으므로 추가로 조건문을 걸어줌
 		if (!roomUser || !data || Object.keys(data).length === 0) return;
 		const userKey = roomUser?.user?.id;
-		let page = 0;
+		// let page = 0;
 		const updatedData = data.map((item) => {
 			if (Number(item.page) === prevPage) {
 				// data의 parseInt(item.page)과 같은 값의 page를 찾아 time을 count만큼 증가시킴
@@ -152,7 +158,7 @@ function Chart() {
 					...item,
 					[userKey]: item[userKey] + count_tmp,
 				};
-				page = Number(item.page);
+				// page = Number(item.page);
 
 				return newItem;
 			}
@@ -182,7 +188,7 @@ function Chart() {
 		// console.log("filteredData", filteredData);
 		const room = roomUser.roomId;
 		socket.emit("send-chart", { filteredData, userKey, room });
-	}, [currentPage, roomUser]);
+	}, [currentPage, roomUsers]);
 
 	// Hare And Tortoise
 	useEffect(() => {
@@ -226,7 +232,6 @@ function Chart() {
 	const CustomTick = React.memo(
 		({ x, y, payload, currentUsersPage }) => {
 			// console.log("x", x, "y", y, "payload", payload);
-			let profileImgSrc = null;
 
 			// console.log(currentUsersPage);
 			// 페이지 활성화 상태를 나타내는 배열 생성, 초기값은 모두 0 (비활성화)
@@ -241,7 +246,6 @@ function Chart() {
 				if (Number(user.currentPage) === Number(payload.value)) {
 					// 해당 사용자의 페이지가 현재 payload.value와 일치하면, 활성화 상태를 1로 설정
 					isActiveArray[Number(payload.value) - 1] = 1;
-					profileImgSrc = user.profileImg; // 사용자의 프로필 이미지 경로를 저장
 				}
 			});
 
@@ -329,7 +333,7 @@ function Chart() {
 							type="monotone"
 							dataKey={user.id}
 							stroke={coloringUser(user.id)} // 사용자별 고유 색상으로 stroke 설정
-							fillOpacity={1}
+							fillOpacity={0.8}
 							fill={coloringUser(user.id)} // 사용자별 고유 색상으로 fill 설정
 						/>
 					)) || []}
