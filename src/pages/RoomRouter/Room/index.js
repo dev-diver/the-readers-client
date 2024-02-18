@@ -5,7 +5,8 @@ import PDFViewer from "./PDFViewer";
 import api from "api";
 import { Box } from "@mui/material";
 import { useRecoilState } from "recoil";
-import { userState, isLeadState, isTrailState, roomState } from "recoil/atom";
+import { userState, isLeadState, isTrailState, roomState, isAppBarPinnedState } from "recoil/atom";
+import RoomUserList from "components/RoomUserList";
 
 function Room() {
 	const { bookId, roomId } = useParams();
@@ -14,6 +15,7 @@ function Room() {
 	const [isLead, setLead] = useRecoilState(isLeadState);
 	const [user, setUser] = useRecoilState(userState);
 	const [room, setRoom] = useRecoilState(roomState);
+	const [isAppBarPinned, setIsAppBarPinned] = useRecoilState(isAppBarPinnedState);
 
 	const navigate = useNavigate();
 
@@ -56,19 +58,22 @@ function Room() {
 	}, [room, bookId]);
 
 	return (
-		<Box
-			className="container"
-			sx={{
-				display: "grid",
-				gridTemplateColumns: "1fr",
-				gridTemplateRows: "auto 1fr",
-				maxWidth: "1400px",
-				width: "100%",
-				margin: "0 auto",
-				overflow: "hidden",
-			}}
-		>
-			{book && <PDFViewer book={book} />}
+		<Box sx={{ display: "flex" }}>
+			<Box
+				className="container"
+				sx={{
+					maxWidth: "100vw",
+					width: "100%",
+					margin: "0 auto",
+					overflow: "hidden",
+					flex: "19",
+					position: "absolute",
+					top: isAppBarPinned ? "64px" : "0px",
+					transition: "top 0.5s ease-in-out",
+				}}
+			>
+				{book && <PDFViewer book={book} />}
+			</Box>
 		</Box>
 	);
 }
