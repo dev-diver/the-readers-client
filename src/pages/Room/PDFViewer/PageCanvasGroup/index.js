@@ -84,7 +84,7 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 			.catch((err) => {
 				console.error(err);
 			});
-
+		// console.log("pageDiv", pageDiv, pageDiv.parentNode);
 		pageDiv.parentNode.replaceChild(pageDivLoad, pageDiv);
 		updatePageLoadingState("loaded");
 	};

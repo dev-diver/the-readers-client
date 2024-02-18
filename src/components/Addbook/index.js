@@ -6,7 +6,7 @@ import { useState } from "react";
 import api from "api";
 import { Button, Grid } from "@mui/material";
 
-const AddBook = ({ room, refresher }) => {
+const AddBook = ({ room, refresher, className }) => {
 	const [pop, setPop] = useState(false);
 	const bookClickHandler = (book) => {
 		api
@@ -27,19 +27,21 @@ const AddBook = ({ room, refresher }) => {
 	};
 
 	return (
-		<Grid container direction="column" spacing={2} cursor="auto">
-			<Grid item>
-				<Button variant="contained" onClick={togglePop}>
-					{pop ? "닫기" : "책 추가"}
-				</Button>
+		<div className={className || ""}>
+			<Grid container direction="column" spacing={2} cursor="auto">
+				<Grid item>
+					<Button variant="contained" onClick={togglePop}>
+						{pop ? "닫기" : "책 추가"}
+					</Button>
+				</Grid>
+				<Grid item>
+					<PopUp isOpen={pop} onClose={() => setPop(false)}>
+						<FindBook bookClickHandler={bookClickHandler} />
+						<UploadBookToRoom roomId={room.id} setPop={setPop} refresher={refresher} />
+					</PopUp>
+				</Grid>
 			</Grid>
-			<Grid item>
-				<PopUp isOpen={pop} onClose={() => setPop(false)}>
-					<FindBook bookClickHandler={bookClickHandler} />
-					<UploadBookToRoom roomId={room.id} setPop={setPop} refresher={refresher} />
-				</PopUp>
-			</Grid>
-		</Grid>
+		</div>
 	);
 };
 

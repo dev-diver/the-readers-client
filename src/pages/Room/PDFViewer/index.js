@@ -90,6 +90,7 @@ function PDFViewer({ book }) {
 				link.remove();
 			}
 			setTotalPage(0);
+			setPageContainerHTML("");
 		};
 	}, [book]);
 

@@ -3,9 +3,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Environment, OrbitControls } from "@react-three/drei"
 import { Canvas } from '@react-three/fiber'
 import Carousel from "./Carousel";
+import AddBook from "components/Addbook";
 import './index.css'
 import api from 'api'
 import { Room, Book } from 'interface/interface';
+import { Add } from '@mui/icons-material';
 
 interface RoomResponse {
     data: Room
@@ -31,6 +33,7 @@ function RoomLobby() {
     };
 
     return (
+        <>
         <Canvas>
             <OrbitControls/>
 
@@ -38,10 +41,12 @@ function RoomLobby() {
             <Environment
                 background
                 blur={0}
-                preset="warehouse"
+                preset="apartment"
             />
             <Carousel numPlanes={13} radius={3} books={room.Books} bookClickHandler ={bookClickHandler}/>
         </Canvas>
+        <AddBook className="add-book" room={room} refresher={setRoomRefresh} />
+        </>
     )
 }
 
