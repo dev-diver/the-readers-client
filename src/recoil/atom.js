@@ -123,3 +123,9 @@ export const isVideoExitState = atom({
 	key: "isVideoExit",
 	default: false,
 });
+
+/* Appbar */
+export const isAppBarPinnedState = atom({
+	key: "isAppBarPinned",
+	default: false,
+});
