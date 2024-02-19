@@ -10,7 +10,6 @@ import {
 	currentPageState,
 	totalPageState,
 } from "recoil/atom";
-import { debounce } from "lodash";
 import socket from "socket";
 import { scrollToPage, scrollToHighlight, smoothScrollTo } from "./util";
 import { Box } from "@mui/material";
@@ -57,7 +56,7 @@ export default function PdfScroller({ renderContent, children }) {
 	}, [location, highlightList, highlightId, scrollerRef, urlScrolled]);
 
 	useEffect(() => {
-		console.log("is Trail", isTrail);
+		// console.log("is Trail", isTrail);
 		if (isTrail) {
 			socket.on("receive-attention-scroll", (data) => {
 				console.log("receive-attention-scroll", data.scale, scale);
@@ -80,7 +79,7 @@ export default function PdfScroller({ renderContent, children }) {
 				scrollTop: scrollTop,
 			});
 		}
-		determineCurrentPage(totalPage, scrollTop).then((currentPage) => {
+		determineCurrentPage(bookId, totalPage, scrollTop).then((currentPage) => {
 			console.info("currentPage", currentPage);
 			setCurrentPage(currentPage);
 		});

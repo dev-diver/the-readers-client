@@ -21,14 +21,14 @@ function RoomRouter() {
 			{/* <DraggableElement startX={window.innerWidth - 300} startY={120}>
 				<SwitchController />
 			</DraggableElement> */}
-			<TransitionGroup>
-				<CSSTransition key={location.pathname} classNames="fade" timeout={1000}>
-					<Routes location={location}>
-						<Route path="/" element={<DRoom />} />
-						<Route path="/book/:bookId" element={<Room />} />
-					</Routes>
-				</CSSTransition>
-			</TransitionGroup>
+			{/* <TransitionGroup>
+				<CSSTransition key={location.pathname} classNames="fade" timeout={1000}> */}
+			<Routes location={location}>
+				<Route path="/" element={<DRoom />} />
+				<Route path="/book/:bookId" element={<Room />} />
+			</Routes>
+			{/* </CSSTransition>
+			</TransitionGroup> */}
 		</>
 	);
 }

@@ -50,6 +50,7 @@ function Room() {
 
 	useEffect(() => {
 		const findBook = room.Books?.find((book) => book.id == bookId);
+		console.log("findBook", findBook);
 		setBook(findBook);
 		return () => {
 			console.log("set book empty");
@@ -60,7 +61,7 @@ function Room() {
 	return (
 		<Box sx={{ display: "flex" }}>
 			<Box
-				className="container"
+				className="room-container"
 				sx={{
 					maxWidth: "100vw",
 					width: "100%",

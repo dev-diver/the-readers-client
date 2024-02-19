@@ -49,8 +49,8 @@ export default function DrawingCanvasController() {
 
 	return (
 		<>
-			<Button onClick={() => handleUndoClick(currentPage, user.id)}>Undo</Button>
-			<Button onClick={() => handleRedoClick(currentPage, user.id)}>Redo</Button>
+			{/* <Button onClick={() => handleUndoClick(currentPage, user.id)}>Undo</Button>
+			<Button onClick={() => handleRedoClick(currentPage, user.id)}>Redo</Button> */}
 		</>
 	);
 }

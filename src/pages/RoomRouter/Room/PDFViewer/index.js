@@ -8,7 +8,13 @@ import PdfScroller from "./PdfScroller/index";
 import CursorCanvasController from "./PageCanvasGroup/CursorCanvasController";
 import DrawingCanvasController from "./PageCanvasGroup/DrawingCanvasController";
 import { useRecoilState, useRecoilCallback } from "recoil";
-import { totalPageState, viewerScaleState, htmlContentState, pageLoadingStateFamily } from "recoil/atom";
+import {
+	totalPageState,
+	viewerScaleState,
+	htmlContentState,
+	pageLoadingStateFamily,
+	renderContentState,
+} from "recoil/atom";
 import { Box, Grid, Hidden } from "@mui/material";
 import PenController from "./PenController";
 import { DraggableElement } from "components/DragNDrop/DraggableElement";
@@ -16,53 +22,61 @@ import { DraggableElement } from "components/DragNDrop/DraggableElement";
 import api from "api";
 import { baseURL } from "config/config";
 import Info from "components/Header/Info";
-import { styled } from "@mui/system";
 import "./styles.css";
 import RoomUserList from "components/RoomUserList";
+import { useParams } from "react-router-dom";
 
 const VIEWER_WIDTH = 800; //650;
 
-const CustomSidebar = styled(Box)(({ theme }) => ({
-	width: "100%",
-	height: "100%",
-	overflow: "hidden",
-	transition: "transform .5s ease",
-	transform: "translateX(-100%)", // 기본적으로 숨김
-	"&:hover": {
-		transform: "translateX(0%)", // 마우스 오버 시 나타남
-	},
-	[theme.breakpoints.up("sm")]: {
-		transform: "translateX(0%)", // 화면이 sm 이상일 때는 항상 나타남
-	},
-}));
-
 function PDFViewer({ book }) {
+	const { bookId } = useParams();
 	const [pageContainerHTML, setPageContainerHTML] = useRecoilState(htmlContentState);
-	const [renderContent, setRenderContent] = useState(false);
+	const [renderContent, setRenderContent] = useRecoilState(renderContentState);
 	const [canvasComponents, setCanvasComponents] = useState([]);
 	const [originalWidth, setOriginalWidth] = useState(0);
 	const [scale, setScale] = useRecoilState(viewerScaleState);
 	const pdfContentsRef = useRef(null);
 	const [isHovering, setIsHovering] = useState(false);
 	const [totalPage, setTotalPage] = useRecoilState(totalPageState);
+	const [cssLinkId, setCssLinkId] = useState("");
 
 	const updatePageLoadingState = useRecoilCallback(
 		({ set }) =>
 			(pageNum, loadingState) => {
-				set(pageLoadingStateFamily({ pageNum: pageNum }), loadingState);
+				set(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum }), loadingState);
 			},
-		[]
+		[bookId]
 	);
 
 	useEffect(() => {
-		setRenderContent(false);
-		if (!book?.urlName) {
+		for (let page = 1; page <= totalPage; page++) {
+			updatePageLoadingState(page, false);
+		}
+		const link = document.getElementById(cssLinkId);
+		console.log("want to remove css", cssLinkId, link);
+		if (link) {
+			console.log("css link removed");
+			link.remove();
+		}
+		if (setPageContainerHTML || renderContent) {
+			console.log("book reset");
+			setScale(1);
+			setTotalPage(0);
+			setPageContainerHTML("");
+			setRenderContent(false);
+			// setCanvasComponents([]);
+		}
+	}, [book]);
+
+	useEffect(() => {
+		if (!book?.urlName || pageContainerHTML) {
 			return;
 		}
-
 		//css는 href로 들어가서 써줘야함
 		const CSSurl = `${baseURL}/api/storage/pdf/${book.urlName}/css`;
 		const linkId = `css-${book.urlName}`;
+		console.log("css url", linkId);
+		setCssLinkId(linkId);
 
 		const link = document.createElement("link");
 		link.href = CSSurl;
@@ -70,7 +84,7 @@ function PDFViewer({ book }) {
 		link.rel = "stylesheet";
 		link.id = linkId;
 		document.head.appendChild(link);
-		console.log("css loaded");
+		console.log("css loaded", pageContainerHTML);
 
 		const HTMLurl = `/storage/pdf/${book.urlName}`;
 		api(HTMLurl)
@@ -84,16 +98,7 @@ function PDFViewer({ book }) {
 			.catch((err) => {
 				logger.log(err);
 			});
-
-		return () => {
-			const link = document.getElementById(linkId);
-			if (link) {
-				link.remove();
-			}
-			setTotalPage(0);
-			setPageContainerHTML("");
-		};
-	}, [book]);
+	}, [book, pageContainerHTML]);
 
 	useEffect(() => {
 		if (pageContainerHTML && !renderContent && book?.urlName) {
@@ -104,16 +109,10 @@ function PDFViewer({ book }) {
 			setTotalPage(pageDivs.length);
 			mapContainer(pageDivs);
 		}
-	}, [pageContainerHTML, book]);
+	}, [book, pageContainerHTML]);
 
 	useEffect(() => {
-		if (totalPage === 0) return;
-		for (let page = 1; page <= totalPage; page++) {
-			updatePageLoadingState(page, false);
-		}
-	}, [book, totalPage]);
-
-	useEffect(() => {
+		console.log("width renderContent", renderContent);
 		if (renderContent && pdfContentsRef) {
 			requestAnimationFrame(() => {
 				const wrapper = pdfContentsRef.current.querySelector(".page-wrapper");
@@ -164,6 +163,7 @@ function PDFViewer({ book }) {
 				await api(url)
 					.then((svgData) => {
 						pageDivClone.innerHTML = svgData.data;
+						console.log(index + 1, "set lazyloading");
 						updatePageLoadingState(index + 1, "lazy-loading");
 					})
 					.catch((error) => console.error("SVG 못 가져옴", error));
@@ -175,11 +175,12 @@ function PDFViewer({ book }) {
 			})
 		);
 		setCanvasComponents(mapCanvasContainer);
+		console.log("renderContent true");
 		setRenderContent(true);
 	}
 
 	return (
-		<div style={{ display: "flex", justifyContent: "center" }}>
+		<div className="pdf-viewer" style={{ display: "flex", justifyContent: "center" }}>
 			<Box
 				sx={{
 					display: "flex",
@@ -226,7 +227,7 @@ function PDFViewer({ book }) {
 					<Info />
 				</Box>
 				<Box sx={{ flex: 3.5 }}>
-					<Highlights bookId={book.id} renderContent={renderContent} />
+					<Highlights bookId={bookId} renderContent={renderContent} />
 				</Box>
 			</Box>
 			{/* <RoomUserList /> */}
@@ -237,7 +238,7 @@ function PDFViewer({ book }) {
 				<PenController />
 			</DraggableElement>
 			<CursorCanvasController totalPage={canvasComponents.length} />
-			{/* <DrawingCanvasController totalPage={canvasComponents.length} /> undo redo*/}
+			<DrawingCanvasController totalPage={canvasComponents.length} />
 		</div>
 	);
 }

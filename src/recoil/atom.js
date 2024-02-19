@@ -101,6 +101,11 @@ export const bookChangedState = atom({
 	default: false,
 });
 
+export const renderContentState = atom({
+	key: "renderContent",
+	default: false,
+});
+
 /* pen mode */
 export const penModeState = atom({
 	key: "penMode",

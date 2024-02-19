@@ -21,7 +21,7 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 	const [isDrawing, setIsDrawing] = useState(false);
 	const canvasRef = useRef(null);
 	const elements = useRecoilValue(canvasElementsFamily({ bookId: bookId, pageNum: pageNum, userId: roomUser.id }));
-	const loadingState = useRecoilValue(pageLoadingStateFamily({ pageNum: pageNum }));
+	const loadingState = useRecoilValue(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum }));
 
 	const setElements = useSetRecoilState(
 		canvasElementsFamily({ bookId: bookId, pageNum: pageNum, userId: roomUser.id })
@@ -52,7 +52,7 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 				console.log("기존 자료 있음", elementsBlob);
 				blobToJson(elementsBlob).then((json) => {
 					console.log("복호화", json);
-					setElements(json.data);
+					setElements(json);
 				});
 			})
 			.catch((err) => {

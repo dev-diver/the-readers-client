@@ -85,11 +85,11 @@ function Highlighter({ bookId, renderContent }) {
 	}, [renderContent, user, bookChanged]);
 
 	useEffect(() => {
-		console.log("prevUsers", prevRoomUsers, "roomUsers", roomUsers);
+		// console.log("prevUsers", prevRoomUsers, "roomUsers", roomUsers);
 		const leftUsers = prevRoomUsers.filter((prevUser) => !roomUsers.some((user) => user.id === prevUser.id));
 		const joinedUsers = roomUsers.filter((user) => !prevRoomUsers.some((prevUser) => prevUser.id === user.id));
 		setPrevRoomUsers(roomUsers);
-		console.log("leftUsers", leftUsers, "joinedUsers", joinedUsers);
+		// console.log("leftUsers", leftUsers, "joinedUsers", joinedUsers);
 		if (!user) return;
 		joinedUsers?.forEach((roomUser) => {
 			const pageNum = 1; //레이지로드 전까지는 1로 해도 전체 가져옴
@@ -98,7 +98,7 @@ function Highlighter({ bookId, renderContent }) {
 			}
 		});
 		leftUsers?.forEach((roomUser) => {
-			console.log("left", roomUser.id);
+			// console.log("left", roomUser.id);
 			scrollerRef.querySelectorAll(`mark[data-user-id="${roomUser.id}"]`).forEach((highlight) => {
 				const highlightId = highlight.getAttribute("data-highlight-id");
 				eraseHighlight(scrollerRef, highlightId);

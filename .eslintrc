@@ -30,6 +30,7 @@
       "@react-three"
     ],
     "rules": {
+        "no-debugger":"off",
         "react/no-unknown-property": ["off", { "ignore": ["args"] }],
         "@typescript-eslint/no-unused-vars": "warn",
         "prettier/prettier": "warn",

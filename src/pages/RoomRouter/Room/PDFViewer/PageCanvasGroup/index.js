@@ -13,6 +13,7 @@ import {
 	pageScrollTopFamily,
 	scrollerRefState,
 	currentPageState,
+	renderContentState,
 } from "recoil/atom";
 import api from "api";
 
@@ -26,13 +27,14 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
 	const [bookChanged, setBookChanged] = useRecoilState(bookChangedState);
 	const [cursorCanvasRef, setCursorCanvasRef] = useRecoilState(
-		cursorCanvasRefFamily({ bookId: book.id, pageNum: pageNum })
+		cursorCanvasRefFamily({ bookId: bookId, pageNum: pageNum })
 	);
 	const [penMode, setPenMode] = useRecoilState(penModeState);
 	const [scroller, setScroller] = useRecoilState(scrollerRefState);
 	const [scale, setScale] = useRecoilState(viewerScaleState);
 	const [currentPage, setCurrentPage] = useRecoilState(currentPageState);
-	const loadingState = useRecoilValue(pageLoadingStateFamily({ pageNum: pageNum }));
+	const loadingState = useRecoilValue(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum }));
+	const [renderContent, setRenderContent] = useRecoilState(renderContentState);
 
 	const setRef = useCallback(
 		(el) => {
@@ -44,49 +46,54 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 	const updatePageLoadingState = useRecoilCallback(
 		({ set }) =>
 			(loadingState) => {
-				set(pageLoadingStateFamily({ pageNum: pageNum }), loadingState);
+				set(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum }), loadingState);
 			},
-		[]
+		[bookId]
 	);
 
-	const setPageScrollTop = useSetRecoilState(pageScrollTopFamily({ pageNum: pageNum }));
+	const setPageScrollTop = useSetRecoilState(pageScrollTopFamily({ bookId: bookId, pageNum: pageNum }));
 
 	useEffect(() => {
-		if (!loadingState) return;
+		if (!loadingState || !scroller) return;
 		requestAnimationFrame(() => {
 			const canvasScrollTop = getRelativeTop(canvasFrame, scroller);
 			const scaledScrollTop = canvasScrollTop * scale;
 			setPageScrollTop(scaledScrollTop);
-			// console.log("setScaledScrollTop", pageNum, loadingState, scaledScrollTop);
+			console.log(scale, "setScaledScrollTop", pageNum, loadingState, scaledScrollTop);
 		});
-	}, [loadingState, scale]);
+	}, [loadingState, scale, scroller]);
 
 	useEffect(() => {
-		if (currentPage == pageNum && loadingState == "lazy-loading") {
+		console.log("load page", pageNum, loadingState, renderContent);
+		if (renderContent && currentPage == pageNum && loadingState == "lazy-loading") {
 			console.log("load page", pageNum, loadingState);
+			updatePageLoadingState("loading");
+		}
+	}, [currentPage, renderContent, loadingState]);
+
+	useEffect(() => {
+		if (loadingState == "loading") {
 			loadPageContent(pageNum);
 		}
-	}, [currentPage]);
+	}, [loadingState]);
 
 	const loadPageContent = async (pageNum) => {
-		updatePageLoadingState("loading");
 		const pageHexNum = pageNum.toString(16);
 		const pageDiv = document.getElementById(`pf${pageHexNum}`);
 		const fileName = pageDiv.getAttribute("data-page-url");
 		const url = `/storage/pdf/${book.urlName}/pages/${fileName}`;
-		const pageDivLoad = await api(url)
+		api(url)
 			.then((response) => {
 				const parser = new DOMParser();
 				const doc = parser.parseFromString(response.data, "text/html");
-				const div = doc.querySelector(".pf");
-				return div;
+				const pageDivLoad = doc.querySelector(".pf");
+				console.log("pageDiv", pageDiv, pageDiv.parentNode);
+				pageDiv.parentNode.replaceChild(pageDivLoad, pageDiv);
+				updatePageLoadingState("loaded");
 			})
 			.catch((err) => {
 				console.error(err);
 			});
-		// console.log("pageDiv", pageDiv, pageDiv.parentNode);
-		pageDiv.parentNode.replaceChild(pageDivLoad, pageDiv);
-		updatePageLoadingState("loaded");
 	};
 
 	const info = { user: user, bookId: bookId, pageNum: pageNum };
