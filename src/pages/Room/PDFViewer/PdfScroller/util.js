@@ -36,7 +36,7 @@ export const calculateScrollY = (pageContainer) => {
 
 export const scrollToHighlight = (scroller, highlightId, scale) => {
 	const highlight = scroller.querySelector(`[data-highlight-id="${highlightId}"]`);
-	console.log("find highlight", highlight, scroller, scale);
+	console.log("find highlight", highlightId, highlight, scroller, scale);
 	if (highlight) {
 		let top = getRelativeTop(highlight, scroller) * scale;
 		smoothScrollTo(scroller, top, 300);

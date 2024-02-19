@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Button, ButtonGroup, Box, Modal } from "@mui/material";
 import { useState } from "react";
 import AddMemo from "components/OnclickOptions/AddMemo";
 import InsertLink from "components/OptionsModal/InsertLink";
 import D3Graph from "components/D3Graph";
 import api from "api";
+import { useNavigate } from "react-router-dom";
 import { on } from "events";
 
 function ButtonGroups({
@@ -24,6 +25,15 @@ function ButtonGroups({
 	const [showInsertLink, setShowInsertLink] = useState(false);
 	const [showD3Graph, setShowD3Graph] = useState(false); // D3Graph 가시성 제어 상태
 	const [linkData, setLinkData] = useState({ nodes: [], links: [] }); // API로부터 받은 링크 데이터를 저장
+
+	const navigate = useNavigate();
+	const [pendingNodeId, setPendingNodeId] = useState(null); // 페이지 이동을 위해 대기 중인 nodeId를 저장
+	useEffect(() => {
+		if (!showD3Graph && pendingNodeId !== null) {
+			navigate(`/room/1/book/1?highlightId=${pendingNodeId}`);
+			setPendingNodeId(null); // 필요에 따라 상태 초기화
+		}
+	}, [showD3Graph, pendingNodeId, navigate]);
 
 	// 메모 삽입 버튼 클릭 이벤트 핸들러
 	const handleAddMemoClick = () => {
@@ -144,6 +154,13 @@ function ButtonGroups({
 		outline: "none",
 	};
 
+	const handleNodeClick = async (nodeId) => {
+		// D3Graph 컴포넌트를 닫는 로직 (예: 상태 변경)
+		setShowD3Graph(false);
+		// 페이지 이동 로직
+		navigate(`/room/1/book/1?highlightId=${nodeId}`);
+	};
+
 	return (
 		<div className="button-groups" style={style}>
 			<ButtonGroup
@@ -189,7 +206,8 @@ function ButtonGroups({
 							data={linkData} // 그래프를 그리는 데 필요한 데이터 객체
 							width={900} // 그래프의 너비를 지정
 							height={400} // 그래프의 높이를 지정
-							onNodeClick={(nodeId) => console.log(`Node ${nodeId} was clicked`)} // 노드 클릭 시 실행될 함수
+							// onNodeClick={(nodeId) => console.log(`Node ${nodeId} was clicked`)} // 노드 클릭 시 실행될 함수
+							onNodeClick={handleNodeClick} // 노드 클릭 시 실행될 함수
 						/>
 						<Button
 							onClick={closeModal}

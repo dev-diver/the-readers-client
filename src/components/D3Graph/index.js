@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import api from "api";
 import "./style.css";
 
-const D3Graph = ({ highlightId, data, width, height, onNodeClick = () => {} }) => {
+const D3Graph = ({ highlightId, data, width, height, onNodeClick }) => {
 	const navigate = useNavigate(); // useNavigate 훅 사용
 	const [containerId] = useState(`d3graph-${uuidv4()}`);
 	const [nodeTexts, setNodeTexts] = useState([]);
@@ -122,8 +122,14 @@ const D3Graph = ({ highlightId, data, width, height, onNodeClick = () => {} }) =
 				// 외부 링크인 경우, 새 탭에서 URL 열기
 				window.open(d.url, "_blank");
 			} else {
-				// 내부 링크인 경우, useNavigate로 해당 경로로 이동
-				navigate(`/highlights/${d.id}`);
+				// 내부 링크인 경우, 정의된 URL 형식에 맞춰 이동
+				// 여기서는 room, book의 ID가 고정되어 있다고 가정합니다.
+				// 실제 사용 시에는 이 값들을 동적으로 대체해야 할 수 있습니다.
+				const roomId = 1; // 가정: 현재 방의 ID
+				const bookId = 1; // 가정: 현재 책의 ID
+				const highlightId = d.id; // 클릭된 노드의 ID (하이라이트 ID)
+
+				onNodeClick(highlightId); // 노드 클릭 이벤트 핸들러 호출
 			}
 		});
 
