@@ -26,10 +26,10 @@ function Chart() {
 	const [currentPage, setCurrentPage] = useRecoilState(currentPageState);
 	const [totalPage, setTotalPage] = useRecoilState(totalPageState);
 	const [prevPage, setPrevPage] = useState(0);
-	const [currentUsersPage, setCurrentUsersPage] = useState([]);
+	const [currentUsersPage, setCurrentUsersPage] = useImmer([]);
 	const navigate = useNavigate();
 	// 차트 데이터 관련 상태
-	const [data, setData] = useState([]);
+	const [data, setData] = useImmer([]);
 	const [count, setCount] = useState(0);
 
 	// 디버깅용 출력
@@ -37,12 +37,13 @@ function Chart() {
 	// 	console.log("roomUsers", roomUsers);
 	// 	console.log("roomUser", roomUser);
 	// }, []);
-	useEffect(() => {
-		console.log("TEST");
-		console.log("data", data);
-	}, [data]);
+	// useEffect(() => {
+	// 	console.log("TEST");
+	// 	console.log("data", data);
+	// }, [data]);
 
 	/*** Server 수정중 (save, load) ***/
+	// 유저가 나갈 때 server에 save
 	const applyServerChart = (UserId, BookId, page, time) => {
 		api
 			.get(`/chart/${BookId}/${UserId}`) //  /chart/book/:bookId/user/:userId 의 형식이 좋을 것 같아요.
@@ -101,8 +102,7 @@ function Chart() {
 
 		// 기존 데이터를 업데이트하는 함수
 		const updatePageDataWithNewUsers = (existingData) => {
-			const currentRoomUserIds = new Set(roomUsers.map((user) => user.id)); // 현재 roomUsers의 모든 id를 Set으로 생성합니다.
-			console.log("curretRoomUserIds", currentRoomUserIds);
+			// const currentRoomUserIds = new Set(roomUsers.map((user) => user.id)); // 현재 roomUsers의 모든 id를 Set으로 생성합니다.
 			return (
 				existingData?.map((pageObject) => {
 					const updatedPageObject = { ...pageObject }; // 기존 페이지 객체 복사
@@ -136,31 +136,27 @@ function Chart() {
 	useEffect(() => {
 		const handleUpdateChart = (userData) => {
 			const { filteredData, userKey } = userData;
-			// console.log("****received data from server****");
-			// console.log("filteredData", filteredData);
-			// console.log("userKey", userKey);
+
 			setData((prevData) => {
-				// prevData의 깊은 복사본을 생성합니다.
-				const updatedData = prevData.map((item) => {
-					// filteredUpdateData에서 현재 순회 중인 page와 일치하는 항목을 찾습니다.
-					const updateItem = filteredData.find((update) => update.page === item.page);
+				// 예외 처리
+				if (prevData?.length === 0) {
+					return prevData;
+				}
+				prevData.forEach((item) => {
+					// filteredData에서 현재 순회 중인 page와 일치하는 항목을 찾습니다.
+					const filteredItem = filteredData.find((data) => data.page === item.page);
 
-					// 일치하는 항목이 있는 경우, 해당 userKey2의 값을 업데이트합니다.
-					if (updateItem) {
-						// 여기서는 'userKey2'가 업데이트 대상 키라고 가정합니다.
-						// 'userKey2'를 업데이트하고 나머지 항목(rest)은 그대로 유지합니다.
-						return { ...item, [userKey]: updateItem[userKey] ?? item[userKey] };
+					// 일치하는 항목이 있는 경우, 해당 userKey의 값을 업데이트합니다.
+					if (filteredItem) {
+						// 'userKey'를 업데이트하고 나머지 항목은 그대로 유지합니다.
+						item[userKey] = filteredItem[userKey] ?? item[userKey];
 					}
-
-					// 일치하는 항목이 없는 경우, 원본 항목을 반환합니다.
-					return item;
 				});
-				// console.log("updatedData", updatedData);
-				return updatedData;
 			});
 		};
+
 		socket.on("update-chart", handleUpdateChart);
-		// console.log("roomUsers", roomUsers);
+
 		return () => {
 			socket.off("update-chart", handleUpdateChart);
 		};
@@ -185,7 +181,7 @@ function Chart() {
 		// data가 {}일 때는 !data로 잡히지 않으므로 추가로 조건문을 걸어줌
 		if (!roomUser || !data || Object.keys(data).length === 0) return;
 		const userKey = roomUser?.user?.id;
-		// let page = 0;
+
 		const updatedData = data.map((item) => {
 			if (Number(item.page) === prevPage) {
 				// data의 parseInt(item.page)과 같은 값의 page를 찾아 time을 count만큼 증가시킴
@@ -196,13 +192,11 @@ function Chart() {
 					...item,
 					[userKey]: item[userKey] + count_tmp,
 				};
-				// page = Number(item.page);
 
 				return newItem;
 			}
 			return item;
 		});
-		// console.log("updatedData", updatedData);
 
 		setData(updatedData);
 
@@ -236,28 +230,18 @@ function Chart() {
 
 	useEffect(() => {
 		socket.on("other-user-position", (data) => {
-			const { user, currentPage, flag } = data;
-			if (flag === 1) {
-				// console.log("유저 나갈 때?? scroll", scroll);
-			}
-			setCurrentUsersPage((prev) => {
-				// 먼저, 이전 상태에서 현재 업데이트된 사용자를 찾습니다.
-				const userIndex = prev.findIndex((u) => u.id === user.id);
-				// console.log("userIndex", userIndex);
+			const { user, currentPage } = data;
+
+			setCurrentUsersPage((draft) => {
+				const userIndex = draft.findIndex((u) => u.id === user.id);
+
 				if (userIndex > -1) {
-					// 사용자가 이미 존재하면, 해당 사용자의 정보를 업데이트합니다.
-					const updatedUsers = [...prev];
-					updatedUsers[userIndex] = {
-						...updatedUsers[userIndex],
-						currentPage: currentPage,
-						profileImg: user.profileImg,
-					};
-					// console.log("updatedUsers", updatedUsers);
-					return updatedUsers;
+					// 사용자가 이미 존재하면, 해당 사용자의 정보를 직접 업데이트합니다.
+					draft[userIndex].currentPage = currentPage;
+					draft[userIndex].profileImg = user.profileImg;
 				} else {
-					// 새 사용자라면, 배열에 추가합니다.
-					// console.log("new user");
-					return [...prev, { id: user.id, currentPage: currentPage, profileImg: user.profileImg }];
+					// 새 사용자라면, 배열에 직접 추가합니다.
+					draft.push({ id: user.id, currentPage: currentPage, profileImg: user.profileImg });
 				}
 			});
 		});
@@ -362,11 +346,6 @@ function Chart() {
 						bottom: 5,
 					}}
 				>
-					{/* <defs>
-						<linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-							<stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
-						</linearGradient>
-					</defs> */}
 					<XAxis type="number" />
 					<YAxis
 						dataKey="page"
@@ -377,7 +356,10 @@ function Chart() {
 					/>
 					<CartesianGrid strokeDasharray="3 3" />
 					<Tooltip cursor={{ stroke: coloringUser(roomUser?.user.id), strokeWidth: 2 }} />
-					{roomUsers?.map((user, index) => (
+					{[
+						...roomUsers.filter((user) => user.id !== roomUser.user.id),
+						...roomUsers.filter((user) => user.id === roomUser.user.id),
+					]?.map((user, index) => (
 						<Area
 							key={user.id}
 							type="monotone"
