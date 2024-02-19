@@ -9,7 +9,7 @@ import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import BookShelf from "components/BookShelf";
-import AddBook from "pages/RoomLobby/Addbook";
+import AddBook from "components/Addbook";
 import { BookOpen, LampDeskIcon, LibrarySquare } from "lucide-react";
 import { ThemeProvider, useTheme } from "@mui/material/styles";
 import { useRecoilState } from "recoil";

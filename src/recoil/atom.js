@@ -39,6 +39,11 @@ export const viewerScaleState = atom({
 	default: 1,
 });
 
+export const viewerScaleApplyState = atom({
+	key: "viewerScaleApply",
+	default: 1,
+});
+
 export const widthState = atom({
 	key: "width",
 	default: 0,
@@ -101,6 +106,11 @@ export const bookChangedState = atom({
 	default: false,
 });
 
+export const renderContentState = atom({
+	key: "renderContent",
+	default: false,
+});
+
 export const currentHighlightIdState = atom({
 	key: "currentHighlightId",
 	default: null,
@@ -124,9 +134,10 @@ export const scrollerRefState = atom({
 	default: null,
 });
 
-export const isVideoExitState = atom({
-	key: "isVideoExit",
-	default: false,
+/* VideoChat */
+export const userMapState = atom({
+	key: "userMap",
+	default: {},
 });
 
 export const isAppBarPinnedState = atom({

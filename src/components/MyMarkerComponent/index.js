@@ -4,7 +4,7 @@ import { Tooltip, Box, Button, Typography, Modal } from "@mui/material";
 import "./style.css";
 import D3Graph from "components/D3Graph";
 import Outerlinks from "components/Outerlinks";
-import { getRelativeTopLeft } from "pages/Room/PDFViewer/PdfScroller/util";
+import { getRelativeTopLeft } from "pages/RoomRouter/Room/PDFViewer/PdfScroller/util";
 
 function MyMarkerComponent({
 	onClose,

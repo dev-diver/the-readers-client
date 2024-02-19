@@ -5,7 +5,6 @@ import reportWebVitals from "./reportWebVitals";
 import App from "./App";
 // import "bootstrap/dist/css/bootstrap.min.css";
 import { RecoilRoot, useRecoilSnapshot } from "recoil";
-import registerServiceWorker from "./components/VideoChat/registerServiceWorker";
 
 function DebugObserver() {
 	const snapshot = useRecoilSnapshot();
@@ -28,9 +27,3 @@ root.render(
 	</RecoilRoot>
 	// </React.StrictMode>
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
-registerServiceWorker();
