@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { EffectComposer, Outline, Selection } from '@react-three/postprocessing';
 import { Euler, Vector3 } from 'three';
@@ -9,7 +9,7 @@ import { baseURL } from 'config/config'
 function Carousel({ numPlanes, radius , books, bookClickHandler} : CarouselProps) {
     const groupRef = useRef<THREE.Group>(null);
     const { camera } = useThree();
-    // 각 프레임마다 그룹을 회전
+// 각 프레임마다 그룹을 회전
     useFrame(() => {
         if(groupRef.current){
             groupRef.current.rotation.y += 0.002;
@@ -30,7 +30,7 @@ function Carousel({ numPlanes, radius , books, bookClickHandler} : CarouselProps
         <EffectComposer multisampling={8} autoClear={false}>
           <Outline blur edgeStrength={100} width={1000} />
         </EffectComposer>
-        <group 
+        {books.length!=0 && <group 
             ref={groupRef}
             position={[camera.position.x, camera.position.y, camera.position.z]}
         >
@@ -43,7 +43,7 @@ function Carousel({ numPlanes, radius , books, bookClickHandler} : CarouselProps
                     url={`${baseURL}/api/storage/pdf/${books[idx % books.length].urlName}/cover`}
                 />
             ))}
-        </group>
+        </group>}
         </Selection>
     );
 }
