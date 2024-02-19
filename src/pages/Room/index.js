@@ -5,12 +5,8 @@ import PDFViewer from "./PDFViewer";
 import api from "api";
 import { Box } from "@mui/material";
 import { useRecoilState } from "recoil";
-<<<<<<< HEAD
-import { userState, isLeadState, isTrailState, roomState, userIdState } from "recoil/atom";
-=======
-import { userState, isLeadState, isTrailState, roomState, isAppBarPinnedState } from "recoil/atom";
+import { userState, isLeadState, isTrailState, roomState, userIdState , isAppBarPinnedState } from "recoil/atom";
 import RoomUserList from "components/RoomUserList";
->>>>>>> upstream/dev
 
 function Room() {
 	const { bookId, roomId } = useParams();
@@ -19,12 +15,8 @@ function Room() {
 	const [isLead, setLead] = useRecoilState(isLeadState);
 	const [user, setUser] = useRecoilState(userState);
 	const [room, setRoom] = useRecoilState(roomState);
-<<<<<<< HEAD
 	const [userId, setUserId] = useRecoilState(userIdState);
-=======
 	const [isAppBarPinned, setIsAppBarPinned] = useRecoilState(isAppBarPinnedState);
-
->>>>>>> upstream/dev
 	const navigate = useNavigate();
 
 	// 성능 최적화
