@@ -6,15 +6,7 @@ import D3Graph from "components/D3Graph";
 import Outerlinks from "components/Outerlinks";
 import { getRelativeTopLeft } from "pages/RoomRouter/Room/PDFViewer/PdfScroller/util";
 
-function MyMarkerComponent({
-	onClose,
-	IsMemoOpen,
-	highlightInfo,
-	setButtonGroupsPos,
-	scrollerRef,
-	children,
-	setCurrentHighlightId,
-}) {
+function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, scrollerRef, recoilProps, children }) {
 	const [highlights, setHighlights] = useState([]);
 	const [onClickOptions, setOnClickOptions] = useState(false);
 	const [memoData, setMemoData] = useState("");
@@ -33,7 +25,7 @@ function MyMarkerComponent({
 		const { top, left } = getRelativeTopLeft(e.target, scrollerRef); // 상대 좌표를 계산
 		console.log(e.target);
 		console.log("top", top, "left", left);
-		setButtonGroupsPos({ visible: true, x: left, y: top }); // 계산된 위치를 사용하여 상태 업데이트
+		recoilProps.setButtonGroupsPos({ visible: true, x: left, y: top }); // 계산된 위치를 사용하여 상태 업데이트
 	};
 
 	useEffect(() => {
@@ -80,7 +72,7 @@ function MyMarkerComponent({
 			// console.log("하이라이트아이디", highlightId);
 			// console.log("유저아이디", userId);
 			// console.log("setCurrentHighlightId", setCurrentHighlightId, highlightId);
-			setCurrentHighlightId(highlightId);
+			recoilProps.setCurrentHighlightId(highlightId);
 			setHighlights(response.data.data); // 상태 업데이트
 			// setOnClickOptions(true);
 			popButtonGroup(e);

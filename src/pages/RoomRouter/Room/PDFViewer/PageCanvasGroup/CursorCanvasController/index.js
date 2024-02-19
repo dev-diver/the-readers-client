@@ -12,7 +12,7 @@ export default function CursorCanvasController() {
 	const updateCursorCanvasRefs = useRecoilCallback(
 		({ set }) =>
 			(pageNum, value) => {
-				set(cursorCanvasRefFamily({ pageNum }), value);
+				set(cursorCanvasRefFamily({ pageNum: pageNum }), value);
 			},
 		[]
 	);
@@ -25,13 +25,17 @@ export default function CursorCanvasController() {
 		setBookChanged((prev) => !prev);
 	}, [totalPage]);
 
-	const handleUpdatePointer = useRecoilCallback(({ snapshot }) => async (data) => {
-		const canvas = await snapshot.getPromise(cursorCanvasRefFamily({ pageNum: data.pageNum }));
+	const handleUpdatePointer = useRecoilCallback(
+		({ snapshot }) =>
+			async (data) => {
+				const canvas = await snapshot.getPromise(cursorCanvasRefFamily({ pageNum: data.pageNum }));
 
-		if (!canvas) return;
-		updatePointers(pointers.current, data);
-		redrawCanvas(canvas, pointers.current);
-	});
+				if (!canvas) return;
+				updatePointers(pointers.current, data);
+				redrawCanvas(canvas, pointers.current);
+			},
+		[redrawCanvas, updatePointers, pointers]
+	);
 
 	useEffect(() => {
 		socket.on("update-pointer", handleUpdatePointer);

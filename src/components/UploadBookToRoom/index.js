@@ -28,8 +28,8 @@ export default function UploadBookToRoom({ roomId, refresher, setPop }) {
 				api
 					.post(`/rooms/${roomId}/books`, {
 						title: title || "제목없음",
-						// location: response.data.location,
 						fileName: response.data.fileName,
+						totalPage: response.data.totalPage,
 					})
 					.then((response) => {
 						logger.log(response.data.url);

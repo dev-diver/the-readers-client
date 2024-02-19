@@ -53,6 +53,8 @@ export default function RoomJoinController({ roomId }) {
 	useEffect(() => {
 		const handleRoomUsersChanged = (data) => {
 			// console.log("room-users-changed", data.roomUsers);
+			//lougout시 excludeMe.
+			//highlight 삭제 등을 할 때 남은 roomUsers 목록이 의미 없으므로 내 로그인은 따로 처리해줘야 함
 			setRoomUsers(data.roomUsers);
 		};
 		socket.on("room-users-changed", handleRoomUsersChanged);

@@ -4,6 +4,8 @@ import { RecoilRoot } from "recoil";
 import MyMarkerComponent from "components/MyMarkerComponent";
 import { current } from "immer";
 import ButtonGroups from "components/ButtonGroups";
+import { logger } from "logger";
+import api from "api";
 
 function getElemPageNum(elem) {
 	// console.log("elemPageNum", container);
@@ -169,9 +171,25 @@ export function rangeToInfo(range, additionalInfo) {
 	return highlightInfo;
 }
 
+export const loadAndDrawPageHighlight = (userId, bookId, pageNum, mine, scrollerRef, recoilProps) => {
+	api.get(`/highlights/user/${userId}/book/${bookId}/page/${pageNum}`).then((response) => {
+		logger.log("highlight", response.data);
+		response.data.forEach((highlightInfo) => {
+			const newRange = InfoToRange(highlightInfo);
+			const drawHighlightInfo = {
+				id: highlightInfo.id,
+				userId: userId,
+				color: mine ? highlightInfo.color : "pink",
+				bookId: bookId,
+			};
+			drawHighlight(newRange, drawHighlightInfo, scrollerRef, recoilProps);
+		});
+	});
+};
+
 /* Draw ,Erase */
 
-export function drawHighlight(range, highlightInfo, setButtonGroupsPos, scrollerRef, setCurrentHighlightId) {
+export function drawHighlight(range, highlightInfo, scrollerRef, recoilProps) {
 	// console.log(setButtonGroupsPos, "setButtonGroupPos");
 	// console.log(scrollerRef, "scrollerRef");
 	// console.log(setCurrentHighlightId, "scrollerRef");
@@ -186,7 +204,7 @@ export function drawHighlight(range, highlightInfo, setButtonGroupsPos, scroller
 		// console.log("(after) end-start", range.endOffset);
 		// console.log("const", endOffset - startOffset);
 		part.splitText(endOffset - startOffset);
-		createMarkTag(part, highlightInfo, range, true, 2, setButtonGroupsPos, scrollerRef, setCurrentHighlightId);
+		createMarkTag(part, highlightInfo, range, true, 2, scrollerRef, recoilProps);
 		return;
 	}
 
@@ -215,7 +233,7 @@ export function drawHighlight(range, highlightInfo, setButtonGroupsPos, scroller
 	let currentNode = walker.nextNode();
 	//처음
 	const part = currentNode.splitText(range.startOffset);
-	createMarkTag(part, highlightInfo, range, false, 1, setButtonGroupsPos, scrollerRef, setCurrentHighlightId);
+	createMarkTag(part, highlightInfo, range, false, 1, scrollerRef, recoilProps);
 
 	currentNode = walker.nextNode();
 	while (currentNode) {
@@ -224,16 +242,7 @@ export function drawHighlight(range, highlightInfo, setButtonGroupsPos, scroller
 		if (isEnd) {
 			currentNode.splitText(range.endOffset);
 		}
-		createMarkTag(
-			currentNode,
-			highlightInfo,
-			range,
-			isEnd,
-			isEnd ? 1 : 0,
-			setButtonGroupsPos,
-			scrollerRef,
-			setCurrentHighlightId
-		);
+		createMarkTag(currentNode, highlightInfo, range, isEnd, isEnd ? 1 : 0, scrollerRef, recoilProps);
 		currentNode = nextNode;
 	}
 	// let currentNode = walker.nextNode();
@@ -243,16 +252,7 @@ export function drawHighlight(range, highlightInfo, setButtonGroupsPos, scroller
 	// }
 }
 
-const createMarkTag = (
-	currentNode,
-	highlightInfo,
-	range,
-	isEnd = false,
-	split = 0,
-	setButtonGroupsPos,
-	scrollerRef,
-	setCurrentHighlightId
-) => {
+const createMarkTag = (currentNode, highlightInfo, range, isEnd = false, split = 0, scrollerRef, recoilProps) => {
 	const marker = document.createElement("mark");
 	marker.classList.add(highlightInfo.color);
 	marker.classList.add("marker");
@@ -272,9 +272,8 @@ const createMarkTag = (
 		<MyMarkerComponent
 			highlightInfo={highlightInfo}
 			IsMemoOpen={IsMemoOpen}
-			setButtonGroupsPos={setButtonGroupsPos}
 			scrollerRef={scrollerRef}
-			setCurrentHighlightId={setCurrentHighlightId}
+			recoilProps={recoilProps}
 		>
 			{currentNode.textContent}
 		</MyMarkerComponent>

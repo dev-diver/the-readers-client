@@ -23,9 +23,15 @@ function OptionsModal({
 	color = "yellow", // 하이라이트 색상 기본값 설정
 }) {
 	const [InsertMemoOpen, setInsertMemoOpen] = useState(false);
-	const [buttonGroupPos, setButtonGroupPos] = useRecoilState(buttonGroupsPosState);
+	const [buttonGroupsPos, setButtonGroupsPos] = useRecoilState(buttonGroupsPosState);
 	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
 	const [currentHighlightId, setCurrentHighlightId] = useRecoilState(currentHighlightIdState);
+
+	const recoilProps = {
+		setButtonGroupsPos,
+		setCurrentHighlightId,
+	};
+
 	const sendHighlightToServer = async (highlightInfo) => {
 		console.log("user", user, "하이라이트 정보", highlightInfo);
 		if (!user) {
@@ -86,7 +92,7 @@ function OptionsModal({
 
 			// 소켓에 전송 및 화면에 그리기
 			socket.emit("insert-highlight", { ...modifiedHighlightInfo, id: highlightId }); // 소켓에 전송
-			drawHighlight(newRange, drawHighlightInfo, setButtonGroupPos, scrollerRef, setCurrentHighlightId); // 화면에 그림
+			drawHighlight(newRange, drawHighlightInfo, scrollerRef, recoilProps); // 화면에 그림
 			appendHighlightListItem({ ...modifiedHighlightInfo, id: highlightId }); // 리스트에 추가
 		}
 

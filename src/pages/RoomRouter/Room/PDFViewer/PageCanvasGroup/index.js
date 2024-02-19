@@ -15,11 +15,15 @@ import {
 	scrollerRefState,
 	currentPageState,
 	renderContentState,
+	buttonGroupsPosState,
+	currentHighlightIdState,
+	highlightLoadStateFamily,
 } from "recoil/atom";
 import api from "api";
 
 import UserPageDrawingCanvas from "./DrawingCanvasController/UserPageDrawingCanvas";
 import { getRelativeTop } from "../PdfScroller/util";
+import { loadAndDrawPageHighlight } from "pages/RoomRouter/Room/PDFViewer/Highlights/util";
 
 function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 	const { bookId, roomId } = useParams();
@@ -37,9 +41,16 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 	const [currentPage, setCurrentPage] = useRecoilState(currentPageState);
 	const [renderContent, setRenderContent] = useRecoilState(renderContentState);
 
+	const setButtonGroupsPos = useSetRecoilState(buttonGroupsPosState);
+	const setCurrentHighlightId = useSetRecoilState(currentHighlightIdState);
+
 	const prevLoadingState = useRecoilValue(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum - 1 }));
 	const loadingState = useRecoilValue(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum }));
 	const nextLoadingState = useRecoilValue(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum + 1 }));
+	const recoilProps = {
+		setButtonGroupsPos,
+		setCurrentHighlightId,
+	};
 
 	const setRef = useCallback(
 		(el) => {
@@ -54,6 +65,23 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 				set(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum }), loadingState);
 			},
 		[bookId]
+	);
+
+	const loadAllUserPageHighlight = useRecoilCallback(
+		({ snapshot, set }) =>
+			(roomUsers, pageNum) => {
+				roomUsers.forEach(async (roomUser) => {
+					const userId = roomUser.id;
+					const loadState = await snapshot.getPromise(
+						highlightLoadStateFamily({ bookId: bookId, userId: userId, pageNum: pageNum })
+					);
+					if (loadState) return;
+					let mine = userId == user.id;
+					loadAndDrawPageHighlight(userId, bookId, pageNum, mine, scroller, recoilProps);
+					set(highlightLoadStateFamily({ bookId: bookId, userId: userId, pageNum: pageNum }), true);
+				});
+			},
+		[bookId, scroller, recoilProps]
 	);
 
 	const setPageScrollTop = useSetRecoilState(pageScrollTopFamily({ bookId: bookId, pageNum: pageNum }));
@@ -86,6 +114,13 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 			loadPageContent(pageNum);
 		}
 	}, [loadingState]);
+
+	useEffect(() => {
+		if (loadingState == "loaded" && user) {
+			console.log("loadAllUserPageHighlight", pageNum);
+			loadAllUserPageHighlight(roomUsers, pageNum);
+		}
+	}, [loadingState, roomUsers]);
 
 	const loadPageContent = async (pageNum) => {
 		const pageHexNum = pageNum.toString(16);

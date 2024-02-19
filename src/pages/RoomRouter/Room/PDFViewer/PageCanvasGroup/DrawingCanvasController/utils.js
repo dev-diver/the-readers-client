@@ -102,7 +102,7 @@ export const useUndoRedo = () => {
 					debounceDrawSave(newElements, Key, userId);
 				}
 			},
-		[]
+		[debounceDrawSave]
 	);
 
 	const redo = useRecoilCallback(
@@ -124,7 +124,7 @@ export const useUndoRedo = () => {
 					debounceDrawSave(newElements, Key, userId);
 				}
 			},
-		[]
+		[debounceDrawSave]
 	);
 
 	return { undo, redo };
