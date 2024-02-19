@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from "recharts";
 import { useRecoilState } from "recoil";
 import { roomUserState, roomUsersState, currentPageState, totalPageState } from "recoil/atom";
 import socket from "socket";
 import { Button } from "@mui/material";
+import { useImmer } from "use-immer";
 
 import api from "api";
+import { useNavigate } from "react-router-dom";
 
 // 미리 정의된 색상 배열
 function coloringUser(userId) {
@@ -15,23 +18,29 @@ function coloringUser(userId) {
 }
 
 function Chart() {
+	// 유저 관련 상태
+	const { bookId } = useParams();
+	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
+	const [roomUser, setRoomUser] = useRecoilState(roomUserState);
+	// 페이지 관련 상태
 	const [currentPage, setCurrentPage] = useRecoilState(currentPageState);
-	const [prevPage, setPrevPage] = useState(0);
 	const [totalPage, setTotalPage] = useRecoilState(totalPageState);
+	const [prevPage, setPrevPage] = useState(0);
 	const [currentUsersPage, setCurrentUsersPage] = useState([]);
+	const navigate = useNavigate();
+	// 차트 데이터 관련 상태
 	const [data, setData] = useState([]);
 	const [count, setCount] = useState(0);
-	const [roomUser, setRoomUser] = useRecoilState(roomUserState);
-	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
 
+	// 디버깅용 출력
 	// useEffect(() => {
 	// 	console.log("roomUsers", roomUsers);
 	// 	console.log("roomUser", roomUser);
 	// }, []);
-	useEffect(() => {
-		console.log("TEST");
-		console.log("data", data);
-	}, [data]);
+	// useEffect(() => {
+	// 	console.log("TEST");
+	// 	console.log("data", data);
+	// }, [data]);
 
 	/*** Server 수정중 (save, load) ***/
 	const applyServerChart = (UserId, BookId, page, time) => {
@@ -74,9 +83,20 @@ function Chart() {
 
 		// 기존 데이터를 업데이트하는 함수
 		const updatePageDataWithNewUsers = (existingData) => {
+			const currentRoomUserIds = new Set(roomUsers.map((user) => user.id)); // 현재 roomUsers의 모든 id를 Set으로 생성합니다.
+			console.log("curretRoomUserIds", currentRoomUserIds);
 			return (
 				existingData?.map((pageObject) => {
 					const updatedPageObject = { ...pageObject }; // 기존 페이지 객체 복사
+
+					// roomUsers에 없는 사용자의 데이터를 제거합니다.
+					Object.keys(updatedPageObject).forEach((key) => {
+						if (key !== "page" && !currentRoomUserIds.has(key)) {
+							delete updatedPageObject[key];
+						}
+					});
+
+					// roomUsers에 있는 사용자의 데이터를 업데이트하거나 추가합니다.
 					roomUsers?.forEach((user) => {
 						const userIdKey = user?.id; // 각 사용자 ID에 대한 키
 						// 해당 사용자 ID 키가 없는(새로운 유저일 경우) 0으로 초기화
@@ -297,6 +317,17 @@ function Chart() {
 	);
 	CustomTick.displayName = "CustomTick";
 
+	const customClick = (props) => {
+		const handleClick = () => {
+			console.log(props.value);
+			// 페이지 이동 로직 실행
+			// navigateToPage(payload.value);
+			navigate(`/room/${roomUser.roomId}/book/${bookId}?page=${props.value}`);
+		};
+
+		handleClick();
+	};
+
 	return (
 		// width="25%" height={650} style={{ position: "sticky", top: "20px" }}
 		<div style={{ height: "100vh", display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -324,9 +355,10 @@ function Chart() {
 						type="category"
 						interval={0}
 						tick={<CustomTick currentUsersPage={currentUsersPage} />}
+						onClick={customClick}
 					/>
 					<CartesianGrid strokeDasharray="3 3" />
-					<Tooltip />
+					<Tooltip cursor={{ stroke: coloringUser(roomUser.user.id), strokeWidth: 2 }} />
 					{roomUsers?.map((user, index) => (
 						<Area
 							key={user.id}
