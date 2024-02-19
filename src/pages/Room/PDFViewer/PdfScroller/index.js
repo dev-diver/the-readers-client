@@ -142,6 +142,7 @@ export default function PdfScroller({ renderContent, children }) {
 					onClose={() => {
 						closebuttonGroups();
 					}}
+					scrollerRef={scrollerRef}
 				/>
 			)}
 		</Box>

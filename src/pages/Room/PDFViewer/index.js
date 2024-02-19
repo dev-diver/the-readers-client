@@ -8,14 +8,7 @@ import PdfScroller from "./PdfScroller/index";
 import CursorCanvasController from "./PageCanvasGroup/CursorCanvasController";
 import DrawingCanvasController from "./PageCanvasGroup/DrawingCanvasController";
 import { useRecoilState, useRecoilCallback } from "recoil";
-import {
-	viewerScaleState,
-	htmlContentState,
-	totalPageState,
-	viewerScaleState,
-	htmlContentState,
-	pageLoadingStateFamily,
-} from "recoil/atom";
+import { viewerScaleState, htmlContentState, totalPageState, pageLoadingStateFamily } from "recoil/atom";
 import { Box, Grid, Hidden } from "@mui/material";
 import PenController from "./PenController";
 import { DraggableElement } from "components/DragNDrop/DraggableElement";
