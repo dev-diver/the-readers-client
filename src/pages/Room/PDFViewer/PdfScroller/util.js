@@ -29,7 +29,7 @@ export const smoothScrollTo = (container, destinationY, duration = 300) => {
 
 export const scrollToHighlight = (scroller, highlightId, scale) => {
 	const highlight = scroller.querySelector(`[data-highlight-id="${highlightId}"]`);
-	console.log("find highlight", highlight, scroller, scale);
+	console.log("find highlight", highlightId, highlight, scroller, scale);
 	if (highlight) {
 		let top = getRelativeTop(highlight, scroller) * scale;
 		smoothScrollTo(scroller, top, 300);
@@ -56,6 +56,17 @@ export const getRelativeTop = (element, container) => {
 	return top;
 };
 
+export const getRelativeTopLeft = (element, container) => {
+	let top = 0;
+	let left = 0;
+	let currentElement = element;
+	while (currentElement && container.contains(currentElement) && currentElement !== container) {
+		top += currentElement.offsetTop;
+		left += currentElement.offsetLeft;
+		currentElement = currentElement.offsetParent;
+	}
+	return { top, left };
+};
 export const useDetermineCurrentPage = () => {
 	const determineCurrentPage = useRecoilCallback(
 		({ snapshot }) =>

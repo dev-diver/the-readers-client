@@ -101,6 +101,11 @@ export const bookChangedState = atom({
 	default: false,
 });
 
+export const currentHighlightIdState = atom({
+	key: "currentHighlightId",
+	default: null,
+});
+
 /* pen mode */
 export const penModeState = atom({
 	key: "penMode",
@@ -125,8 +130,24 @@ export const userMapState = atom({
 	default: {},
 });
 
-/* Appbar */
 export const isAppBarPinnedState = atom({
 	key: "isAppBarPinned",
+	default: false,
+});
+
+export const buttonGroupsPosState = atom({
+	key: "buttonGroupsPos",
+	default: { visible: false, x: 0, y: 0, page: null },
+});
+
+// userId
+export const userIdState = atom({
+	key: "userId",
+	default: null,
+});
+
+// bookId
+export const bookIdState = atom({
+	key: "bookId",
 	default: false,
 });

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { logger } from "logger";
 import Highlights from "./Highlights";
@@ -8,7 +8,14 @@ import PdfScroller from "./PdfScroller/index";
 import CursorCanvasController from "./PageCanvasGroup/CursorCanvasController";
 import DrawingCanvasController from "./PageCanvasGroup/DrawingCanvasController";
 import { useRecoilState, useRecoilCallback } from "recoil";
-import { totalPageState, viewerScaleState, htmlContentState, pageLoadingStateFamily } from "recoil/atom";
+import {
+	viewerScaleState,
+	htmlContentState,
+	totalPageState,
+	viewerScaleState,
+	htmlContentState,
+	pageLoadingStateFamily,
+} from "recoil/atom";
 import { Box, Grid, Hidden } from "@mui/material";
 import PenController from "./PenController";
 import { DraggableElement } from "components/DragNDrop/DraggableElement";
@@ -54,6 +61,10 @@ function PDFViewer({ book }) {
 			},
 		[]
 	);
+
+	// 하이라이트 클릭 이벤트 핸들러
+
+	// 하이라이트에 이벤트 리스너 추가
 
 	useEffect(() => {
 		setRenderContent(false);
@@ -215,7 +226,7 @@ function PDFViewer({ book }) {
 							dangerouslySetInnerHTML={{ __html: pageContainerHTML }}
 							sx={{
 								width: "100%",
-								transform: `scale(${scale})`,
+								// transform: `scale(${scale})`,
 								transformOrigin: "top left",
 								boxSizing: "border-box",
 							}}

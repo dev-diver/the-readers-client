@@ -3,8 +3,9 @@ import api from "api";
 import { Box, Button, TextField, Modal } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 
-function MarkerViewer({ isOpen, onClose, bookId, fromHighlightId, MyMarkers, onCloseEntire }) {
+function MarkerViewer({ isOpen, onClose, bookId, userId, fromHighlightId, MyMarkers, onCloseEntire }) {
 	const [selectionModel, setSelectionModel] = useState([]);
+
 	// const [notes, setNotes] = useState({});
 	// Refs를 저장하기 위한 객체 생성
 	const noteRefs = useRef({});
@@ -12,8 +13,9 @@ function MarkerViewer({ isOpen, onClose, bookId, fromHighlightId, MyMarkers, onC
 	const handleSubmit = async () => {
 		// 선택된 행들의 ID를 사용하여 API 호출
 		const selectedIDs = selectionModel; // 선택된 행들의 ID 배열
-		// API 호출 로직을 여기에 작성
-		console.log("선택된 행의 ID:", selectedIDs);
+		// const userId =
+		// 	// API 호출 로직을 여기에 작성
+		// 	console.log("선택된 행의 ID:", selectedIDs);
 		const toHighlightId = selectedIDs;
 
 		// 선택된 ID에 대한 note 값을 저장하는 객체
@@ -30,9 +32,9 @@ function MarkerViewer({ isOpen, onClose, bookId, fromHighlightId, MyMarkers, onC
 			try {
 				// 단일 링크 생성 API 호출 // 선택된 ID에 해당하는 note 값
 				const response = await api.post(`/link`, {
+					userId: userId,
 					fromHighlightId: fromHighlightId,
-					toHighlightId: selectedIDs,
-					// note: "링크 설명",
+					toHighlightId: selectedIDs[0],
 					note: singleNote, // 실제로 입력된 note 값을 사용
 				});
 				console.log("링크 생성 성공:", response.data);
@@ -46,11 +48,11 @@ function MarkerViewer({ isOpen, onClose, bookId, fromHighlightId, MyMarkers, onC
 				const linksData = selectedIDs.map((toHighlightId) => ({
 					fromHighlightId,
 					toHighlightId,
-					// note: "링크 설명",
 					note: notesToSubmit[toHighlightId], // 각 ID에 해당하는 note 값을 사용
 				}));
-				const response = await api.post(`/link/many`, { links: linksData });
+				const response = await api.post(`/link/many`, { userId: userId, links: linksData });
 				console.log("다중 링크 생성 성공:", response.data);
+				console.log("userId", userId, "linksData", linksData);
 			} catch (error) {
 				console.error("다중 링크 생성 실패:", error);
 			}

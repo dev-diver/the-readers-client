@@ -11,22 +11,21 @@ import {
 	userState,
 	scrollerRefState,
 	highlightState,
+	buttonGroupsPosState,
+	currentHighlightIdState,
 } from "recoil/atom";
 import socket from "socket.js";
 import "./styles.css";
 
 import HighlightList from "./HighlightList";
-// 진태 추가 코드
-import OptionsModal from "components/OptionsModal";
 
+import OptionsModal from "components/OptionsModal";
 function Highlighter({ bookId, renderContent }) {
 	const { roomId } = useParams();
 	const [user, setUser] = useRecoilState(userState);
 	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
 	const [prevRoomUsers, setPrevRoomUsers] = useState([]);
 	const [color, setColor] = useState("yellow");
-
-	// 진태 추가 코드
 	const [optionsModalOpen, setOptionsModalOpen] = useState(false);
 	const [highlightId, setHighlightId] = useState(null);
 	const [highlightInfos, setHighlightInfos] = useState(null);
@@ -35,7 +34,8 @@ function Highlighter({ bookId, renderContent }) {
 	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
 	const [penMode, setPenMode] = useRecoilState(penModeState);
 	const [bookChanged, setBookChanged] = useRecoilState(bookChangedState);
-
+	const [buttonGroupsPos, setButtonGroupsPos] = useRecoilState(buttonGroupsPosState);
+	const [currentHighlightId, setCurrentHighlightId] = useRecoilState(currentHighlightIdState);
 	useEffect(() => {
 		scrollerRef?.addEventListener("mouseup", selectionToHighlight);
 		return () => {
@@ -114,12 +114,13 @@ function Highlighter({ bookId, renderContent }) {
 				...data,
 				color: "pink",
 			};
-			drawHighlight(newRange, drawHighlightInfo);
+			// console.log(setButtonGroupsPos, "PDFVIEWER setButtonGroupsPos");
+			drawHighlight(newRange, drawHighlightInfo, setButtonGroupsPos, scrollerRef, setCurrentHighlightId);
 		});
 		return () => {
 			socket.off("draw-highlight");
 		};
-	}, [user]);
+	}, [user, scrollerRef]);
 
 	useEffect(() => {
 		socket.on("erase-highlight", (data) => {
@@ -129,7 +130,7 @@ function Highlighter({ bookId, renderContent }) {
 		return () => {
 			socket.off("erase-highlight");
 		};
-	}, [user]);
+	}, [user, scrollerRef]);
 
 	/* Server */
 	const applyServerHighlight = (userId, bookId, pageNum, color, set = false) => {
@@ -146,7 +147,8 @@ function Highlighter({ bookId, renderContent }) {
 						color: color || highlightInfo.color,
 						bookId: bookId,
 					};
-					drawHighlight(newRange, drawHighlightInfo);
+					// console.log(setButtonGroupsPos, "PDFVIEWER setButtonGroupsPos2");
+					drawHighlight(newRange, drawHighlightInfo, setButtonGroupsPos, scrollerRef, setCurrentHighlightId);
 					if (set) {
 						highlights.push(highlightInfo);
 					}
