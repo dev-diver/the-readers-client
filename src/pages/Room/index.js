@@ -5,17 +5,26 @@ import PDFViewer from "./PDFViewer";
 import api from "api";
 import { Box } from "@mui/material";
 import { useRecoilState } from "recoil";
+<<<<<<< HEAD
 import { userState, isLeadState, isTrailState, roomState, userIdState } from "recoil/atom";
+=======
+import { userState, isLeadState, isTrailState, roomState, isAppBarPinnedState } from "recoil/atom";
+import RoomUserList from "components/RoomUserList";
+>>>>>>> upstream/dev
 
 function Room() {
 	const { bookId, roomId } = useParams();
 	const [book, setBook] = useState({});
-	const [roomRefresh, setRoomRefresh] = useState(false);
 	const [isTrail, setTrail] = useRecoilState(isTrailState);
 	const [isLead, setLead] = useRecoilState(isLeadState);
 	const [user, setUser] = useRecoilState(userState);
 	const [room, setRoom] = useRecoilState(roomState);
+<<<<<<< HEAD
 	const [userId, setUserId] = useRecoilState(userIdState);
+=======
+	const [isAppBarPinned, setIsAppBarPinned] = useRecoilState(isAppBarPinnedState);
+
+>>>>>>> upstream/dev
 	const navigate = useNavigate();
 
 	// 성능 최적화
@@ -61,19 +70,22 @@ function Room() {
 	}, [room, bookId]);
 
 	return (
-		<Box
-			className="container"
-			sx={{
-				display: "grid",
-				gridTemplateColumns: "1fr",
-				gridTemplateRows: "auto 1fr",
-				maxWidth: "1400px",
-				width: "100%",
-				margin: "0 auto",
-				overflow: "hidden",
-			}}
-		>
-			{book && <PDFViewer book={book} />}
+		<Box sx={{ display: "flex" }}>
+			<Box
+				className="container"
+				sx={{
+					maxWidth: "100vw",
+					width: "100%",
+					margin: "0 auto",
+					overflow: "hidden",
+					flex: "19",
+					position: "absolute",
+					top: isAppBarPinned ? "64px" : "0px",
+					transition: "top 0.5s ease-in-out",
+				}}
+			>
+				{book && <PDFViewer book={book} />}
+			</Box>
 		</Box>
 	);
 }

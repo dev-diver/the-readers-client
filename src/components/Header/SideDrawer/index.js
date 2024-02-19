@@ -21,13 +21,13 @@ export default function SideDrawer() {
 
 	const avatar = user?.token ? (
 		<Tooltip title="프로필 보기">
-			<IconButton onClick={toggleDrawer("profile")} sx={{ p: 0 }}>
+			<IconButton onClick={toggleDrawer("profile")} sx={{ p: 0, border: "3px solid #a86e16" }}>
 				<Avatar alt={user.nick} src={user.profileImg} />
 			</IconButton>
 		</Tooltip>
 	) : (
 		<Tooltip title="로그인">
-			<IconButton onClick={toggleDrawer("signin")} sx={{ p: 0 }}>
+			<IconButton onClick={toggleDrawer("signin")} sx={{ p: 0, border: "3px solid #a86e16" }}>
 				<Avatar alt="Login" src="/src/guest_proifle.jpg" />
 			</IconButton>
 		</Tooltip>

@@ -1,35 +1,93 @@
 import React, { useCallback, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState, useRecoilCallback, useRecoilValue } from "recoil";
 import { canvasMouse, canvasMouseOut } from "./CursorCanvasController/util";
-import { userState, roomUsersState, cursorCanvasRefsState, penModeState, bookChangedState } from "recoil/atom";
+import {
+	userState,
+	roomUsersState,
+	cursorCanvasRefFamily,
+	penModeState,
+	bookChangedState,
+	pageLoadingStateFamily,
+	viewerScaleState,
+	pageScrollTopFamily,
+	scrollerRefState,
+	currentPageState,
+} from "recoil/atom";
+import api from "api";
 
 import UserPageDrawingCanvas from "./DrawingCanvasController/UserPageDrawingCanvas";
+import { getRelativeTop } from "../PdfScroller/util";
 
-function PageCanvasGroup({ pageNum, canvasFrame }) {
+function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 	const { bookId, roomId } = useParams();
 	// 여기에서 추가하기
 	const [user, setUser] = useRecoilState(userState);
 	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
 	const [bookChanged, setBookChanged] = useRecoilState(bookChangedState);
-	const [cursorCanvasRefs, setCursorCanvasRefs] = useRecoilState(cursorCanvasRefsState);
-
+	const [cursorCanvasRef, setCursorCanvasRef] = useRecoilState(
+		cursorCanvasRefFamily({ bookId: book.id, pageNum: pageNum })
+	);
 	const [penMode, setPenMode] = useRecoilState(penModeState);
+	const [scroller, setScroller] = useRecoilState(scrollerRefState);
+	const [scale, setScale] = useRecoilState(viewerScaleState);
+	const [currentPage, setCurrentPage] = useRecoilState(currentPageState);
+	const loadingState = useRecoilValue(pageLoadingStateFamily({ pageNum: pageNum }));
 
 	const setRef = useCallback(
 		(el) => {
-			setCursorCanvasRefs((oldRefs) => {
-				const newRefs = oldRefs.map((pageRef) => {
-					if (pageRef.page === pageNum) {
-						return { ...pageRef, ref: { current: el } };
-					}
-					return pageRef;
-				});
-				return newRefs;
-			});
+			setCursorCanvasRef({ ref: el });
 		},
-		[pageNum, bookChanged, setCursorCanvasRefs]
+		[pageNum, bookChanged, setCursorCanvasRef]
 	);
+
+	const updatePageLoadingState = useRecoilCallback(
+		({ set }) =>
+			(loadingState) => {
+				set(pageLoadingStateFamily({ pageNum: pageNum }), loadingState);
+			},
+		[]
+	);
+
+	const setPageScrollTop = useSetRecoilState(pageScrollTopFamily({ pageNum: pageNum }));
+
+	useEffect(() => {
+		if (!loadingState) return;
+		requestAnimationFrame(() => {
+			const canvasScrollTop = getRelativeTop(canvasFrame, scroller);
+			const scaledScrollTop = canvasScrollTop * scale;
+			setPageScrollTop(scaledScrollTop);
+			// console.log("setScaledScrollTop", pageNum, loadingState, scaledScrollTop);
+		});
+	}, [loadingState, scale]);
+
+	useEffect(() => {
+		if (currentPage == pageNum && loadingState == "lazy-loading") {
+			console.log("load page", pageNum, loadingState);
+			loadPageContent(pageNum);
+		}
+	}, [currentPage]);
+
+	const loadPageContent = async (pageNum) => {
+		updatePageLoadingState("loading");
+		const pageHexNum = pageNum.toString(16);
+		const pageDiv = document.getElementById(`pf${pageHexNum}`);
+		const fileName = pageDiv.getAttribute("data-page-url");
+		const url = `/storage/pdf/${book.urlName}/pages/${fileName}`;
+		const pageDivLoad = await api(url)
+			.then((response) => {
+				const parser = new DOMParser();
+				const doc = parser.parseFromString(response.data, "text/html");
+				const div = doc.querySelector(".pf");
+				return div;
+			})
+			.catch((err) => {
+				console.error(err);
+			});
+
+		pageDiv.parentNode.replaceChild(pageDivLoad, pageDiv);
+		updatePageLoadingState("loaded");
+	};
 
 	const info = { user: user, bookId: bookId, pageNum: pageNum };
 	//pointer canvas도 밖으로 빼기

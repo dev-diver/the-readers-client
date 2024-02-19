@@ -2,7 +2,6 @@ import React, { useEffect, useCallback, useState } from "react";
 import { useRecoilState } from "recoil";
 import {
 	userState,
-	scrollYState,
 	isTrailState,
 	isLeadState,
 	scrollerRefState,
@@ -11,12 +10,14 @@ import {
 	buttonGroupsPosState,
 	currentHighlightIdState,
 	bookIdState,
+	currentPageState,
+	totalPageState,
 } from "recoil/atom";
 import { debounce } from "lodash";
 import socket from "socket";
-import { scrollToPage, scrollToHighlight, calculateScrollY, smoothScrollTo } from "./util";
+import { scrollToPage, scrollToHighlight, smoothScrollTo, useDetermineCurrentPage } from "./util";
 import { Box } from "@mui/material";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import ButtonGroups from "components/ButtonGroups";
 
 export default function PdfScroller({ renderContent, children }) {
@@ -24,9 +25,11 @@ export default function PdfScroller({ renderContent, children }) {
 	const queryParams = new URLSearchParams(location.search);
 	const pageNum = queryParams.get("page");
 	const highlightId = queryParams.get("highlightId");
+	const determineCurrentPage = useDetermineCurrentPage();
+
+	const { bookId } = useParams();
 
 	const [user, setUser] = useRecoilState(userState);
-	const [scroll, setScroll] = useRecoilState(scrollYState); //forChart
 	const [isTrail, setAttention] = useRecoilState(isTrailState);
 	const [isLead, setLead] = useRecoilState(isLeadState);
 	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
@@ -36,7 +39,9 @@ export default function PdfScroller({ renderContent, children }) {
 	// ButtonGroups 렌더링 위치 및 가시성 상태
 	const [buttonGroupsPos, setButtonGroupsPos] = useRecoilState(buttonGroupsPosState);
 	const [currentHighlightId, setCurrentHighlightId] = useRecoilState(currentHighlightIdState);
-	const [bookId, setBookId] = useRecoilState(bookIdState);
+	const [setBookId] = useRecoilState(bookIdState);
+	const [currentPage, setCurrentPage] = useRecoilState(currentPageState);
+	const [totalPage, setTotalPage] = useRecoilState(totalPageState);
 	useEffect(() => {
 		setUrlScrolled(false);
 	}, [location]);
@@ -71,35 +76,27 @@ export default function PdfScroller({ renderContent, children }) {
 		};
 	}, [scrollerRef, isTrail, scale]);
 
-	const debounceSetScroll = useCallback(
-		debounce(() => {
-			setScroll(calculateScrollY(scrollerRef));
-		}, 1000),
-		[scrollerRef, setScroll]
-	);
-
-	const handleScroll = useCallback(
-		(event) => {
-			const scrollTop = event.currentTarget.scrollTop;
-			if (isLead) {
-				console.log("lead-scroll", scrollTop);
-				socket.emit("request-attention-scroll", {
-					userId: user.id,
-					scale: scale,
-					scrollTop: scrollTop,
-				});
-			}
-			// setAttention(false);
-			debounceSetScroll(); //for chart
-		},
-		[isLead, debounceSetScroll, user, scale]
-	);
+	const handleScroll = (event) => {
+		const scrollTop = event.currentTarget.scrollTop;
+		if (isLead) {
+			console.log("lead-scroll", scrollTop);
+			socket.emit("request-attention-scroll", {
+				userId: user?.id,
+				scale: scale,
+				scrollTop: scrollTop,
+			});
+		}
+		determineCurrentPage(totalPage, scrollTop).then((currentPage) => {
+			console.info("currentPage", currentPage);
+			setCurrentPage(currentPage);
+		});
+	};
 
 	const onCtrlWheelHandler = useCallback(
 		(event) => {
 			const ratio = 1.1;
-			if (event.ctrlKey) {
-				console.log("ctrlWheel");
+			if (event.altKey) {
+				console.log("altWheel");
 				event.preventDefault();
 				if (event.deltaY < 0) {
 					setScale((prev) => prev * ratio);
@@ -129,6 +126,7 @@ export default function PdfScroller({ renderContent, children }) {
 				height: "100vh",
 				margin: "0 auto",
 				overflowY: "auto",
+				overflowX: "hidden",
 			}}
 		>
 			{children}

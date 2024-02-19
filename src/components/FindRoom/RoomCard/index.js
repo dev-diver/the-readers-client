@@ -1,14 +1,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Container from "@mui/material/Container";
-import { Grid, Box, Paper, TextField, Button } from "@mui/material";
-import { LogIn } from "lucide-react";
+import { Grid, Box, Paper, TextField, Button, Typography, CardActionArea, CardMedia, CardContent } from "@mui/material";
+import { BookmarkXIcon, LogIn } from "lucide-react";
 import { baseURL } from "config/config";
 
 import Masonry from "@mui/lab/Masonry";
 import { styled } from "@mui/material/styles";
 import { useRecoilState } from "recoil";
 import { roomUsersState } from "recoil/atom";
+import { Card } from "react-bootstrap";
 
 const Label = styled(Paper)(({ theme }) => ({
 	backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -26,98 +27,38 @@ export default function RoomCard({ room }) {
 	const additionalHeightPerUser = 30; // 사용자당 추가 높이
 	const totalHeight = baseHeight + room.usermax * additionalHeightPerUser;
 	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
+	const { id, title, usermax } = room;
+	const userCount = roomUsers[id]?.length || 0;
+
+	// 클릭 이벤트 핸들러
+	const handleClick = () => {
+		window.location.href = `/room/${id}`;
+	};
 
 	return (
-		// // <Container
-		// // 	className="card"
-		// // 	style={{
-		// // 		backgroundColor: "#4a90e2",
-		// // 		textAlign: "center",
-		// // 		color: "black",
-		// // 		padding: "0px",
-		// // 	}}
-		// // >
-		// <Paper elevation={3}>
-		// 	<div>
-		// 		<img
-		// 			src={`${baseURL}/src/bookcovers/1.jpg`}
-		// 			style={{
-		// 				minHeight: `${room.usermax * 10 + 100}px`,
-		// 				height: "auto",
-		// 				width: "100%",
-		// 				maxWidth: "100%",
-		// 			}}
-		// 		/>
-		// 	</div>
-		// 	<div>
-		// 		<p>책 목록</p>
-		// 		<div>{room.Books?.map((book, i) => <span key={i}>{book.name}</span>) || <></>}</div>
-		// 	</div>
-		// </Paper>
-		// // </Container>
-		//2번째 방법
-		// <Box sx={{ width: 500, minHeight: 829 }}>
-		// 	{itemData.map((item, index) => (
-		// 		<div key={index}>
-		// 			<Label>{index + 1}</Label>
-		// 			<img
-		// 				srcSet={`${item.img}?w=162&auto=format&dpr=2 2x`}
-		// 				src={`${item.img}?w=162&auto=format`}
-		// 				alt={item.title}
-		// 				loading="lazy"
-		// 				style={{
-		// 					borderBottomLeftRadius: 4,
-		// 					borderBottomRightRadius: 4,
-		// 					display: "block",
-		// 					width: "100%",
-		// 				}}
-		// 			/>
-		// 			<Grid style={{ textAlign: "center" }}>
-		// 				<Grid>방 제목: {room.title}</Grid>
-		// 				<p>인원 수: {room.usermax}</p>
-		// 				<Link to={`/room/${room.id}`}>
-		// 					<LogIn color="#000000" />
-		// 				</Link>
-		// 			</Grid>
-		// 		</div>
-		// 	))}
-		// </Box>
-		//3번째 방법
-		<>
-			<Container
-				className="card"
-				// style={{
-				// 	backgroundColor: "#adbec4",
-				// }}
-				sx={{ textDecoration: "none" }}
-			>
-				<Link style={{ textDecoration: "none" }} to={`/room/${room.id}`}>
-					<div>
-						<Label>
-							방 이름: {room.title}
-							<br />
-							현재 인원/최대 인원: {roomUsers?.length}/{room.usermax}
-						</Label>
-						{/* <Box sx={{ width: 500 }}> */}
-						<img
-							srcSet={`${randomImage.img}?w=162&auto=format&dpr=2 2x`}
-							src={`${randomImage.img}?w=162&auto=format`}
-							alt={randomImage.title}
-							loading="lazy"
-							style={{
-								borderBottomLeftRadius: 4,
-								borderBottomRightRadius: 4,
-								display: "block",
-								width: "100%",
-								maxHeight: `${totalHeight}px`,
-								height: "auto",
-							}}
-						/>
-					</div>
-				</Link>
-				{/* </Box> */}
-			</Container>
-		</>
+		<Card sx={{ p: 2, maxWidth: 300, m: 2, boxShadow: 3 }}>
+			<Box sx={{ cursor: "pointer", width: "100%" }} onClick={handleClick}>
+				<CardMedia component="img" height="140" image={randomImage?.img || "defaultImage.jpg"} />
+			</Box>
+			<CardContent sx={{ cursor: "pointer", backgroundColor: "white" }} onClick={handleClick}>
+				<Typography
+					gutterBottom
+					variant="h5"
+					component="div"
+					sx={{ width: "100%", padding: 1, borderBottom: "1px solid #999", block: "inline-block" }}
+				>
+					{title}
+				</Typography>
+			</CardContent>
+			<CardContent sx={{ backgroundColor: "white" }}>
+				<Typography variant="body2" color="text.secondary">
+					현재 인원/최대 인원: {userCount}/{usermax}
+				</Typography>
+				<Button variant="contained" size="small" color="primary" onClick={handleClick} sx={{ marginTop: "16px" }}>
+					입장하기
+				</Button>
+			</CardContent>
+		</Card>
 	);
 }
 
@@ -191,3 +132,9 @@ const itemData = [
 		title: "C언어 100제",
 	},
 ];
+
+// itemData 배열에서 무작위 이미지를 선택하는 함수
+function getRandomImage(itemData) {
+	const randomIndex = Math.floor(Math.random() * itemData.length);
+	return itemData[randomIndex];
+}
