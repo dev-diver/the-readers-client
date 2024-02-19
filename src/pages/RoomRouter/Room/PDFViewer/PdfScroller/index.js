@@ -7,15 +7,18 @@ import {
 	scrollerRefState,
 	highlightState,
 	viewerScaleState,
+	buttonGroupsPosState,
+	currentHighlightIdState,
+	bookIdState,
 	currentPageState,
 	totalPageState,
 	pageScrollTopFamily,
 } from "recoil/atom";
 import socket from "socket";
-import { scrollToPage, scrollToHighlight, smoothScrollTo } from "./util";
+import { scrollToPage, scrollToHighlight, smoothScrollTo, useDetermineCurrentPage } from "./util";
 import { Box } from "@mui/material";
 import { useLocation, useParams } from "react-router-dom";
-import { useDetermineCurrentPage } from "./util";
+import ButtonGroups from "components/ButtonGroups";
 
 export default function PdfScroller({ renderContent, children }) {
 	const location = useLocation();
@@ -33,9 +36,12 @@ export default function PdfScroller({ renderContent, children }) {
 	const [highlightList, setHighlightList] = useRecoilState(highlightState);
 	const [scale, setScale] = useRecoilState(viewerScaleState);
 	const [urlScrolled, setUrlScrolled] = useState(false);
+	// ButtonGroups 렌더링 위치 및 가시성 상태
+	const [buttonGroupsPos, setButtonGroupsPos] = useRecoilState(buttonGroupsPosState);
+	const [currentHighlightId, setCurrentHighlightId] = useRecoilState(currentHighlightIdState);
+	const [setBookId] = useRecoilState(bookIdState);
 	const [currentPage, setCurrentPage] = useRecoilState(currentPageState);
 	const [totalPage, setTotalPage] = useRecoilState(totalPageState);
-
 	useEffect(() => {
 		setUrlScrolled(false);
 	}, [location]);
@@ -102,6 +108,10 @@ export default function PdfScroller({ renderContent, children }) {
 		[setScale]
 	);
 
+	const closebuttonGroups = (e) => {
+		setButtonGroupsPos({ visible: false, x: 0, y: 0 });
+	};
+
 	const setRef = useCallback((el) => setScrollerRef(el), [setScrollerRef]);
 
 	return (
@@ -120,6 +130,20 @@ export default function PdfScroller({ renderContent, children }) {
 			}}
 		>
 			{children}
+			{buttonGroupsPos.visible && (
+				<ButtonGroups
+					style={{
+						position: "absolute",
+						top: buttonGroupsPos.y - 20 + "px",
+						left: buttonGroupsPos.x + "px",
+					}}
+					highlightId={currentHighlightId}
+					bookId={bookId}
+					onClose={() => {
+						closebuttonGroups();
+					}}
+				/>
+			)}
 		</Box>
 	);
 }

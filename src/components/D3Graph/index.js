@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import * as d3 from "d3";
 import { v4 as uuidv4 } from "uuid";
 import api from "api";
 import "./style.css";
 
-const D3Graph = ({ highlightId, data, width, height, onNodeClick = () => {} }) => {
+const D3Graph = ({ highlightId, data, width, height, onNodeClick }) => {
+	const navigate = useNavigate(); // useNavigate 훅 사용
 	const [containerId] = useState(`d3graph-${uuidv4()}`);
 	const [nodeTexts, setNodeTexts] = useState([]);
 	useEffect(() => {
@@ -74,7 +76,7 @@ const D3Graph = ({ highlightId, data, width, height, onNodeClick = () => {} }) =
 			.attr("stroke", "#999")
 			.attr("stroke-opacity", 0.6)
 			.attr("stroke-width", (d) => Math.sqrt(d.value))
-			.attr("marker-end", "url(#arrowhead)");
+			.attr("marker-end", "url(#arrowhead)"); // 화살표 마커 적용
 
 		// 연결 선 위의 텍스트(note) 설정
 		const linkText = svg
@@ -94,7 +96,7 @@ const D3Graph = ({ highlightId, data, width, height, onNodeClick = () => {} }) =
 				// 여기에서 d는 바인딩된 데이터입니다.
 				console.log("Link data:", d.note); // 콘솔에 데이터 출력
 			});
-
+		// 처음 노드가 로딩될 때 퍼지는 정도를 조절하는 부분
 		const simulation = d3
 			.forceSimulation(data.nodes)
 			.force(
@@ -113,6 +115,24 @@ const D3Graph = ({ highlightId, data, width, height, onNodeClick = () => {} }) =
 		// 노드 그룹 생성
 		const node = svg.append("g").attr("class", "nodes").selectAll("g").data(data.nodes).join("g");
 
+		// 노드 클릭 이벤트 리스너 추가
+		node.on("click", (event, d) => {
+			console.log("Node clicked:", d);
+			if (d.isOuterLink && d.url) {
+				// 외부 링크인 경우, 새 탭에서 URL 열기
+				window.open(d.url, "_blank");
+			} else {
+				// 내부 링크인 경우, 정의된 URL 형식에 맞춰 이동
+				// 여기서는 room, book의 ID가 고정되어 있다고 가정합니다.
+				// 실제 사용 시에는 이 값들을 동적으로 대체해야 할 수 있습니다.
+				const roomId = 1; // 가정: 현재 방의 ID
+				const bookId = 1; // 가정: 현재 책의 ID
+				const highlightId = d.id; // 클릭된 노드의 ID (하이라이트 ID)
+
+				onNodeClick(highlightId); // 노드 클릭 이벤트 핸들러 호출
+			}
+		});
+
 		node
 			.append("rect")
 			.attr("width", 40)
@@ -126,9 +146,18 @@ const D3Graph = ({ highlightId, data, width, height, onNodeClick = () => {} }) =
 			.append("text")
 			.attr("dx", -10) // x 방향으로의 위치 조정
 			.attr("dy", ".35em") // y 방향으로의 위치 조정
-			.text(function (d) {
-				return nodeTexts[d.id] || "No text"; // 텍스트가 없을 경우 "No text" 출력
-			}) // nodeTexts 객체에서 텍스트 검색
+			// .text(function (d) {
+			// 	return nodeTexts[d.id] || "No text"; // 텍스트가 없을 경우 "No text" 출력
+			// }) // nodeTexts 객체에서 텍스트 검색
+			.text((d) => {
+				// 외부 링크인 경우, 사용자가 작성한 메모를 표시
+				if (d.isOuterLink) {
+					return d.note || ""; // 메모가 없는 경우 빈 문자열로 표시
+				} else {
+					// 내부 링크인 경우, 기존 논리에 따라 텍스트를 결정 (예: 하이라이트 텍스트)
+					return nodeTexts[d.id] || "No text"; // 하이라이트 텍스트가 없는 경우 "No text" 표시
+				}
+			})
 			.style("fill", "black") // 텍스트 색상
 			.each(function (d) {
 				console.log("Node data:", nodeTexts[d.id]); // 콘솔에 데이터 출력
@@ -174,7 +203,7 @@ const D3Graph = ({ highlightId, data, width, height, onNodeClick = () => {} }) =
 		function color() {
 			return "#C6E4FF";
 		}
-	}, [data, width, height, onNodeClick, containerId, nodeTexts]);
+	}, [data, width, height, onNodeClick, containerId, nodeTexts, navigate]);
 
 	return <div id={containerId} style={{ width: "900px", height: "400px" }}></div>;
 };

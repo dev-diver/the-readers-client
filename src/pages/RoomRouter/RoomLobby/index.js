@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 
 import api from "api";
 import AddBook from "components/Addbook";
+import { useRecoilState } from "recoil";
+import { bookIdState } from "recoil/atom";
 import { Masonry } from "@mui/lab";
 import { Box, Button, Paper, Typography, styled } from "@mui/material";
 import BookCover from "./BookCover";
@@ -12,6 +14,7 @@ const RoomPage = () => {
 	const navigate = useNavigate();
 	const [room, setRoom] = useState(null);
 	const [roomRefresh, setRoomRefresh] = useState(false);
+	const [bookId, setBookId] = useRecoilState(bookIdState);
 
 	useEffect(() => {
 		api.get(`/rooms/${roomId}`).then((response) => {
@@ -21,6 +24,7 @@ const RoomPage = () => {
 
 	const bookClickHandler = (book) => () => {
 		navigate(`/room/${roomId}/book/${book.id}`);
+		setBookId(book.id);
 	};
 
 	const Item = styled(Paper)(({ theme }) => ({

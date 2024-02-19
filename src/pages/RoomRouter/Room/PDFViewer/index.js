@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { logger } from "logger";
 import Highlights from "./Highlights";
@@ -19,10 +19,12 @@ import {
 import { Box, Grid, Hidden } from "@mui/material";
 import PenController from "./PenController";
 import { DraggableElement } from "components/DragNDrop/DraggableElement";
-// import { ReactiveDraggable } from "components/DragNDrop/ReactiveDraggable";
+// import ReactiveDraggable from "components/DragNDrop/ReactiveDraggable";
 import api from "api";
 import { baseURL } from "config/config";
 import Info from "components/Header/Info";
+import { styled } from "@mui/system";
+import VideoChat from "components/VideoChat";
 import "./styles.css";
 import RoomUserList from "components/RoomUserList";
 import { useParams } from "react-router-dom";
@@ -49,6 +51,10 @@ function PDFViewer({ book }) {
 			},
 		[bookId]
 	);
+
+	// 하이라이트 클릭 이벤트 핸들러
+
+	// 하이라이트에 이벤트 리스너 추가
 
 	useEffect(() => {
 		for (let page = 1; page <= totalPage; page++) {
@@ -220,7 +226,7 @@ function PDFViewer({ book }) {
 							dangerouslySetInnerHTML={{ __html: pageContainerHTML }}
 							sx={{
 								width: "100%",
-								transform: `scale(${scale})`,
+								// transform: `scale(${scale})`,
 								transformOrigin: "top left",
 								boxSizing: "border-box",
 							}}
@@ -238,6 +244,9 @@ function PDFViewer({ book }) {
 			{canvasComponents.map(({ component, container }) => {
 				return component && createPortal(component, container);
 			})}
+			<DraggableElement startX={window.innerWidth * (8 / 9)} startY={60} style={{ zIndex: 999 }}>
+				<VideoChat />
+			</DraggableElement>
 			<DraggableElement startX={window.innerWidth / 2} startY={60}>
 				<PenController />
 			</DraggableElement>
