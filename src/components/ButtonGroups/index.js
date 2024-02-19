@@ -7,6 +7,7 @@ import D3Graph from "components/D3Graph";
 import api from "api";
 import { useNavigate } from "react-router-dom";
 import { on } from "events";
+import { eraseHighlight } from "pages/RoomRouter/Room/PDFViewer/Highlights/util";
 
 function ButtonGroups({
 	style,
@@ -19,6 +20,7 @@ function ButtonGroups({
 	appendHighlightListItem,
 	sendHighlightToServer,
 	handleCreateHighlight,
+	scrollerRef,
 }) {
 	// AddMemo 컴포넌트의 랜더링 상태를 제어
 	const [showAddMemo, setShowAddMemo] = useState(false);
@@ -161,6 +163,25 @@ function ButtonGroups({
 		navigate(`/room/1/book/1?highlightId=${nodeId}`);
 	};
 
+	// 하이라이트 삭제를 처리하는 함수
+	const handleDeleteHighlight = async () => {
+		console.log("하이라이트 삭제 버튼 클릭", highlightId);
+		try {
+			// DELETE 요청을 보내는 api.delete가 설정되어 있다고 가정
+			const response = await api.delete(`/highlights/${highlightId}`);
+			if (response.status === 200 || response.status === 204) {
+				alert("하이라이트가 성공적으로 삭제되었습니다.");
+				eraseHighlight(scrollerRef, highlightId); // 화면에서 하이라이트 지우기
+				onClose(); // ButtonGroups 컴포넌트 닫기
+			} else {
+				alert("하이라이트 삭제에 실패했습니다.");
+			}
+		} catch (error) {
+			console.error("하이라이트 삭제 중 에러 발생:", error);
+			alert("하이라이트를 삭제하는 동안 오류가 발생했습니다.");
+		}
+	};
+
 	return (
 		<div className="button-groups" style={style}>
 			<ButtonGroup
@@ -173,7 +194,7 @@ function ButtonGroups({
 				<Button onClick={handleAddMemoClick}>메모 삽입</Button>
 				<Button onClick={handleInsertLinkClick}>링크 삽입</Button>
 				<Button onClick={handleShowD3Graph}>링크</Button> {/* 버튼 클릭 시 d3로 내/외부 링크 랜더링 */}
-				<Button>삭제</Button> {/* 버튼 클릭 시 하이라이트 삭제 */}
+				<Button onClick={handleDeleteHighlight}>삭제</Button> {/* 버튼 클릭 시 하이라이트 삭제 */}
 			</ButtonGroup>
 			{showAddMemo && (
 				<AddMemo

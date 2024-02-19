@@ -9,10 +9,10 @@ import CursorCanvasController from "./PageCanvasGroup/CursorCanvasController";
 import DrawingCanvasController from "./PageCanvasGroup/DrawingCanvasController";
 import { useRecoilState, useRecoilCallback } from "recoil";
 import {
-	totalPageState,
 	viewerScaleState,
-	viewerScaleApplyState,
 	htmlContentState,
+	viewerScaleApplyState,
+	totalPageState,
 	pageLoadingStateFamily,
 	renderContentState,
 } from "recoil/atom";
