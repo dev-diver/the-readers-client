@@ -169,10 +169,11 @@ function PDFViewer({ book }) {
 				container.appendChild(canvasLayer);
 				textLayer.appendChild(pageDivClone);
 
-				const url = `${baseURL}/src/homeIcon.svg`;
-				await api(url)
+				const url = `/homeIcon.svg`;
+				fetch(url)
+					.then((response) => response.text())
 					.then((svgData) => {
-						pageDivClone.innerHTML = svgData.data;
+						pageDivClone.innerHTML = svgData;
 						console.log(index + 1, "set lazyloading");
 						updatePageLoadingState(index + 1, "lazy-loading");
 					})
