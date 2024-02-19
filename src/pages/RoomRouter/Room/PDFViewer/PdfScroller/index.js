@@ -9,6 +9,7 @@ import {
 	viewerScaleState,
 	currentPageState,
 	totalPageState,
+	pageScrollTopFamily,
 } from "recoil/atom";
 import socket from "socket";
 import { scrollToPage, scrollToHighlight, smoothScrollTo } from "./util";

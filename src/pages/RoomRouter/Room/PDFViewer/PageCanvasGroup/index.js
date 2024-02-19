@@ -10,6 +10,7 @@ import {
 	bookChangedState,
 	pageLoadingStateFamily,
 	viewerScaleState,
+	viewerScaleApplyState,
 	pageScrollTopFamily,
 	scrollerRefState,
 	currentPageState,
@@ -32,6 +33,7 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 	const [penMode, setPenMode] = useRecoilState(penModeState);
 	const [scroller, setScroller] = useRecoilState(scrollerRefState);
 	const [scale, setScale] = useRecoilState(viewerScaleState);
+	const [scaleApply, setScaleApply] = useRecoilState(viewerScaleApplyState);
 	const [currentPage, setCurrentPage] = useRecoilState(currentPageState);
 	const loadingState = useRecoilValue(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum }));
 	const [renderContent, setRenderContent] = useRecoilState(renderContentState);
@@ -54,14 +56,12 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 	const setPageScrollTop = useSetRecoilState(pageScrollTopFamily({ bookId: bookId, pageNum: pageNum }));
 
 	useEffect(() => {
-		if (!loadingState || !scroller) return;
-		requestAnimationFrame(() => {
-			const canvasScrollTop = getRelativeTop(canvasFrame, scroller);
-			const scaledScrollTop = canvasScrollTop * scale;
-			setPageScrollTop(scaledScrollTop);
-			console.log(scale, "setScaledScrollTop", pageNum, loadingState, scaledScrollTop);
-		});
-	}, [loadingState, scale, scroller]);
+		if (!loadingState || !scroller || !scaleApply) return;
+		const canvasScrollTop = getRelativeTop(canvasFrame, scroller);
+		const scaledScrollTop = canvasScrollTop * scale - 1;
+		setPageScrollTop(scaledScrollTop);
+		console.log(scale, "setScaledScrollTop", pageNum, loadingState, scaledScrollTop);
+	}, [loadingState, scale, scroller, scaleApply]);
 
 	useEffect(() => {
 		console.log("load page", pageNum, loadingState, renderContent);

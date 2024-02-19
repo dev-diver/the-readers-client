@@ -39,6 +39,11 @@ export const viewerScaleState = atom({
 	default: 1,
 });
 
+export const viewerScaleApplyState = atom({
+	key: "viewerScaleApply",
+	default: 1,
+});
+
 export const widthState = atom({
 	key: "width",
 	default: 0,

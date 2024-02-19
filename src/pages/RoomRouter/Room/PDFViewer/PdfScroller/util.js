@@ -78,3 +78,17 @@ export const useDetermineCurrentPage = () => {
 
 	return determineCurrentPage;
 };
+
+export const useGetPageScrollTop = () => {
+	const getPageScrollTop = useRecoilCallback(
+		({ snapshot }) =>
+			async (bookId, pageNum) => {
+				const Key = { bookId: bookId, pageNum: pageNum };
+				const scrollTop = await snapshot.getPromise(pageScrollTopFamily(Key));
+				return scrollTop;
+			},
+		[]
+	);
+
+	return getPageScrollTop;
+};

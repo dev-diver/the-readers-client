@@ -11,6 +11,7 @@ import { useRecoilState, useRecoilCallback } from "recoil";
 import {
 	totalPageState,
 	viewerScaleState,
+	viewerScaleApplyState,
 	htmlContentState,
 	pageLoadingStateFamily,
 	renderContentState,
@@ -35,6 +36,7 @@ function PDFViewer({ book }) {
 	const [canvasComponents, setCanvasComponents] = useState([]);
 	const [originalWidth, setOriginalWidth] = useState(0);
 	const [scale, setScale] = useRecoilState(viewerScaleState);
+	const [scaleApply, setScaleApply] = useRecoilState(viewerScaleApplyState);
 	const pdfContentsRef = useRef(null);
 	const [isHovering, setIsHovering] = useState(false);
 	const [totalPage, setTotalPage] = useRecoilState(totalPageState);
@@ -61,10 +63,11 @@ function PDFViewer({ book }) {
 		if (setPageContainerHTML || renderContent) {
 			console.log("book reset");
 			setScale(1);
+			setScaleApply(false);
 			setTotalPage(0);
 			setPageContainerHTML("");
 			setRenderContent(false);
-			// setCanvasComponents([]);
+			setOriginalWidth(0);
 		}
 	}, [book]);
 
@@ -114,11 +117,11 @@ function PDFViewer({ book }) {
 	useEffect(() => {
 		console.log("width renderContent", renderContent);
 		if (renderContent && pdfContentsRef) {
-			requestAnimationFrame(() => {
+			setTimeout(() => {
 				const wrapper = pdfContentsRef.current.querySelector(".page-wrapper");
 				const originalWidth = wrapper.getBoundingClientRect().width;
 				setOriginalWidth(originalWidth);
-			});
+			}, 100);
 		}
 	}, [renderContent]);
 
@@ -132,6 +135,7 @@ function PDFViewer({ book }) {
 		const scale = targetWidth / originalWidth;
 		console.log("originalWidth", originalWidth, "targetWidth", targetWidth, "scale", scale);
 		setScale(scale);
+		setScaleApply(true);
 	}
 
 	async function mapContainer(pageDivs) {
