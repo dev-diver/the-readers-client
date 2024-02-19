@@ -115,6 +115,7 @@ function Highlighter({ bookId, renderContent }) {
 				color: "pink",
 			};
 			// console.log(setButtonGroupsPos, "PDFVIEWER setButtonGroupsPos");
+
 			drawHighlight(newRange, drawHighlightInfo, setButtonGroupsPos, scrollerRef, setCurrentHighlightId);
 		});
 		return () => {
