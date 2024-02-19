@@ -15,7 +15,6 @@ function OptionsModal({
 	isOpen,
 	onClose,
 	user,
-	highlightId,
 	bookId,
 	roomId,
 	setHighlightId,

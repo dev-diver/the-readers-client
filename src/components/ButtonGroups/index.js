@@ -89,6 +89,7 @@ function ButtonGroups({
 				label: "Outerlink Node", // 노드 레이블 지정
 				note: outerlink.note || "No note", // 노드에 메모 정보 추가
 				isOuterLink: true, // 외부 링크 플래그 추가
+				url: outerlink.url, // 외부 링크 URL 추가
 			}));
 
 			setLinkData((prevData) => {

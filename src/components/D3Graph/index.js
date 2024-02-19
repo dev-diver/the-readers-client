@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import * as d3 from "d3";
 import { v4 as uuidv4 } from "uuid";
 import api from "api";
 import "./style.css";
 
 const D3Graph = ({ highlightId, data, width, height, onNodeClick = () => {} }) => {
+	const navigate = useNavigate(); // useNavigate 훅 사용
 	const [containerId] = useState(`d3graph-${uuidv4()}`);
 	const [nodeTexts, setNodeTexts] = useState([]);
 	useEffect(() => {
@@ -113,6 +115,18 @@ const D3Graph = ({ highlightId, data, width, height, onNodeClick = () => {} }) =
 		// 노드 그룹 생성
 		const node = svg.append("g").attr("class", "nodes").selectAll("g").data(data.nodes).join("g");
 
+		// 노드 클릭 이벤트 리스너 추가
+		node.on("click", (event, d) => {
+			console.log("Node clicked:", d);
+			if (d.isOuterLink && d.url) {
+				// 외부 링크인 경우, 새 탭에서 URL 열기
+				window.open(d.url, "_blank");
+			} else {
+				// 내부 링크인 경우, useNavigate로 해당 경로로 이동
+				navigate(`/highlights/${d.id}`);
+			}
+		});
+
 		node
 			.append("rect")
 			.attr("width", 40)
@@ -183,7 +197,7 @@ const D3Graph = ({ highlightId, data, width, height, onNodeClick = () => {} }) =
 		function color() {
 			return "#C6E4FF";
 		}
-	}, [data, width, height, onNodeClick, containerId, nodeTexts]);
+	}, [data, width, height, onNodeClick, containerId, nodeTexts, navigate]);
 
 	return <div id={containerId} style={{ width: "900px", height: "400px" }}></div>;
 };
