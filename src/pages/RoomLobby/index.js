@@ -4,14 +4,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import BookShelf from "components/BookShelf";
 import api from "api";
 import AddBook from "./Addbook";
-<<<<<<< HEAD
 import { useRecoilState } from "recoil";
 import { bookIdState } from "recoil/atom";
-=======
 import { Masonry } from "@mui/lab";
 import { Box, Button, Paper, Typography, styled } from "@mui/material";
 import BookCover from "./BookCover";
->>>>>>> upstream/dev
 
 const RoomPage = () => {
 	const { roomId } = useParams();
