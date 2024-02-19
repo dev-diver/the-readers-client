@@ -17,12 +17,13 @@ import {
 	renderContentState,
 	buttonGroupsPosState,
 	currentHighlightIdState,
+	highlightLoadStateFamily,
 } from "recoil/atom";
 import api from "api";
 
 import UserPageDrawingCanvas from "./DrawingCanvasController/UserPageDrawingCanvas";
 import { getRelativeTop } from "../PdfScroller/util";
-import { loadPageHighlight } from "pages/RoomRouter/Room/PDFViewer/Highlights/util";
+import { loadAndDrawPageHighlight } from "pages/RoomRouter/Room/PDFViewer/Highlights/util";
 
 function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 	const { bookId, roomId } = useParams();
@@ -66,6 +67,23 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 		[bookId]
 	);
 
+	const loadAllUserPageHighlight = useRecoilCallback(
+		({ snapshot, set }) =>
+			(roomUsers, pageNum) => {
+				roomUsers.forEach(async (roomUser) => {
+					const userId = roomUser.id;
+					const loadState = await snapshot.getPromise(
+						highlightLoadStateFamily({ bookId: bookId, userId: userId, pageNum: pageNum })
+					);
+					if (loadState) return;
+					let mine = userId == user.id;
+					loadAndDrawPageHighlight(userId, bookId, pageNum, mine, scroller, recoilProps);
+					set(highlightLoadStateFamily({ bookId: bookId, userId: userId, pageNum: pageNum }), true);
+				});
+			},
+		[bookId, scroller, recoilProps]
+	);
+
 	const setPageScrollTop = useSetRecoilState(pageScrollTopFamily({ bookId: bookId, pageNum: pageNum }));
 
 	useEffect(() => {
@@ -99,10 +117,10 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 
 	useEffect(() => {
 		if (loadingState == "loaded" && user) {
-			//for all user
-			loadPageHighlight(user.id, bookId, pageNum, scroller, recoilProps);
+			console.log("loadAllUserPageHighlight", pageNum);
+			loadAllUserPageHighlight(roomUsers, pageNum);
 		}
-	}, [loadingState, user]);
+	}, [loadingState, roomUsers]);
 
 	const loadPageContent = async (pageNum) => {
 		const pageHexNum = pageNum.toString(16);

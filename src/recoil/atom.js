@@ -91,6 +91,11 @@ export const pageLoadingStateFamily = atomFamily({
 	default: false,
 });
 
+export const highlightLoadStateFamily = atomFamily({
+	key: "highlightLoadStateFamily",
+	default: false,
+});
+
 export const totalPageState = atom({
 	key: "totalPage",
 	default: 0,

@@ -171,9 +171,7 @@ export function rangeToInfo(range, additionalInfo) {
 	return highlightInfo;
 }
 
-export const loadAllPageHighlight = (userId, bookId) => {};
-
-export const loadPageHighlight = (userId, bookId, pageNum, scrollerRef, recoilProps) => {
+export const loadAndDrawPageHighlight = (userId, bookId, pageNum, mine, scrollerRef, recoilProps) => {
 	api.get(`/highlights/user/${userId}/book/${bookId}/page/${pageNum}`).then((response) => {
 		logger.log("highlight", response.data);
 		response.data.forEach((highlightInfo) => {
@@ -181,7 +179,7 @@ export const loadPageHighlight = (userId, bookId, pageNum, scrollerRef, recoilPr
 			const drawHighlightInfo = {
 				id: highlightInfo.id,
 				userId: userId,
-				color: highlightInfo.color,
+				color: mine ? highlightInfo.color : "pink",
 				bookId: bookId,
 			};
 			drawHighlight(newRange, drawHighlightInfo, scrollerRef, recoilProps);
@@ -274,9 +272,8 @@ const createMarkTag = (currentNode, highlightInfo, range, isEnd = false, split =
 		<MyMarkerComponent
 			highlightInfo={highlightInfo}
 			IsMemoOpen={IsMemoOpen}
-			setButtonGroupsPos={recoilProps.setButtonGroupsPos}
 			scrollerRef={scrollerRef}
-			setCurrentHighlightId={recoilProps.setCurrentHighlightId}
+			recoilProps={recoilProps}
 		>
 			{currentNode.textContent}
 		</MyMarkerComponent>

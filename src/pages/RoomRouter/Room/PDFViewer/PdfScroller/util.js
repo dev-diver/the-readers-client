@@ -1,6 +1,6 @@
 import { numToPageContainer } from "../Highlights/util";
 import { useRecoilCallback } from "recoil";
-import { pageScrollTopFamily } from "recoil/atom";
+import { pageLoadingStateFamily, pageScrollTopFamily } from "recoil/atom";
 
 /* deprecated */
 export const moveToScroll = (container, scrollTop) => {
@@ -67,6 +67,7 @@ export const getRelativeTopLeft = (element, container) => {
 	}
 	return { top, left };
 };
+
 export const useDetermineCurrentPage = () => {
 	const determineCurrentPage = useRecoilCallback(
 		({ snapshot }) =>
@@ -102,4 +103,18 @@ export const useGetPageScrollTop = () => {
 	);
 
 	return getPageScrollTop;
+};
+
+export const useGetPageLoadState = () => {
+	const getPageLoadState = useRecoilCallback(
+		({ snapshot }) =>
+			async (bookId, pageNum, userId) => {
+				const Key = { bookId: bookId, pageNum: pageNum, userId: userId };
+				const loadState = await snapshot.getPromise(pageLoadingStateFamily(Key));
+				return loadState;
+			},
+		[]
+	);
+
+	return getPageLoadState;
 };
