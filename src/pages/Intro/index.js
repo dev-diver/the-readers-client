@@ -56,12 +56,14 @@ const StyledBody = styled("div")(({ theme }) => ({
 	// 	},
 }));
 
-const host = "유진";
-
 function Intro() {
-	const [searchParams] = useSearchParams();
-	const roomId = searchParams.get("roomId");
-	const bookId = searchParams.get("bookId");
+	// const url = `${baseURL}/intro/room/${roomId}/roomUsers/${roomUsers.length}/host/${host}`;
+	// http://localhost:3001/intro/room/1/host/콩서누
+	const path = window.location.pathname; // 현재 URL의 경로를 가져옴
+	const parts = path.split("/");
+	const roomId = parts[3];
+	const encodeHost = parts[5];
+	const decodeHost = decodeURIComponent(encodeHost);
 
 	return (
 		<StyledBody className="profile-body">
@@ -72,27 +74,25 @@ function Intro() {
 						component={Link}
 						to={`/room/${roomId}`}
 						alt="group chat image"
-						src="thumbnail.png"
+						src="/thumbnail.png"
 						sx={{ width: 56, height: 56, border: "1px solid #ddd", boxShadow: 3 }}
 						variant="rounded"
 					></Avatar>
 
 					{/* <!-- 초대한 사람 --> */}
 					<Typography sx={{ mb: 0, fontSize: 20 }} color="text.secondary" gutterBottom>
-						&quot;{host}&quot;님이 초대함:
+						&quot;{decodeHost}&quot;님이 초대함:
 					</Typography>
 
 					{/* <!-- 방 이름 --> */}
 					<Typography sx={{ mb: 2 }} variant="h4" component="h2">
-						정글
+						{roomId}
 					</Typography>
 
-					<Typography variant="p" component="h6">
-						<Badge sx={{ mx: 1 }} color="success" variant="dot"></Badge>
-						2명 온라인
+					{/* <Typography variant="p" component="h6">
 						<Badge sx={{ mx: 1, ml: 2 }} color="secondary" variant="dot"></Badge>
-						8명 멤버
-					</Typography>
+						{roomUsersNum}명 참여중
+					</Typography> */}
 				</header>
 
 				{/* <!-- bit of a bio; who are you? --> */}
@@ -108,7 +108,7 @@ function Intro() {
 					</Typography> */}
 					<Button
 						component={Link}
-						to={`/room/${roomId}/book/${bookId}`}
+						to={`/room/${roomId}`}
 						sx={{ width: "85%", mt: 3, fontSize: 20, backgroundColor: "#313440" }}
 						variant="contained"
 						size="medium"

@@ -1,9 +1,14 @@
 import React, { useRef, useEffect, useState } from "react";
 import HighlightListItem from "./HighlightListItem";
 import { Box, Collapse, ThemeProvider, Typography, useMediaQuery, useTheme } from "@mui/material";
+import ShareIcon from "@mui/icons-material/Share";
+import { Popover, Button } from "@mui/material";
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from "lucide-react";
-import { useRecoilState } from "recoil";
-import { isAppBarPinnedState } from "recoil/atom";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { isAppBarPinnedState, roomUsersState, userState, roomNameState } from "recoil/atom";
+import { useSearchParams } from "react-router-dom";
+import { baseURL } from "config/config";
+import { user, roomName } from "recoil/atom";
 
 export default function HighlightList({ highlights, deleteHandler }) {
 	const listContainer = useRef(null);
@@ -14,6 +19,8 @@ export default function HighlightList({ highlights, deleteHandler }) {
 	const [drawerOpen, setDrawerOpen] = useState(false);
 	const [ChevronIcon, setChevronIcon] = useState(isMobile ? ChevronLeft : ChevronDown);
 	const [isAppBarPinned, setIsAppBarPinned] = useRecoilState(isAppBarPinnedState);
+	const [anchorEl, setAnchorEl] = React.useState(null);
+	const [url, setUrl] = useState("");
 
 	useEffect(() => {
 		if (isMobile) {
@@ -78,6 +85,46 @@ export default function HighlightList({ highlights, deleteHandler }) {
 			setDrawerOpen(false);
 		}
 	};
+	const handleClick = (event) => {
+		setAnchorEl(event.currentTarget);
+	};
+
+	const handleClose = () => {
+		setAnchorEl(null);
+	};
+
+	const copyUrlToClipboard = () => {
+		navigator.clipboard
+			.writeText(url)
+			.then(() => {
+				console.log("URL copied to clipboard");
+			})
+			.catch((error) => {
+				console.error("Failed to copy URL to clipboard:", error);
+			});
+	};
+
+	const open = Boolean(anchorEl);
+	const id = open ? "simple-popover" : undefined;
+	const [user, setUser] = useRecoilState(userState);
+	const roomUsers = useRecoilValue(roomUsersState);
+
+	const CreateUrl = () => {
+		if (!user) {
+			alert("로그인이 필요합니다.");
+			return;
+		}
+		const path = window.location.pathname; // 현재 URL의 경로를 가져옴
+		const parts = path.split("/");
+		const roomId = parts[2];
+		const host = user.nick;
+		const newUrl = `${baseURL}/intro/room/${roomId}/roomUsers/${roomUsers.length}/host/${host}`;
+		setUrl(newUrl);
+	};
+
+	useEffect(() => {
+		CreateUrl();
+	}, [user]);
 
 	return (
 		<ThemeProvider theme={theme}>
@@ -107,6 +154,35 @@ export default function HighlightList({ highlights, deleteHandler }) {
 				</Typography>
 				<ChevronIcon sx={{ top: "10px", right: "10px", cursor: "pointer" }} onClick={toggleDrawer} />
 				<Collapse in={showItems || drawerOpen}> {items} </Collapse>
+				<div>
+					<Button
+						aria-describedby={id}
+						variant="contained"
+						onClick={handleClick}
+						sx={{
+							position: "absolute",
+							bottom: "10px",
+							right: "10px",
+							marginTop: "10px",
+							cursor: "pointer",
+						}}
+					>
+						<ShareIcon sx={{ marginTop: "10px", cursor: "pointer" }} />
+					</Button>
+					<Popover
+						id={id}
+						open={open}
+						anchorEl={anchorEl}
+						onClose={handleClose}
+						anchorOrigin={{
+							vertical: "bottom",
+							horizontal: "left",
+						}}
+					>
+						<Typography sx={{ p: 2 }}>{url}</Typography>
+						<Button onClick={copyUrlToClipboard}>복사하기</Button>
+					</Popover>
+				</div>
 			</Box>
 		</ThemeProvider>
 	);
