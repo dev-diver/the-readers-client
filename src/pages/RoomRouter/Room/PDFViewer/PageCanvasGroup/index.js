@@ -35,8 +35,11 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 	const [scale, setScale] = useRecoilState(viewerScaleState);
 	const [scaleApply, setScaleApply] = useRecoilState(viewerScaleApplyState);
 	const [currentPage, setCurrentPage] = useRecoilState(currentPageState);
-	const loadingState = useRecoilValue(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum }));
 	const [renderContent, setRenderContent] = useRecoilState(renderContentState);
+
+	const prevLoadingState = useRecoilValue(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum - 1 }));
+	const loadingState = useRecoilValue(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum }));
+	const nextLoadingState = useRecoilValue(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum + 1 }));
 
 	const setRef = useCallback(
 		(el) => {
@@ -47,7 +50,7 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 
 	const updatePageLoadingState = useRecoilCallback(
 		({ set }) =>
-			(loadingState) => {
+			(pageNum, loadingState) => {
 				set(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum }), loadingState);
 			},
 		[bookId]
@@ -64,10 +67,17 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 	}, [loadingState, scale, scroller, scaleApply]);
 
 	useEffect(() => {
-		console.log("load page", pageNum, loadingState, renderContent);
-		if (renderContent && currentPage == pageNum && loadingState == "lazy-loading") {
-			console.log("load page", pageNum, loadingState);
-			updatePageLoadingState("loading");
+		// console.log("load page", pageNum, loadingState, renderContent);
+		if (renderContent && currentPage == pageNum) {
+			if (prevLoadingState == "lazy-loading") {
+				updatePageLoadingState(pageNum - 1, "loading");
+			}
+			if (loadingState == "lazy-loading") {
+				updatePageLoadingState(pageNum, "loading");
+			}
+			if (nextLoadingState == "lazy-loading") {
+				updatePageLoadingState(pageNum + 1, "loading");
+			}
 		}
 	}, [currentPage, renderContent, loadingState]);
 
@@ -80,6 +90,9 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 	const loadPageContent = async (pageNum) => {
 		const pageHexNum = pageNum.toString(16);
 		const pageDiv = document.getElementById(`pf${pageHexNum}`);
+		if (!pageDiv) {
+			return;
+		}
 		const fileName = pageDiv.getAttribute("data-page-url");
 		const url = `/storage/pdf/${book.urlName}/pages/${fileName}`;
 		api(url)
@@ -89,7 +102,7 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 				const pageDivLoad = doc.querySelector(".pf");
 				console.log("pageDiv", pageDiv, pageDiv.parentNode);
 				pageDiv.parentNode.replaceChild(pageDivLoad, pageDiv);
-				updatePageLoadingState("loaded");
+				updatePageLoadingState(pageNum, "loaded");
 			})
 			.catch((err) => {
 				console.error(err);
