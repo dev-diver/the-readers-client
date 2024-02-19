@@ -15,11 +15,14 @@ import {
 	scrollerRefState,
 	currentPageState,
 	renderContentState,
+	buttonGroupsPosState,
+	currentHighlightIdState,
 } from "recoil/atom";
 import api from "api";
 
 import UserPageDrawingCanvas from "./DrawingCanvasController/UserPageDrawingCanvas";
 import { getRelativeTop } from "../PdfScroller/util";
+import { loadPageHighlight } from "pages/RoomRouter/Room/PDFViewer/Highlights/util";
 
 function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 	const { bookId, roomId } = useParams();
@@ -37,9 +40,16 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 	const [currentPage, setCurrentPage] = useRecoilState(currentPageState);
 	const [renderContent, setRenderContent] = useRecoilState(renderContentState);
 
+	const setButtonGroupsPos = useSetRecoilState(buttonGroupsPosState);
+	const setCurrentHighlightId = useSetRecoilState(currentHighlightIdState);
+
 	const prevLoadingState = useRecoilValue(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum - 1 }));
 	const loadingState = useRecoilValue(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum }));
 	const nextLoadingState = useRecoilValue(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum + 1 }));
+	const recoilProps = {
+		setButtonGroupsPos,
+		setCurrentHighlightId,
+	};
 
 	const setRef = useCallback(
 		(el) => {
@@ -86,6 +96,13 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 			loadPageContent(pageNum);
 		}
 	}, [loadingState]);
+
+	useEffect(() => {
+		if (loadingState == "loaded" && user) {
+			//for all user
+			loadPageHighlight(user.id, bookId, pageNum, scroller, recoilProps);
+		}
+	}, [loadingState, user]);
 
 	const loadPageContent = async (pageNum) => {
 		const pageHexNum = pageNum.toString(16);

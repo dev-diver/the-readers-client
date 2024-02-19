@@ -25,11 +25,7 @@ export default function HighlightList({ highlights, deleteHandler }) {
 				setChevronIcon(ChevronLeft);
 			}
 		} else {
-			if (drawerOpen) {
-				setShowItems(true);
-			} else {
-				setShowItems(false);
-			}
+			setShowItems(true);
 			setChevronIcon(ChevronDown);
 		}
 	}, [isMobile, drawerOpen]);
@@ -55,6 +51,7 @@ export default function HighlightList({ highlights, deleteHandler }) {
 		const newHighlights =
 			highlights?.map((hl, i) => <HighlightListItem key={i} hlInfo={hl} deleteHandler={() => deleteHandler(hl)} />) ||
 			[];
+		console.log("new highlights", newHighlights);
 		setItems(newHighlights);
 	}, [highlights]);
 
@@ -105,7 +102,8 @@ export default function HighlightList({ highlights, deleteHandler }) {
 				<Typography variant="h6" component="h6">
 					하이라이트
 				</Typography>
-				<ChevronIcon sx={{ top: "10px", right: "10px", cursor: "pointer" }} onClick={toggleDrawer} />
+
+				{isMobile && <ChevronIcon sx={{ top: "10px", right: "10px", cursor: "pointer" }} onClick={toggleDrawer} />}
 				<Collapse in={showItems || drawerOpen}> {items} </Collapse>
 			</Box>
 		</ThemeProvider>

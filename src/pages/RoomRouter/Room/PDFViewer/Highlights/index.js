@@ -69,10 +69,10 @@ function Highlighter({ bookId, renderContent }) {
 
 	useEffect(() => {
 		if (renderContent) {
-			const pageNum = 1; //pageNum은 레이지로드 전까지는 1로 해도 전체 가져옴
 			if (user) {
 				console.log("my applyServerHighlight");
-				applyServerHighlight(user.id, bookId, pageNum, color, true);
+				loadHighlightList(user.id, bookId); //true
+				// loadAllPageHighlight(user.id, bookId, color);
 			} else {
 				console.log("로그아웃, 하이라이트 지움");
 				setHighlightList([]);
@@ -85,20 +85,16 @@ function Highlighter({ bookId, renderContent }) {
 	}, [renderContent, user, bookChanged]);
 
 	useEffect(() => {
-		// console.log("prevUsers", prevRoomUsers, "roomUsers", roomUsers);
 		const leftUsers = prevRoomUsers.filter((prevUser) => !roomUsers.some((user) => user.id === prevUser.id));
 		const joinedUsers = roomUsers.filter((user) => !prevRoomUsers.some((prevUser) => prevUser.id === user.id));
 		setPrevRoomUsers(roomUsers);
-		// console.log("leftUsers", leftUsers, "joinedUsers", joinedUsers);
 		if (!user) return;
 		joinedUsers?.forEach((roomUser) => {
-			const pageNum = 1; //레이지로드 전까지는 1로 해도 전체 가져옴
 			if (roomUser.id !== user.id) {
-				applyServerHighlight(roomUser.id, bookId, pageNum, "pink");
+				// loadAllPageHighlight(roomUser.id, bookId, "pink");
 			}
 		});
 		leftUsers?.forEach((roomUser) => {
-			// console.log("left", roomUser.id);
 			scrollerRef.querySelectorAll(`mark[data-user-id="${roomUser.id}"]`).forEach((highlight) => {
 				const highlightId = highlight.getAttribute("data-highlight-id");
 				eraseHighlight(scrollerRef, highlightId);
@@ -134,29 +130,12 @@ function Highlighter({ bookId, renderContent }) {
 	}, [user, scrollerRef]);
 
 	/* Server */
-	const applyServerHighlight = (userId, bookId, pageNum, color, set = false) => {
+	const loadHighlightList = (userId, bookId) => {
 		api
-			.get(`/highlights/user/${userId}/book/${bookId}/page/${pageNum}`)
+			.get(`/highlights/user/${userId}/book/${bookId}`)
 			.then((response) => {
 				logger.log("highlight", response.data);
-				let highlights = [];
-				response.data.forEach((highlightInfo) => {
-					const newRange = InfoToRange(highlightInfo);
-					const drawHighlightInfo = {
-						id: highlightInfo.id,
-						userId: userId,
-						color: color || highlightInfo.color,
-						bookId: bookId,
-					};
-					// console.log(setButtonGroupsPos, "PDFVIEWER setButtonGroupsPos2");
-					drawHighlight(newRange, drawHighlightInfo, setButtonGroupsPos, scrollerRef, setCurrentHighlightId);
-					if (set) {
-						highlights.push(highlightInfo);
-					}
-				});
-				if (set) {
-					setHighlightList(highlights);
-				}
+				setHighlightList(response.data);
 			})
 			.catch((err) => {
 				logger.log(err);
