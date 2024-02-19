@@ -1,109 +1,109 @@
 .mainpage-book {
-  background-color: transparent;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  width: 100%;
+	background-color: transparent;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	width: 100%;
 }
 
 .mainpage-book .overlap-wrapper {
-  height: 1117px;
-  width: 1728px;
+	height: 1117px;
+	width: 1728px;
 }
 
 .mainpage-book .overlap {
-  height: 1117px;
-  position: relative;
+	height: 1117px;
+	position: relative;
 }
 
 .mainpage-book .design-component-instance-node-2 {
-  left: 0 !important;
-  position: absolute !important;
-  top: 0 !important;
+	left: 0 !important;
+	position: absolute !important;
+	top: 0 !important;
 }
 
 .mainpage-book .hambuger-button {
-  height: 48px !important;
-  left: 1662px !important;
-  position: absolute !important;
-  top: 13px !important;
-  width: 48px !important;
+	height: 48px !important;
+	left: 1662px !important;
+	position: absolute !important;
+	top: 13px !important;
+	width: 48px !important;
 }
 
 .mainpage-book .search-result {
-  height: 719px;
-  left: 441px;
-  position: absolute;
-  top: 398px;
-  width: 882px;
+	height: 719px;
+	left: 441px;
+	position: absolute;
+	top: 398px;
+	width: 882px;
 }
 
 .mainpage-book .div {
-  height: 408px;
-  left: 11px;
-  position: relative;
-  top: 23px;
-  width: 871px;
+	height: 408px;
+	left: 11px;
+	position: relative;
+	top: 23px;
+	width: 871px;
 }
 
 .mainpage-book .book-instance {
-  background-image: unset !important;
-  background-position: unset !important;
-  background-size: unset !important;
-  border-radius: unset !important;
-  box-shadow: unset !important;
-  height: 275px !important;
-  left: 118px !important;
-  object-fit: cover !important;
-  position: absolute !important;
-  top: 70px !important;
-  width: 252px !important;
+	background-image: unset !important;
+	background-position: unset !important;
+	background-size: unset !important;
+	border-radius: unset !important;
+	box-shadow: unset !important;
+	height: 275px !important;
+	left: 118px !important;
+	object-fit: cover !important;
+	position: absolute !important;
+	top: 70px !important;
+	width: 252px !important;
 }
 
 .mainpage-book .book-2 {
-  background-image: unset !important;
-  background-position: unset !important;
-  background-size: unset !important;
-  border-radius: unset !important;
-  box-shadow: unset !important;
-  height: 275px !important;
-  left: 623px !important;
-  object-fit: cover !important;
-  position: absolute !important;
-  top: 0 !important;
-  width: 248px !important;
+	background-image: unset !important;
+	background-position: unset !important;
+	background-size: unset !important;
+	border-radius: unset !important;
+	box-shadow: unset !important;
+	height: 275px !important;
+	left: 623px !important;
+	object-fit: cover !important;
+	position: absolute !important;
+	top: 0 !important;
+	width: 248px !important;
 }
 
 .mainpage-book .book-3 {
-  background-image: unset !important;
-  background-position: unset !important;
-  background-size: unset !important;
-  border-radius: unset !important;
-  box-shadow: unset !important;
-  height: 275px !important;
-  left: 473px !important;
-  object-fit: cover !important;
-  position: absolute !important;
-  top: 70px !important;
-  width: 252px !important;
+	background-image: unset !important;
+	background-position: unset !important;
+	background-size: unset !important;
+	border-radius: unset !important;
+	box-shadow: unset !important;
+	height: 275px !important;
+	left: 473px !important;
+	object-fit: cover !important;
+	position: absolute !important;
+	top: 70px !important;
+	width: 252px !important;
 }
 
 .mainpage-book .book-4 {
-  background-image: unset !important;
-  background-position: unset !important;
-  background-size: unset !important;
-  border-radius: unset !important;
-  box-shadow: unset !important;
-  height: 275px !important;
-  left: 313px !important;
-  object-fit: cover !important;
-  position: absolute !important;
-  top: 133px !important;
-  width: 252px !important;
+	background-image: unset !important;
+	background-position: unset !important;
+	background-size: unset !important;
+	border-radius: unset !important;
+	box-shadow: unset !important;
+	height: 275px !important;
+	left: 313px !important;
+	object-fit: cover !important;
+	position: absolute !important;
+	top: 133px !important;
+	width: 252px !important;
 }
 
 .mainpage-book .search-box-instance {
-  left: 467px !important;
-  position: absolute !important;
-  top: 180px !important;
+	left: 467px !important;
+	position: absolute !important;
+	top: 180px !important;
 }

@@ -119,9 +119,10 @@ export const scrollerRefState = atom({
 	default: null,
 });
 
-export const isVideoExitState = atom({
-	key: "isVideoExit",
-	default: false,
+/* VideoChat */
+export const userMapState = atom({
+	key: "userMap",
+	default: {},
 });
 
 /* Appbar */
