@@ -19,7 +19,7 @@ function coloringUser(userId) {
 
 function Chart() {
 	// 유저 관련 상태
-	const { bookId } = useParams();
+	const { roomId, bookId } = useParams();
 	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
 	const [roomUser, setRoomUser] = useRecoilState(roomUserState);
 	// 페이지 관련 상태
@@ -37,10 +37,10 @@ function Chart() {
 	// 	console.log("roomUsers", roomUsers);
 	// 	console.log("roomUser", roomUser);
 	// }, []);
-	// useEffect(() => {
-	// 	console.log("TEST");
-	// 	console.log("data", data);
-	// }, [data]);
+	useEffect(() => {
+		console.log("TEST");
+		console.log("data", data);
+	}, [data]);
 
 	/*** Server 수정중 (save, load) ***/
 	const applyServerChart = (UserId, BookId, page, time) => {
@@ -69,6 +69,24 @@ function Chart() {
 	/*********************************/
 
 	useEffect(() => {
+		/************ Client 로직 수정 중 
+		// 처음 페이지 로딩 시, 총 페이지와 함께 방에 있는 사용자들의 시간 정보를 초기화
+		const initializeChart = () => {
+			return new Array(totalPage).fill(null).map((_, index) => {
+				const pageObject = { page: `${index + 1}` }; // 기본 page 설정
+				roomUsers.forEach((user) => {
+					const userIdKey = user?.id; // 각 사용자 ID에 대한 키 생성
+					pageObject[userIdKey] = 0; // 해당 사용자 ID 키를 객체에 추가하고 0으로 초기화
+				});
+				return pageObject;
+			});
+		}
+
+		const drawChartForNewUser
+
+		const removeChartForExitedUser
+		*********************************/
+
 		// 페이지 데이터를 초기화하는 함수
 		const initializePageData = () => {
 			return new Array(totalPage).fill(null).map((_, index) => {
@@ -90,11 +108,11 @@ function Chart() {
 					const updatedPageObject = { ...pageObject }; // 기존 페이지 객체 복사
 
 					// roomUsers에 없는 사용자의 데이터를 제거합니다.
-					Object.keys(updatedPageObject).forEach((key) => {
-						if (key !== "page" && !currentRoomUserIds.has(key)) {
-							delete updatedPageObject[key];
-						}
-					});
+					// Object.keys(updatedPageObject).forEach((key) => {
+					// 	if (key !== "page" && !currentRoomUserIds.has(key)) {
+					// 		delete updatedPageObject[key];
+					// 	}
+					// });
 
 					// roomUsers에 있는 사용자의 데이터를 업데이트하거나 추가합니다.
 					roomUsers?.forEach((user) => {
@@ -319,10 +337,10 @@ function Chart() {
 
 	const customClick = (props) => {
 		const handleClick = () => {
-			console.log(props.value);
+			// console.log(props.value);
 			// 페이지 이동 로직 실행
 			// navigateToPage(payload.value);
-			navigate(`/room/${roomUser.roomId}/book/${bookId}?page=${props.value}`);
+			navigate(`/room/${roomId}/book/${bookId}?page=${props.value}`);
 		};
 
 		handleClick();
@@ -358,7 +376,7 @@ function Chart() {
 						onClick={customClick}
 					/>
 					<CartesianGrid strokeDasharray="3 3" />
-					<Tooltip cursor={{ stroke: coloringUser(roomUser.user.id), strokeWidth: 2 }} />
+					<Tooltip cursor={{ stroke: coloringUser(roomUser?.user.id), strokeWidth: 2 }} />
 					{roomUsers?.map((user, index) => (
 						<Area
 							key={user.id}
