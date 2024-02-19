@@ -148,9 +148,13 @@ function MyMarkerComponent({
 
 	return (
 		<>
-			<span onClick={(e) => handleComponentClick(e)}>
+			<span
+				onMouseEnter={handleComponentEnter}
+				onMouseLeave={handleComponentLeave}
+				onClick={(e) => handleComponentClick(e)}
+			>
 				{children}
-				{IsMemoOpen && (
+				{isTooltipOpen && (
 					<>
 						<Tooltip
 							title={memoData || "메모가 없습니다."} // Tooltip에 표시할 텍스트
@@ -159,79 +163,10 @@ function MyMarkerComponent({
 							disableHoverListener // 호버 시 Tooltip이 자동으로 표시되지 않도록 함
 							disableTouchListener // 터치 시 Tooltip이 표시되지 않도록 함
 							className="button-over-mark"
-						>
-							<Button
-								variant="contained"
-								size="large"
-								className="memobutton"
-								onMouseEnter={handleComponentEnter} // 마우스 오버 시 메모 데이터 로드
-								onMouseLeave={handleComponentLeave} // 마우스 아웃 시 Tooltip 숨김
-								style={{
-									fontSize: "1.5rem",
-									padding: "12px 24px",
-									borderRadius: "8px",
-								}}
-							>
-								🔴{/* 메모 확인 버튼 */}
-							</Button>
-						</Tooltip>
-						<Button
-							variant="contained"
-							size="large"
-							href="#contained-buttons"
-							// onClick={() => viewLink()}
-							onClick={(e) => viewLink(e)} // 이벤트 객체를 viewLink 함수에 전달
-							className="button-over-mark"
-							style={{
-								fontSize: "1.5rem",
-								padding: "12px 24px",
-								borderRadius: "8px",
-							}}
-						>
-							🟠{/* 내부 링크 확인 버튼 */}
-						</Button>
-						<Button
-							className="memobutton"
-							variant="contained"
-							size="large"
-							href="#contained-buttons"
-							style={{
-								fontSize: "1.5rem",
-								padding: "12px 24px",
-								borderRadius: "8px",
-							}}
-							onClick={(e) => viewOuterlink(e)}
-						>
-							🟡{/* 외부 링크 확인 버튼 : 아직 구현 못함. */}
-						</Button>
+						></Tooltip>
 					</>
 				)}
 			</span>
-			{/* {onClickOptions && (
-				<OnclickOptions
-					isOpen={onClickOptions}
-					onClose={() => setOnClickOptions(false)}
-					highlightId={highlightId}
-					handleCreateHighlight={handleCreateHighlight}
-					bookId={bookId}
-				/>
-			)} */}
-			{D3GraphOpen && (
-				<Modal open={D3GraphOpen} onClose={() => setD3GraphOpen(false)}>
-					<Box sx={modalStyle}>
-						<D3Graph
-							highlightId={highlightId}
-							data={linkData} // 그래프를 그리는 데 필요한 데이터 객체
-							width={900} // 그래프의 너비를 지정
-							height={400} // 그래프의 높이를 지정
-							onNodeClick={(nodeId) => console.log(`Node ${nodeId} was clicked`)} // 노드 클릭 시 실행될 함수
-						/>
-					</Box>
-				</Modal>
-			)}
-			{isOuterlinksOpen && (
-				<Outerlinks isOpen={isOuterlinksOpen} onClose={() => setIsOuterlinksOpen(false)} highlightId={highlightId} />
-			)}
 		</>
 	);
 }
