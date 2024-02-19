@@ -14,7 +14,11 @@ export default function HighlightListItem({ hlInfo, deleteHandler }) {
 			style={{ textDecoration: "none ", color: "inherit" }}
 			to={`/room/${roomId}/book/${hlInfo.bookId}?highlightId=${hlInfo.id}`}
 		>
-			<Grid container justifyContent="space-between">
+			<Grid
+				container
+				justifyContent="space-between"
+				sx={{ margin: "5px", padding: "5px", borderRadius: "6px", border: "solid 1px #333" }}
+			>
 				<Grid item>
 					<Tooltip placement="left" title={hlInfo.text}>
 						<Typography component="span" variant="span" data-page-num={hlInfo.pageNum} data-highlight-id={hlInfo.id}>
@@ -23,7 +27,7 @@ export default function HighlightListItem({ hlInfo, deleteHandler }) {
 					</Tooltip>
 				</Grid>
 				<Grid item>
-					<Button variant="outlined" size="small" onClick={deleteHandler}>
+					<Button variant="contained" size="small" onClick={deleteHandler}>
 						삭제
 					</Button>
 				</Grid>

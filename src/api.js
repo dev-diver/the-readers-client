@@ -13,7 +13,7 @@ instance.interceptors.response.use(
 	},
 	function (error) {
 		if (error.response && error.response.status === 404) {
-			console.log("Not Found", error.message);
+			// console.log("Not Found", error.message);
 		} else {
 			console.error("Error", error.message);
 		}

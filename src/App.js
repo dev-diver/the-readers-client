@@ -11,12 +11,14 @@ import { useTheme, ThemeProvider, createTheme } from "@mui/material/styles";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 import "./global.css";
-import AgVideoChat from "components/AgVideoChat";
+import { useRecoilState } from "recoil";
+import { isAppBarPinnedState } from "recoil/atom";
 
 export const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
 
 function App() {
 	const [mode, setMode] = React.useState("light");
+	const [isAppBarPinned, setIsAppBarPinned] = useRecoilState(isAppBarPinnedState);
 	const colorMode = React.useMemo(
 		() => ({
 			toggleColorMode: () => {
@@ -100,17 +102,18 @@ function App() {
 					}}
 				>
 					<Router>
+						{isAppBarPinned && <Box sx={{ height: isAppBarPinned ? "64px" : "0", width: "100%" }}></Box>}
 						<Header>
 							{theme.palette.mode} mode
 							<IconButton sx={{ ml: 1 }} onClick={colorMode.toggleColorMode} color="inherit">
 								{theme.palette.mode === "dark" ? <Brightness7Icon /> : <Brightness4Icon />}
 							</IconButton>
 						</Header>
+
 						<Routes>
 							<Route path="/" element={<Main />} />
 							<Route path="/room/:roomId/*" element={<RoomRouter />} />
 							<Route path="/intro" element={<Intro />} />
-							<Route path="/video" element={<AgVideoChat />} />
 						</Routes>
 					</Router>
 				</Box>
