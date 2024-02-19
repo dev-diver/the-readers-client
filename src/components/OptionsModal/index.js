@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Box, Button } from "@mui/material";
 import InsertHighlight from "./InsertHighlight";
-import { InfoToRange, drawHighlight } from "pages/Room/PDFViewer/Highlights/util";
+import { InfoToRange, drawHighlight } from "pages/RoomRouter/Room/PDFViewer/Highlights/util";
 import api from "api";
 import { logger } from "logger";
 import socket from "socket.js";

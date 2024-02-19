@@ -4,8 +4,11 @@ import { baseURL } from "config/config";
 import { Button, Typography, Box, TextField, Grid, Link } from "@mui/material";
 import { useToggleDrawer } from "recoil/handler";
 import ProfileSelector from "./ProfileSelector";
+import { useRecoilState } from "recoil";
+import { userState } from "recoil/atom";
 
 const SignUpForm = () => {
+	const [user, setUser] = useRecoilState(userState);
 	const [selectedProfile, setSelectedProfile] = useState(null);
 	const [nick, setNick] = useState("");
 	const [email, setEmail] = useState("");
@@ -34,6 +37,10 @@ const SignUpForm = () => {
 				console.log(response.data);
 				toggleDrawer("none")(e);
 				setErrorMessage("");
+				//로그인
+				const user = response.data.data;
+				localStorage.setItem("user", JSON.stringify(user));
+				setUser(user);
 			})
 			.catch((error) => {
 				setErrorMessage(error.response.data.message);

@@ -32,7 +32,7 @@ function Chart() {
 		api
 			.get(`/chart/${BookId}/${UserId}`) //  /chart/book/:bookId/user/:userId 의 형식이 좋을 것 같아요.
 			.then((response) => {
-				console.log("**CHART** response", response.data.data);
+				// console.log("**CHART** response", response.data.data);
 			})
 			.catch((error) => {
 				console.log("**CHART** error", error);

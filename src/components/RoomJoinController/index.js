@@ -52,7 +52,7 @@ export default function RoomJoinController({ roomId }) {
 
 	useEffect(() => {
 		const handleRoomUsersChanged = (data) => {
-			console.log("room-users-changed", data.roomUsers);
+			// console.log("room-users-changed", data.roomUsers);
 			setRoomUsers(data.roomUsers);
 		};
 		socket.on("room-users-changed", handleRoomUsersChanged);

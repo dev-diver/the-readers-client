@@ -39,6 +39,11 @@ export const viewerScaleState = atom({
 	default: 1,
 });
 
+export const viewerScaleApplyState = atom({
+	key: "viewerScaleApply",
+	default: 1,
+});
+
 export const widthState = atom({
 	key: "width",
 	default: 0,
@@ -98,6 +103,11 @@ export const currentPageState = atom({
 
 export const bookChangedState = atom({
 	key: "bookChanged",
+	default: false,
+});
+
+export const renderContentState = atom({
+	key: "renderContent",
 	default: false,
 });
 
