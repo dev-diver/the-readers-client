@@ -7,7 +7,7 @@ import D3Graph from "components/D3Graph";
 import api from "api";
 import { useNavigate } from "react-router-dom";
 import { on } from "events";
-import { eraseHighlight } from "pages/RoomRouter/Room/PDFViewer/Highlights/util";
+import { eraseHighlight } from "pages/RoomRouter/Room/PDFViewer/Highlighter/util";
 
 function ButtonGroups({
 	style,

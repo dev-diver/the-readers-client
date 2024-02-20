@@ -45,10 +45,10 @@ export default function Info() {
 	return (
 		<Box sx={{ marginTop: "48px" }}>
 			<Box onClick={handleOtherItemClick} sx={{ cursor: "auto" }}>
-				{room && <BookShelf books={room.Books} bookId={bookId} bookClickhandler={bookClickHandler} />}
+				{room && <BookShelf books={room?.Books || []} bookId={bookId} bookClickhandler={bookClickHandler} />}
 			</Box>
 			<Link
-				to={`/room/${room.id}`}
+				to={`/room/${room?.id}`}
 				style={{
 					display: "flex",
 					flexDirection: "column",

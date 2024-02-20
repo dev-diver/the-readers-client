@@ -11,8 +11,7 @@ import {
 	currentHighlightIdState,
 	bookIdState,
 	currentPageState,
-	totalPageState,
-	pageScrollTopFamily,
+	bookState,
 } from "recoil/atom";
 import socket from "socket";
 import { scrollToPage, scrollToHighlight, smoothScrollTo, useDetermineCurrentPage } from "./util";
@@ -41,7 +40,8 @@ export default function PdfScroller({ renderContent, children }) {
 	const [currentHighlightId, setCurrentHighlightId] = useRecoilState(currentHighlightIdState);
 	const [setBookId] = useRecoilState(bookIdState);
 	const [currentPage, setCurrentPage] = useRecoilState(currentPageState);
-	const [totalPage, setTotalPage] = useRecoilState(totalPageState);
+	const [book, setBook] = useRecoilState(bookState);
+
 	useEffect(() => {
 		setUrlScrolled(false);
 	}, [location]);
@@ -86,7 +86,7 @@ export default function PdfScroller({ renderContent, children }) {
 				scrollTop: scrollTop,
 			});
 		}
-		determineCurrentPage(bookId, totalPage, scrollTop).then((currentPage) => {
+		determineCurrentPage(bookId, book?.totalPage || 0, scrollTop).then((currentPage) => {
 			console.info("currentPage", currentPage);
 			setCurrentPage(currentPage);
 		});
@@ -96,8 +96,7 @@ export default function PdfScroller({ renderContent, children }) {
 		(event) => {
 			const ratio = 1.1;
 			if (event.altKey) {
-				console.log("altWheel");
-				event.preventDefault();
+				// event.preventDefault();
 				if (event.deltaY < 0) {
 					setScale((prev) => prev * ratio);
 				} else {

@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import socket from "socket";
 import { useRecoilState } from "recoil";
-import { userState, roomUserState, roomUsersState } from "recoil/atom";
+import { userState, roomUserState, roomUsersState, roomState } from "recoil/atom";
+import api from "api";
 
 const createUuid = () => {
 	var S4 = () => {
@@ -15,13 +16,19 @@ export default function RoomJoinController({ roomId }) {
 	const [user, setUser] = useRecoilState(userState);
 	const [roomUser, setRoomUser] = useRecoilState(roomUserState);
 	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
+	const [room, setRoom] = useRecoilState(roomState);
+
 	// const uuid = createUuid();
 
 	useEffect(() => {
-		if (!user || !roomId) return;
+		api.get(`/rooms/${roomId}`).then((response) => {
+			setRoom(response.data.data);
+		});
+	}, [roomId]);
 
+	useEffect(() => {
+		if (!user || !roomId) return;
 		const onMessageHandler = (data) => {
-			// alert(data.message);
 			console.log("message", data.message);
 		};
 
@@ -32,8 +39,8 @@ export default function RoomJoinController({ roomId }) {
 	}, [user, roomId]);
 
 	useEffect(() => {
-		console.log("user", user, "roomId", roomId);
 		if (user && roomId) {
+			console.log("roomJoined", user, "roomId", roomId);
 			const myRoomUser = {
 				user: user,
 				roomId: roomId,
@@ -41,8 +48,8 @@ export default function RoomJoinController({ roomId }) {
 			setRoomUser(myRoomUser);
 			socket.emit("room-joined", myRoomUser);
 		} else {
+			console.log("roomLeaved", user, "roomId", roomId);
 			socket.emit("room-leaved", roomUser);
-			socket.off("room-joined");
 			if (!user) {
 				setRoomUser(null);
 				setRoomUsers([]);
