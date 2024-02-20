@@ -13,16 +13,17 @@ import {
 	userIdState,
 	isAppBarPinnedState,
 	roomIdState,
+	bookState,
 } from "recoil/atom";
 import RoomUserList from "components/RoomUserList";
 
 function Room() {
 	const { bookId, roomId } = useParams();
-	const [book, setBook] = useState({});
 	const [isTrail, setTrail] = useRecoilState(isTrailState);
 	const [isLead, setLead] = useRecoilState(isLeadState);
 	const [user, setUser] = useRecoilState(userState);
 	const [room, setRoom] = useRecoilState(roomState);
+	const [book, setBook] = useRecoilState(bookState);
 	const [userId, setUserId] = useRecoilState(userIdState);
 	const [isAppBarPinned, setIsAppBarPinned] = useRecoilState(isAppBarPinnedState);
 	const navigate = useNavigate();
@@ -36,10 +37,17 @@ function Room() {
 	setRoomId(roomId);
 
 	useEffect(() => {
-		api.get(`/rooms/${roomId}`).then((response) => {
-			setRoom(response.data.data);
-		});
-	}, [roomId]);
+		if (!room) {
+			return;
+		}
+		const findBook = room?.Books?.find((book) => book.id == bookId);
+		console.log("findBook", bookId, findBook);
+		setBook(findBook);
+		return () => {
+			console.log("set book empty");
+			setBook(null);
+		};
+	}, [room, bookId]);
 
 	useEffect(() => {
 		if (isLead) {
@@ -63,16 +71,6 @@ function Room() {
 		};
 	}, [isTrail, isLead]);
 
-	useEffect(() => {
-		const findBook = room.Books?.find((book) => book.id == bookId);
-		console.log("findBook", findBook);
-		setBook(findBook);
-		return () => {
-			console.log("set book empty");
-			setBook({});
-		};
-	}, [room, bookId]);
-
 	return (
 		<Box sx={{ display: "flex" }}>
 			<Box
@@ -88,7 +86,7 @@ function Room() {
 					transition: "top 0.5s ease-in-out",
 				}}
 			>
-				{book && <PDFViewer book={book} />}
+				<PDFViewer />
 			</Box>
 		</Box>
 	);

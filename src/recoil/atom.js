@@ -2,7 +2,12 @@ import { atom, atomFamily } from "recoil";
 
 export const roomState = atom({
 	key: "room",
-	default: { Books: [] },
+	default: null,
+});
+
+export const bookState = atom({
+	key: "book",
+	default: null,
 });
 
 export const htmlContentState = atom({
@@ -99,11 +104,6 @@ export const pageLoadingStateFamily = atomFamily({
 export const highlightLoadStateFamily = atomFamily({
 	key: "highlightLoadStateFamily",
 	default: false,
-});
-
-export const totalPageState = atom({
-	key: "totalPage",
-	default: 0,
 });
 
 export const currentPageState = atom({
