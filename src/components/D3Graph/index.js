@@ -279,6 +279,15 @@ const D3Graph = ({ highlightId, data, width, height, onNodeClick }) => {
 						},
 					}}
 					placement="top"
+					componentsProps={{
+						tooltip: {
+							sx: {
+								// color: "purple",	// 글자색 우선은 안바꿈
+								// backgroundColor: "lightblue",	// 배경색 우선은 안바꿈
+								fontSize: "2em",
+							},
+						},
+					}}
 				/>
 			)}
 		</>
