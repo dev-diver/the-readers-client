@@ -2,8 +2,11 @@ import React from "react";
 import { Avatar, Badge, Card, CardContent, CardActions, Button, Typography, TextField, Box } from "@mui/material";
 import { keyframes, styled, shadows } from "@mui/system";
 import { deepOrange, green } from "@mui/material/colors";
+import { redirect, useNavigate, useParams, Link } from "react-router-dom";
+import { userState } from "recoil/atom";
+import { useRecoilValue } from "recoil";
+import { useToggleDrawer } from "recoil/handler";
 import "./styles.css";
-import { redirect, useNavigate, useParams, useSearchParams, Link } from "react-router-dom";
 
 // const puff = keyframes`
 // 0% {
@@ -56,14 +59,25 @@ const StyledBody = styled("div")(({ theme }) => ({
 	// 	},
 }));
 
-function Intro() {
-	// const url = `${baseURL}/intro/room/${roomId}/roomUsers/${roomUsers.length}/host/${host}`;
-	// http://localhost:3001/intro/room/1/host/콩서누
-	const path = window.location.pathname; // 현재 URL의 경로를 가져옴
-	const parts = path.split("/");
-	const roomId = parts[3];
-	const encodeHost = parts[5];
-	const decodeHost = decodeURIComponent(encodeHost);
+function Invite() {
+	const user = useRecoilValue(userState);
+	const { roomId, host } = useParams();
+	const decodeHost = decodeURIComponent(host);
+	const toggleDrawer = useToggleDrawer();
+	const navigate = useNavigate();
+
+	const clickHandler = () => {
+		if (!user) {
+			alert("회원가입이 필요합니다.");
+			toggleDrawer("signup")();
+			return;
+		} else {
+			navigate(`/room/${roomId}`);
+		}
+	};
+
+	// const url = `${baseURL}/invite/room/${roomId}/host/${decodeHost}`;
+	// http://localhost:3001/invite/room/1/host/콩서누
 
 	return (
 		<StyledBody className="profile-body">
@@ -85,9 +99,9 @@ function Intro() {
 					</Typography>
 
 					{/* <!-- 방 이름 --> */}
-					<Typography sx={{ mb: 2 }} variant="h4" component="h2">
+					{/* <Typography sx={{ mb: 2 }} variant="h4" component="h2">
 						{roomId}
-					</Typography>
+					</Typography> */}
 
 					{/* <Typography variant="p" component="h6">
 						<Badge sx={{ mx: 1, ml: 2 }} color="secondary" variant="dot"></Badge>
@@ -107,11 +121,10 @@ function Intro() {
 						/>
 					</Typography> */}
 					<Button
-						component={Link}
-						to={`/room/${roomId}`}
 						sx={{ width: "85%", mt: 3, fontSize: 20, backgroundColor: "#313440" }}
 						variant="contained"
 						size="medium"
+						onClick={clickHandler}
 					>
 						이동하기
 					</Button>
@@ -124,4 +137,4 @@ function Intro() {
 	);
 }
 
-export default Intro;
+export default Invite;

@@ -6,9 +6,10 @@ import { Popover, Button } from "@mui/material";
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from "lucide-react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { isAppBarPinnedState, roomUsersState, userState, roomNameState } from "recoil/atom";
-import { useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { baseURL } from "config/config";
 import { user, roomName } from "recoil/atom";
+import { useToggleDrawer } from "recoil/handler";
 
 export default function HighlightList({ highlights, deleteHandler }) {
 	const listContainer = useRef(null);
@@ -19,8 +20,14 @@ export default function HighlightList({ highlights, deleteHandler }) {
 	const [drawerOpen, setDrawerOpen] = useState(false);
 	const [ChevronIcon, setChevronIcon] = useState(isMobile ? ChevronLeft : ChevronDown);
 	const [isAppBarPinned, setIsAppBarPinned] = useRecoilState(isAppBarPinnedState);
-	const [anchorEl, setAnchorEl] = React.useState(null);
+	const [anchorEl, setAnchorEl] = useState(null);
+	const user = useRecoilValue(userState);
+	const { roomId } = useParams();
 	const [url, setUrl] = useState("");
+	const roomUsers = useRecoilValue(roomUsersState);
+	const toggleDrawer = useToggleDrawer();
+	const open = Boolean(anchorEl);
+	const id = open ? "simple-popover" : undefined;
 
 	useEffect(() => {
 		if (isMobile) {
@@ -42,7 +49,7 @@ export default function HighlightList({ highlights, deleteHandler }) {
 	}, [isMobile, drawerOpen]);
 
 	// Drawer 토글 함수
-	const toggleDrawer = () => {
+	const hideMenu = () => {
 		if (isMobile) {
 			setDrawerOpen(!drawerOpen);
 			setChevronIcon(drawerOpen ? ChevronRight : ChevronLeft);
@@ -104,27 +111,16 @@ export default function HighlightList({ highlights, deleteHandler }) {
 			});
 	};
 
-	const open = Boolean(anchorEl);
-	const id = open ? "simple-popover" : undefined;
-	const [user, setUser] = useRecoilState(userState);
-	const roomUsers = useRecoilValue(roomUsersState);
-
 	const CreateUrl = () => {
 		if (!user) {
 			alert("로그인이 필요합니다.");
+			toggleDrawer("signin")();
 			return;
 		}
-		const path = window.location.pathname; // 현재 URL의 경로를 가져옴
-		const parts = path.split("/");
-		const roomId = parts[2];
-		const host = user.nick;
-		const newUrl = `${baseURL}/intro/room/${roomId}/roomUsers/${roomUsers.length}/host/${host}`;
+		const decodeHost = user.nick;
+		const newUrl = `${window.location.host}/invite/room/${roomId}/host/${decodeHost}`;
 		setUrl(newUrl);
 	};
-
-	useEffect(() => {
-		CreateUrl();
-	}, [user]);
 
 	return (
 		<ThemeProvider theme={theme}>
@@ -152,7 +148,7 @@ export default function HighlightList({ highlights, deleteHandler }) {
 				<Typography variant="h6" component="h6">
 					하이라이트
 				</Typography>
-				<ChevronIcon sx={{ top: "10px", right: "10px", cursor: "pointer" }} onClick={toggleDrawer} />
+				<ChevronIcon sx={{ top: "10px", right: "10px", cursor: "pointer" }} onClick={hideMenu} />
 				<Collapse in={showItems || drawerOpen}> {items} </Collapse>
 				<div>
 					<Button
@@ -167,7 +163,7 @@ export default function HighlightList({ highlights, deleteHandler }) {
 							cursor: "pointer",
 						}}
 					>
-						<ShareIcon sx={{ marginTop: "10px", cursor: "pointer" }} />
+						<ShareIcon onClick={CreateUrl} sx={{ marginTop: "10px", cursor: "pointer" }} />
 					</Button>
 					<Popover
 						id={id}

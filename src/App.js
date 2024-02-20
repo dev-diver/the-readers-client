@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Main from "pages/Main";
 import RoomRouter from "RoomRouter";
-import Intro from "pages/Intro";
+import Invite from "pages/Invite";
 import Header from "components/Header";
 import { Box } from "@mui/material";
 import BookCarousel from "components/BookCarousel";
@@ -113,7 +113,7 @@ function App() {
 						<Routes>
 							<Route path="/" element={<Main />} />
 							<Route path="/room/:roomId/*" element={<RoomRouter />} />
-							<Route path="/intro/room/:roomId/host/:host" element={<Intro />} />
+							<Route path="/invite/room/:roomId/host/:host" element={<Invite />} />
 						</Routes>
 					</Router>
 				</Box>
