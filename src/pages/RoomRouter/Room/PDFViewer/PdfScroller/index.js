@@ -96,8 +96,7 @@ export default function PdfScroller({ renderContent, children }) {
 		(event) => {
 			const ratio = 1.1;
 			if (event.altKey) {
-				console.log("altWheel");
-				event.preventDefault();
+				// event.preventDefault();
 				if (event.deltaY < 0) {
 					setScale((prev) => prev * ratio);
 				} else {

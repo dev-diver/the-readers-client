@@ -227,7 +227,7 @@ function PDFViewer({ book }) {
 							dangerouslySetInnerHTML={{ __html: pageContainerHTML }}
 							sx={{
 								width: "100%",
-								// transform: `scale(${scale})`,
+								transform: `scale(${scale})`,
 								transformOrigin: "top left",
 								boxSizing: "border-box",
 							}}
