@@ -39,6 +39,11 @@ export const viewerScaleState = atom({
 	default: 1,
 });
 
+export const viewerScaleApplyState = atom({
+	key: "viewerScaleApply",
+	default: 1,
+});
+
 export const widthState = atom({
 	key: "width",
 	default: 0,
@@ -86,6 +91,11 @@ export const pageLoadingStateFamily = atomFamily({
 	default: false,
 });
 
+export const highlightLoadStateFamily = atomFamily({
+	key: "highlightLoadStateFamily",
+	default: false,
+});
+
 export const totalPageState = atom({
 	key: "totalPage",
 	default: 0,
@@ -99,6 +109,16 @@ export const currentPageState = atom({
 export const bookChangedState = atom({
 	key: "bookChanged",
 	default: false,
+});
+
+export const renderContentState = atom({
+	key: "renderContent",
+	default: false,
+});
+
+export const currentHighlightIdState = atom({
+	key: "currentHighlightId",
+	default: null,
 });
 
 /* pen mode */
@@ -125,8 +145,24 @@ export const userMapState = atom({
 	default: {},
 });
 
-/* Appbar */
 export const isAppBarPinnedState = atom({
 	key: "isAppBarPinned",
+	default: false,
+});
+
+export const buttonGroupsPosState = atom({
+	key: "buttonGroupsPos",
+	default: { visible: false, x: 0, y: 0, page: null },
+});
+
+// userId
+export const userIdState = atom({
+	key: "userId",
+	default: null,
+});
+
+// bookId
+export const bookIdState = atom({
+	key: "bookId",
 	default: false,
 });

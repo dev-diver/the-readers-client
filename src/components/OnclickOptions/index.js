@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import { Modal, Box, Button } from "@mui/material";
 import InsertLink from "components/OptionsModal/InsertLink";
 import AddMemo from "components/OnclickOptions/AddMemo";
+import { useRecoilState } from "recoil";
+import { userIdState } from "recoil/atom";
 
 function OnclickOptions({
 	isOpen,
 	onClose,
-	userId,
 	highlightId,
 	bookId,
 	selectedHighlightInfo,
@@ -16,6 +17,7 @@ function OnclickOptions({
 	color = "yellow",
 }) {
 	const [activeModal, setActiveModal] = useState(null);
+	const [userId, setUserId] = useRecoilState(userIdState);
 
 	const openModal = (modalType) => {
 		setActiveModal(modalType);

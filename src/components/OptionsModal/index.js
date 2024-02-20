@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Box, Button } from "@mui/material";
 import InsertHighlight from "./InsertHighlight";
-import { InfoToRange, drawHighlight } from "pages/Room/PDFViewer/Highlights/util";
+import { InfoToRange, drawHighlight } from "pages/RoomRouter/Room/PDFViewer/Highlights/util";
 import api from "api";
 import { logger } from "logger";
 import socket from "socket.js";
 
 import InsertMemo from "./InsertMemo";
-import InsertLink from "./InsertLink";
+import { useRecoilState } from "recoil";
+import { buttonGroupsPosState, scrollerRefState, currentHighlightIdState } from "recoil/atom";
 
 // 세 가지의 옵션 제공 : 하이라이트 생성, 메모 삽입, 링크 삽입
 function OptionsModal({
 	isOpen,
 	onClose,
 	user,
-	highlightId,
 	bookId,
 	roomId,
 	setHighlightId,
@@ -23,6 +23,14 @@ function OptionsModal({
 	color = "yellow", // 하이라이트 색상 기본값 설정
 }) {
 	const [InsertMemoOpen, setInsertMemoOpen] = useState(false);
+	const [buttonGroupsPos, setButtonGroupsPos] = useRecoilState(buttonGroupsPosState);
+	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
+	const [currentHighlightId, setCurrentHighlightId] = useRecoilState(currentHighlightIdState);
+
+	const recoilProps = {
+		setButtonGroupsPos,
+		setCurrentHighlightId,
+	};
 
 	const sendHighlightToServer = async (highlightInfo) => {
 		console.log("user", user, "하이라이트 정보", highlightInfo);
@@ -50,36 +58,45 @@ function OptionsModal({
 			}); // Promise 체인이 끝나는 곳에 세미콜론 사용
 	};
 
-	// 하이라이트 생성 버튼 클릭 핸들러
-	const handleCreateHighlight = (event, memo) => {
+	const handleCreateHighlight = async (event, memo) => {
 		event.preventDefault();
-		if (selectedHighlightInfo) {
-			selectedHighlightInfo.forEach(async (highlightInfo) => {
-				console.log("하이라이트 정보", highlightInfo);
-				const newRange = InfoToRange(highlightInfo);
-				highlightInfo = {
-					...highlightInfo,
-					memo: memo,
-				};
-				const highlightId = await sendHighlightToServer(highlightInfo); // 형광펜 서버로 전송
-				console.log("하이라이트 아이디입니다.", highlightId);
-				const drawHighlightInfo = {
-					id: highlightId,
-					userId: user.id,
-					color: color,
-					bookId: bookId,
-				};
-				highlightInfo = {
-					...highlightInfo,
-					...drawHighlightInfo,
-				};
-				socket.emit("insert-highlight", highlightInfo); //소켓에 전송
-				drawHighlight(newRange, drawHighlightInfo); // 형관펜 화면에 그림
-				appendHighlightListItem(highlightInfo); //형광펜 리스트 생성
-			});
 
-			onClose(); // 모달 닫기
+		// 혹시 몰라서 달아줌.
+		if (!selectedHighlightInfo || selectedHighlightInfo.length === 0) {
+			alert("선택된 하이라이트가 없습니다. 하이라이트를 먼저 생성해주세요.");
+			return; // 함수 early return
 		}
+
+		for (const highlightInfo of selectedHighlightInfo) {
+			console.log("하이라이트 정보", highlightInfo);
+			const newRange = InfoToRange(highlightInfo);
+			const modifiedHighlightInfo = {
+				...highlightInfo,
+				memo: memo,
+			};
+			const highlightId = await sendHighlightToServer(modifiedHighlightInfo); // 형광펜 서버로 전송
+
+			// 하이라이트 ID가 유효하지 않은 경우 처리
+			if (!highlightId) {
+				alert("하이라이트 생성에 실패했습니다. 하이라이트를 다시 칠하세요.");
+				continue; // 다음 하이라이트 처리로 넘어감
+			}
+
+			console.log("하이라이트 아이디입니다.", highlightId);
+			const drawHighlightInfo = {
+				id: highlightId,
+				userId: user.id,
+				color: color,
+				bookId: bookId,
+			};
+
+			// 소켓에 전송 및 화면에 그리기
+			socket.emit("insert-highlight", { ...modifiedHighlightInfo, id: highlightId }); // 소켓에 전송
+			drawHighlight(newRange, drawHighlightInfo, scrollerRef, recoilProps); // 화면에 그림
+			appendHighlightListItem({ ...modifiedHighlightInfo, id: highlightId }); // 리스트에 추가
+		}
+
+		onClose(); // 모달 닫기
 	};
 
 	// 모달 스타일 : 그냥 챗지피티에서 따옴
