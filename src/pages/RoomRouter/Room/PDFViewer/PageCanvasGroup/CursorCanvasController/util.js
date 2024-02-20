@@ -65,7 +65,6 @@ export const clearCanvas = (canvas) => {
 };
 
 export function drawOnCanvas(canvas, x, y, color) {
-	// console.log("draw", x, y, color);
 	const ctx = canvas.current.getContext("2d");
 	ctx.fillStyle = color; // 서버로부터 받은 색상 사용
 	ctx.beginPath();

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from "recharts";
 import { useRecoilState } from "recoil";
-import { roomUserState, roomUsersState, currentPageState, totalPageState } from "recoil/atom";
+import { bookState, roomUserState, roomUsersState, currentPageState } from "recoil/atom";
 import socket from "socket";
 import { Box, Button, Typography } from "@mui/material";
 import { useImmer } from "use-immer";
@@ -25,7 +25,7 @@ function Chart() {
 	const [roomUser, setRoomUser] = useRecoilState(roomUserState);
 	// 페이지 관련 상태
 	const [currentPage, setCurrentPage] = useRecoilState(currentPageState);
-	const [totalPage, setTotalPage] = useRecoilState(totalPageState);
+	const [book, setBook] = useState(bookState);
 	const [prevPage, setPrevPage] = useState(0);
 	const [currentUsersPage, setCurrentUsersPage] = useImmer([]);
 	const navigate = useNavigate();
@@ -90,6 +90,9 @@ function Chart() {
 	// 유저가 페이지 이동 시 server에 save하기 (update)
 	useEffect(() => {
 		let updatedTime;
+		if (!book) {
+			return;
+		}
 
 		const saveChart = () => {
 			if (!roomUser?.user?.id) return;
@@ -133,9 +136,7 @@ function Chart() {
 		saveChart();
 		// server에 save하기
 		console.log("***updatedTime", updatedTime);
-	}, [currentPage, roomUser, bookId, chartId]);
-
-	/*********************************/
+	}, [currentPage, chartId, roomUsers, book]);
 
 	useEffect(() => {
 		const handleUpdateChart = (userData) => {
@@ -226,7 +227,7 @@ function Chart() {
 	useEffect(() => {
 		if (!roomUser?.user) return;
 		socket.emit("current-user-position", { currentPage: currentPage, user: roomUser.user, room: roomUser.roomId });
-	}, [currentPage]);
+	}, [roomUser, currentPage]);
 
 	useEffect(() => {
 		socket.on("other-user-position", (data) => {
@@ -257,7 +258,7 @@ function Chart() {
 
 			// console.log(currentUsersPage);
 			// 페이지 활성화 상태를 나타내는 배열 생성, 초기값은 모두 0 (비활성화)
-			let isActiveArray = new Array(totalPage).fill(0);
+			let isActiveArray = new Array(book?.totalPage || 0).fill(0);
 
 			// 현재 페이지에 해당하는 사용자들을 필터링
 			const usersOnPage = currentUsersPage.filter((user) => Number(user.currentPage) === Number(payload.value));

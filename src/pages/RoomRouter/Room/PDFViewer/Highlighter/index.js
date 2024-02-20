@@ -13,31 +13,33 @@ import {
 	highlightState,
 	buttonGroupsPosState,
 	currentHighlightIdState,
-	totalPageState,
+	bookState,
 	highlightLoadStateFamily,
 } from "recoil/atom";
+import { useToggleDrawer } from "recoil/handler";
 import socket from "socket.js";
 import "./styles.css";
 
 import HighlightList from "./HighlightList";
-
 import OptionsModal from "components/OptionsModal";
 import { useGetPageLoadState } from "../PdfScroller/util";
-function Highlighter({ bookId, renderContent }) {
-	const { roomId } = useParams();
+
+function Highlighter({ renderContent }) {
+	const { bookId, roomId } = useParams();
 	const [user, setUser] = useRecoilState(userState);
 	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
 	const [prevRoomUsers, setPrevRoomUsers] = useState([]);
 	const [color, setColor] = useState("yellow");
+	const toggleDrawer = useToggleDrawer();
+
+	// 진태 추가 코드
 	const [optionsModalOpen, setOptionsModalOpen] = useState(false);
 	const [highlightId, setHighlightId] = useState(null);
 	const [highlightInfos, setHighlightInfos] = useState(null);
-	const [totalPages, setTotalPages] = useRecoilState(totalPageState);
-
+	const [book, setBook] = useRecoilState(bookState);
 	const [highlightList, setHighlightList] = useRecoilState(highlightState);
 	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
 	const [penMode, setPenMode] = useRecoilState(penModeState);
-	const [bookChanged, setBookChanged] = useRecoilState(bookChangedState);
 	const [buttonGroupsPos, setButtonGroupsPos] = useRecoilState(buttonGroupsPosState);
 	const [currentHighlightId, setCurrentHighlightId] = useRecoilState(currentHighlightIdState);
 
@@ -50,13 +52,13 @@ function Highlighter({ bookId, renderContent }) {
 
 	const updatehighlightLoadState = useRecoilCallback(
 		({ set }) =>
-			(userId, flag) => {
-				console.log("userId", userId, "totalPages", totalPages, "updatehighlightLoadState", flag);
-				for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
-					set(highlightLoadStateFamily({ bookId: bookId, pageNum: pageNum, userId: userId }), flag);
+			(book, userId, flag) => {
+				console.log("userId", userId, "totalPages", book?.totalPage || 0, "updatehighlightLoadState", flag);
+				for (let pageNum = 1; pageNum <= book?.totalPage || 0; pageNum++) {
+					set(highlightLoadStateFamily({ bookId: book.id, pageNum: pageNum, userId: userId }), flag);
 				}
 			},
-		[totalPages, bookId]
+		[]
 	);
 
 	useEffect(() => {
@@ -64,7 +66,7 @@ function Highlighter({ bookId, renderContent }) {
 		return () => {
 			scrollerRef?.removeEventListener("mouseup", selectionToHighlight);
 		};
-	}, [scrollerRef, user, penMode]);
+	}, [scrollerRef, user, penMode, bookId]);
 
 	useEffect(() => {
 		setHighlightList([]);
@@ -73,6 +75,7 @@ function Highlighter({ bookId, renderContent }) {
 	const selectionToHighlight = () => {
 		if (!user) {
 			alert("하이라이팅은 로그인이 필요합니다.");
+			toggleDrawer("signin")();
 			return;
 		}
 		const selectedRange = window.getSelection();
@@ -104,31 +107,32 @@ function Highlighter({ bookId, renderContent }) {
 					eraseHighlight(scrollerRef, highlightId);
 				});
 				prevRoomUsers.forEach((roomUser) => {
-					updatehighlightLoadState(roomUser.id, false);
+					updatehighlightLoadState(book, roomUser.id, false);
 				});
 			}
 		}
-	}, [renderContent, user, bookChanged]);
+	}, [renderContent, user]);
 
 	useEffect(() => {
 		const leftUsers = prevRoomUsers.filter((prevUser) => !roomUsers.some((user) => user.id === prevUser.id));
-		const joinedUsers = roomUsers.filter((user) => !prevRoomUsers.some((prevUser) => prevUser.id === user.id));
+		// const joinedUsers = roomUsers.filter((user) => !prevRoomUsers.some((prevUser) => prevUser.id === user.id));
 		setPrevRoomUsers(roomUsers);
 		if (!user) return;
-		joinedUsers?.forEach((roomUser) => {
-			if (roomUser.id !== user.id) {
-				// loadAllPageHighlight(roomUser.id, bookId, "pink");
-			}
-		});
 		leftUsers?.forEach((roomUser) => {
 			scrollerRef.querySelectorAll(`mark[data-user-id="${roomUser.id}"]`).forEach((highlight) => {
 				const highlightId = highlight.getAttribute("data-highlight-id");
 				eraseHighlight(scrollerRef, highlightId);
 			});
 			console.log("updatehighlightLoadState", roomUser.id, false);
-			updatehighlightLoadState(roomUser.id, false);
+			updatehighlightLoadState(book, roomUser.id, false);
 		});
-	}, [roomUsers, bookChanged]);
+		return () => {
+			roomUsers?.forEach((roomUser) => {
+				console.log("book highlight State reset");
+				updatehighlightLoadState(book, roomUser.id, false);
+			});
+		};
+	}, [book, roomUsers]);
 
 	useEffect(() => {
 		const drawHighlightHandler = (data) => {

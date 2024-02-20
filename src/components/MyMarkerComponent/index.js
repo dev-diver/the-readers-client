@@ -113,18 +113,18 @@ function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, scrollerRef, re
 	// const viewLink = async () => {
 	// 	setD3GraphOpen(true);
 	// };
-	const viewLink = async (e) => {
-		e.stopPropagation(); // 이벤트 버블링 중지 -> handleComponentClick 작동 방지
-		setD3GraphOpen(true);
-	};
+	// const viewLink = async (e) => {
+	// 	e.stopPropagation(); // 이벤트 버블링 중지 -> handleComponentClick 작동 방지
+	// 	setD3GraphOpen(true);
+	// };
 
-	const viewOuterlink = async (e) => {
-		e.stopPropagation(); // 이벤트 버블링 중지 -> handleComponentClick 작동 방지
-		setIsOuterlinksOpen(true); // Outerlinks 모달을 열기 위해 상태를 true로 설정
+	// const viewOuterlink = async (e) => {
+	// 	e.stopPropagation(); // 이벤트 버블링 중지 -> handleComponentClick 작동 방지
+	// 	setIsOuterlinksOpen(true); // Outerlinks 모달을 열기 위해 상태를 true로 설정
 
-		console.log("외부 링크 확인 버튼 클릭");
-		console.log("highlightId", highlightId);
-	};
+	// 	console.log("외부 링크 확인 버튼 클릭");
+	// 	console.log("highlightId", highlightId);
+	// };
 
 	const modalStyle = {
 		position: "absolute",
@@ -155,6 +155,15 @@ function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, scrollerRef, re
 							disableHoverListener // 호버 시 Tooltip이 자동으로 표시되지 않도록 함
 							disableTouchListener // 터치 시 Tooltip이 표시되지 않도록 함
 							className="button-over-mark"
+							componentsProps={{
+								tooltip: {
+									sx: {
+										// color: "purple",	// 글자색 우선은 안바꿈
+										// backgroundColor: "lightblue",	// 배경색 우선은 안바꿈
+										fontSize: "2em",
+									},
+								},
+							}}
 						></Tooltip>
 					</>
 				)}
