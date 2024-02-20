@@ -1,4 +1,4 @@
-import { numToPageContainer } from "../Highlights/util";
+import { numToPageContainer } from "../Highlighter/util";
 import { useRecoilCallback } from "recoil";
 import { pageLoadingStateFamily, pageScrollTopFamily } from "recoil/atom";
 

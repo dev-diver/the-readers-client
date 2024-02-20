@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { logger } from "logger";
-import Highlights from "./Highlights";
+import Highlighter from "./Highlighter";
 import PageCanvasGroup from "./PageCanvasGroup";
 import Chart from "components/Chart";
 import PdfScroller from "./PdfScroller/index";
@@ -47,9 +47,10 @@ function PDFViewer() {
 	const updatePageLoadingState = useRecoilCallback(
 		({ set }) =>
 			(bookId, pageNum, loadingState) => {
+				console.log("book", bookId, "page", pageNum, "set", loadingState);
 				set(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum }), loadingState);
 			},
-		[bookId]
+		[]
 	);
 
 	useEffect(() => {
@@ -174,7 +175,7 @@ function PDFViewer() {
 					.then((response) => response.text())
 					.then((svgData) => {
 						pageDivClone.innerHTML = svgData;
-						console.log(index + 1, "set lazyloading");
+
 						updatePageLoadingState(bookId, index + 1, "lazy-loading");
 					})
 					.catch((error) => console.error("SVG 못 가져옴", error));
@@ -238,7 +239,7 @@ function PDFViewer() {
 					<Info />
 				</Box>
 				<Box sx={{ flex: 3.5 }}>
-					<Highlights bookId={bookId} renderContent={renderContent} />
+					<Highlighter bookId={bookId} renderContent={renderContent} />
 				</Box>
 			</Box>
 			{/* <RoomUserList /> */}

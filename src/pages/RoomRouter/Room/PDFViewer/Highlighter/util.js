@@ -174,7 +174,7 @@ export function rangeToInfo(range, additionalInfo) {
 
 export const loadAndDrawPageHighlight = (userId, bookId, pageNum, mine, scrollerRef, recoilProps) => {
 	api.get(`/highlights/user/${userId}/book/${bookId}/page/${pageNum}`).then((response) => {
-		logger.log("highlight", response.data);
+		console.log("highlight", response.data);
 		response.data.forEach((highlightInfo) => {
 			const newRange = InfoToRange(highlightInfo);
 			const drawHighlightInfo = {

@@ -23,7 +23,7 @@ import api from "api";
 
 import UserPageDrawingCanvas from "./DrawingCanvasController/UserPageDrawingCanvas";
 import { getRelativeTop } from "../PdfScroller/util";
-import { loadAndDrawPageHighlight } from "pages/RoomRouter/Room/PDFViewer/Highlights/util";
+import { loadAndDrawPageHighlight } from "pages/RoomRouter/Room/PDFViewer/Highlighter/util";
 
 function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 	const { bookId, roomId } = useParams();
@@ -61,10 +61,11 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 
 	const updatePageLoadingState = useRecoilCallback(
 		({ set }) =>
-			(pageNum, loadingState) => {
+			(bookId, pageNum, loadingState) => {
+				console.log("book", bookId, "page", pageNum, "set", loadingState);
 				set(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum }), loadingState);
 			},
-		[bookId]
+		[]
 	);
 
 	const loadAllUserPageHighlight = useRecoilCallback(
@@ -75,6 +76,7 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 					const loadState = await snapshot.getPromise(
 						highlightLoadStateFamily({ bookId: bookId, userId: userId, pageNum: pageNum })
 					);
+					console.log("loadState", loadState);
 					if (loadState) return;
 					let mine = userId == user.id;
 					loadAndDrawPageHighlight(userId, bookId, pageNum, mine, scroller, recoilProps);
@@ -95,16 +97,16 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 	}, [loadingState, scale, scroller, scaleApply]);
 
 	useEffect(() => {
-		// console.log("load page", pageNum, loadingState, renderContent);
 		if (renderContent && currentPage == pageNum) {
+			console.log("load page", pageNum, loadingState, renderContent);
 			if (prevLoadingState == "lazy-loading") {
-				updatePageLoadingState(pageNum - 1, "loading");
+				updatePageLoadingState(bookId, pageNum - 1, "loading");
 			}
 			if (loadingState == "lazy-loading") {
-				updatePageLoadingState(pageNum, "loading");
+				updatePageLoadingState(bookId, pageNum, "loading");
 			}
 			if (nextLoadingState == "lazy-loading") {
-				updatePageLoadingState(pageNum + 1, "loading");
+				updatePageLoadingState(bookId, pageNum + 1, "loading");
 			}
 		}
 	}, [currentPage, renderContent, loadingState]);
@@ -137,7 +139,7 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 				const pageDivLoad = doc.querySelector(".pf");
 				console.log("pageDiv", pageDiv, pageDiv.parentNode);
 				pageDiv.parentNode.replaceChild(pageDivLoad, pageDiv);
-				updatePageLoadingState(pageNum, "loaded");
+				updatePageLoadingState(bookId, pageNum, "loaded");
 			})
 			.catch((err) => {
 				console.error(err);

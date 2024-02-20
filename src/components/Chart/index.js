@@ -114,7 +114,7 @@ function Chart() {
 		const initializePageData = () => {
 			return new Array(book?.totalPage || 0).fill(null).map((_, index) => {
 				const pageObject = { page: `${index + 1}` }; // 기본 page 설정
-				roomUsers.forEach((user) => {
+				roomUsers?.forEach((user) => {
 					const userIdKey = user?.id; // 각 사용자 ID에 대한 키 생성
 					pageObject[userIdKey] = 0; // 해당 사용자 ID 키를 객체에 추가하고 0으로 초기화
 				});
@@ -125,46 +125,40 @@ function Chart() {
 		// 기존 데이터를 업데이트하는 함수
 		const updatePageDataWithNewUsers = (existingData) => {
 			// const currentRoomUserIds = new Set(roomUsers.map((user) => user.id)); // 현재 roomUsers의 모든 id를 Set으로 생성합니다.
-			return (
-				existingData?.map((pageObject) => {
-					const updatedPageObject = { ...pageObject }; // 기존 페이지 객체 복사
+			return existingData?.map((pageObject) => {
+				const updatedPageObject = { ...pageObject }; // 기존 페이지 객체 복사
 
-					// roomUsers에 없는 사용자의 데이터를 제거합니다.
-					// Object.keys(updatedPageObject).forEach((key) => {
-					// 	if (key !== "page" && !currentRoomUserIds.has(key)) {
-					// 		delete updatedPageObject[key];
-					// 	}
-					// });
+				// roomUsers에 없는 사용자의 데이터를 제거합니다.
+				// Object.keys(updatedPageObject).forEach((key) => {
+				// 	if (key !== "page" && !currentRoomUserIds.has(key)) {
+				// 		delete updatedPageObject[key];
+				// 	}
+				// });
 
-					// roomUsers에 있는 사용자의 데이터를 업데이트하거나 추가합니다.
-					roomUsers?.forEach((user) => {
-						const userIdKey = user?.id; // 각 사용자 ID에 대한 키
-						// 해당 사용자 ID 키가 없는(새로운 유저일 경우) 0으로 초기화
-						if (!Object.hasOwnProperty.call(updatedPageObject, userIdKey)) {
-							updatedPageObject[userIdKey] = 0;
-						}
-					}) || [];
-					return updatedPageObject;
-				}) || []
-			);
+				// roomUsers에 있는 사용자의 데이터를 업데이트하거나 추가합니다.
+				roomUsers?.forEach((user) => {
+					const userIdKey = user?.id; // 각 사용자 ID에 대한 키
+					// 해당 사용자 ID 키가 없는(새로운 유저일 경우) 0으로 초기화
+					if (!Object.hasOwnProperty.call(updatedPageObject, userIdKey)) {
+						updatedPageObject[userIdKey] = 0;
+					}
+				});
+				return updatedPageObject;
+			});
 		};
 
 		// 데이터가 이미 있으면 업데이트하고, 없으면 초기화
 		const updatedOrInitializedData = data?.length === 0 ? initializePageData() : updatePageDataWithNewUsers(data);
 
 		setData(updatedOrInitializedData); // 업데이트된 또는 초기화된 데이터로 상태
-	}, [roomUsers, roomUser, roomId, book]); // roomUsers가 변경될 때마다 이 로직을 다시 실행
+	}, [roomUsers, book]); // roomUsers가 변경될 때마다 이 로직을 다시 실행
 
 	useEffect(() => {
 		const handleUpdateChart = (userData) => {
 			const { filteredData, userKey } = userData;
 
 			setData((prevData) => {
-				// 예외 처리
-				if (prevData?.length === 0) {
-					return prevData;
-				}
-				prevData.forEach((item) => {
+				return prevData.forEach((item) => {
 					// filteredData에서 현재 순회 중인 page와 일치하는 항목을 찾습니다.
 					const filteredItem = filteredData.find((data) => data.page === item.page);
 
@@ -248,7 +242,7 @@ function Chart() {
 	useEffect(() => {
 		if (!roomUser?.user) return;
 		socket.emit("current-user-position", { currentPage: currentPage, user: roomUser.user, room: roomUser.roomId });
-	}, [currentPage]);
+	}, [roomUser, currentPage]);
 
 	useEffect(() => {
 		socket.on("other-user-position", (data) => {

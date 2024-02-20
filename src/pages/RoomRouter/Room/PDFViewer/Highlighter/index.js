@@ -21,9 +21,9 @@ import socket from "socket.js";
 import "./styles.css";
 
 import HighlightList from "./HighlightList";
-
 import OptionsModal from "components/OptionsModal";
 import { useGetPageLoadState } from "../PdfScroller/util";
+
 function Highlighter({ renderContent }) {
 	const { bookId, roomId } = useParams();
 	const [user, setUser] = useRecoilState(userState);
@@ -40,7 +40,6 @@ function Highlighter({ renderContent }) {
 	const [highlightList, setHighlightList] = useRecoilState(highlightState);
 	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
 	const [penMode, setPenMode] = useRecoilState(penModeState);
-	const [bookChanged, setBookChanged] = useRecoilState(bookChangedState);
 	const [buttonGroupsPos, setButtonGroupsPos] = useRecoilState(buttonGroupsPosState);
 	const [currentHighlightId, setCurrentHighlightId] = useRecoilState(currentHighlightIdState);
 
@@ -53,13 +52,13 @@ function Highlighter({ renderContent }) {
 
 	const updatehighlightLoadState = useRecoilCallback(
 		({ set }) =>
-			(userId, flag) => {
+			(book, userId, flag) => {
 				console.log("userId", userId, "totalPages", book?.totalPage || 0, "updatehighlightLoadState", flag);
 				for (let pageNum = 1; pageNum <= book?.totalPage || 0; pageNum++) {
-					set(highlightLoadStateFamily({ bookId: bookId, pageNum: pageNum, userId: userId }), flag);
+					set(highlightLoadStateFamily({ bookId: book.id, pageNum: pageNum, userId: userId }), flag);
 				}
 			},
-		[book]
+		[]
 	);
 
 	useEffect(() => {
@@ -67,7 +66,7 @@ function Highlighter({ renderContent }) {
 		return () => {
 			scrollerRef?.removeEventListener("mouseup", selectionToHighlight);
 		};
-	}, [scrollerRef, user, penMode]);
+	}, [scrollerRef, user, penMode, bookId]);
 
 	useEffect(() => {
 		setHighlightList([]);
@@ -108,31 +107,32 @@ function Highlighter({ renderContent }) {
 					eraseHighlight(scrollerRef, highlightId);
 				});
 				prevRoomUsers.forEach((roomUser) => {
-					updatehighlightLoadState(roomUser.id, false);
+					updatehighlightLoadState(book, roomUser.id, false);
 				});
 			}
 		}
-	}, [renderContent, user, bookChanged]);
+	}, [renderContent, user]);
 
 	useEffect(() => {
 		const leftUsers = prevRoomUsers.filter((prevUser) => !roomUsers.some((user) => user.id === prevUser.id));
-		const joinedUsers = roomUsers.filter((user) => !prevRoomUsers.some((prevUser) => prevUser.id === user.id));
+		// const joinedUsers = roomUsers.filter((user) => !prevRoomUsers.some((prevUser) => prevUser.id === user.id));
 		setPrevRoomUsers(roomUsers);
 		if (!user) return;
-		joinedUsers?.forEach((roomUser) => {
-			if (roomUser.id !== user.id) {
-				// loadAllPageHighlight(roomUser.id, bookId, "pink");
-			}
-		});
 		leftUsers?.forEach((roomUser) => {
 			scrollerRef.querySelectorAll(`mark[data-user-id="${roomUser.id}"]`).forEach((highlight) => {
 				const highlightId = highlight.getAttribute("data-highlight-id");
 				eraseHighlight(scrollerRef, highlightId);
 			});
 			console.log("updatehighlightLoadState", roomUser.id, false);
-			updatehighlightLoadState(roomUser.id, false);
+			updatehighlightLoadState(book, roomUser.id, false);
 		});
-	}, [roomUsers, bookChanged]);
+		return () => {
+			roomUsers?.forEach((roomUser) => {
+				console.log("book highlight State reset");
+				updatehighlightLoadState(book, roomUser.id, false);
+			});
+		};
+	}, [book, roomUsers]);
 
 	useEffect(() => {
 		const drawHighlightHandler = (data) => {
