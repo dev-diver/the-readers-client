@@ -39,17 +39,17 @@ function Chart() {
 	// 	console.log("roomUsers", roomUsers);
 	// 	console.log("roomUser", roomUser);
 	// }, []);
-	useEffect(() => {
-		console.log("TEST");
-		console.log("data", data);
-	}, [data]);
+	// useEffect(() => {
+	// 	console.log("TEST");
+	// 	console.log("data", data);
+	// }, [data]);
 
 	/*** Server 수정중 (save, load) ***/
 	// 유저가 들어올 때 server에 load하기 (find 또는 create)
 	// 유저가 나갈 때 server에 save하기 (update)
 	useEffect(() => {
 		const findOrCreateChart = () => {
-			if (roomUser?.user?.id === undefined) return;
+			if (!roomUser?.user?.id) return;
 			api
 				.get(`/chart/book/${bookId}/user/${roomUser?.user?.id}`)
 				.then((response) => {
@@ -150,7 +150,7 @@ function Chart() {
 		const updatedOrInitializedData = data?.length === 0 ? initializePageData() : updatePageDataWithNewUsers(data);
 
 		setData(updatedOrInitializedData); // 업데이트된 또는 초기화된 데이터로 상태
-	}, [roomUsers]); // roomUsers가 변경될 때마다 이 로직을 다시 실행
+	}, [roomUsers, roomUser, roomId, bookId]); // roomUsers가 변경될 때마다 이 로직을 다시 실행
 
 	useEffect(() => {
 		const handleUpdateChart = (userData) => {
