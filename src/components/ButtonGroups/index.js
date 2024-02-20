@@ -21,6 +21,7 @@ function ButtonGroups({
 	sendHighlightToServer,
 	handleCreateHighlight,
 	scrollerRef,
+	roomId,
 }) {
 	// AddMemo 컴포넌트의 랜더링 상태를 제어
 	const [showAddMemo, setShowAddMemo] = useState(false);
@@ -160,7 +161,7 @@ function ButtonGroups({
 		// D3Graph 컴포넌트를 닫는 로직 (예: 상태 변경)
 		setShowD3Graph(false);
 		// 페이지 이동 로직
-		navigate(`/room/1/book/1?highlightId=${nodeId}`);
+		navigate(`/room/${roomId}/book/${bookId}?highlightId=${nodeId}`);
 	};
 
 	// 하이라이트 삭제를 처리하는 함수

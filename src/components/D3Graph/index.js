@@ -3,12 +3,16 @@ import { useNavigate } from "react-router-dom";
 import * as d3 from "d3";
 import { v4 as uuidv4 } from "uuid";
 import api from "api";
+import { Tooltip } from "@mui/material";
+
 import "./style.css";
 
 const D3Graph = ({ highlightId, data, width, height, onNodeClick }) => {
 	const navigate = useNavigate(); // useNavigate 훅 사용
 	const [containerId] = useState(`d3graph-${uuidv4()}`);
 	const [nodeTexts, setNodeTexts] = useState([]);
+	const [tooltipInfo, setTooltipInfo] = useState({ open: false, text: "", x: 0, y: 0 });
+
 	useEffect(() => {
 		const fetchAllNodeTexts = async () => {
 			const texts = {};
@@ -107,6 +111,7 @@ const D3Graph = ({ highlightId, data, width, height, onNodeClick }) => {
 				// 여기에서 d는 바인딩된 데이터입니다.
 				console.log("Link data:", d.note); // 콘솔에 데이터 출력
 			});
+
 		// 처음 노드가 로딩될 때 퍼지는 정도를 조절하는 부분
 		const simulation = d3
 			.forceSimulation(data.nodes)
@@ -119,9 +124,13 @@ const D3Graph = ({ highlightId, data, width, height, onNodeClick }) => {
 			) // 링크 거리 조정
 			.force("charge", d3.forceManyBody().strength(-500)) // 반발력 조정
 			.force("center", d3.forceCenter(width / 2, height / 2))
-			.force("collide", d3.forceCollide(50)) // 충돌 반경 설정
+			.force("collide", d3.forceCollide(50).strength(1)) // 충돌 반경 설정
 			.alpha(1) // 초기 열량 설정
-			.alphaDecay(0.02); // 열량 감소율 조정
+			.alphaDecay(0.02); // 열량 감소율 조정// 노드의 초기 위치를 랜덤화하는 방법
+		data.nodes.forEach((node) => {
+			node.x = Math.random() * width;
+			node.y = Math.random() * height;
+		});
 
 		// 노드 그룹 생성
 		const node = svg.append("g").attr("class", "nodes").selectAll("g").data(data.nodes).join("g");
@@ -136,64 +145,71 @@ const D3Graph = ({ highlightId, data, width, height, onNodeClick }) => {
 				// 내부 링크인 경우, 정의된 URL 형식에 맞춰 이동
 				// 여기서는 room, book의 ID가 고정되어 있다고 가정합니다.
 				// 실제 사용 시에는 이 값들을 동적으로 대체해야 할 수 있습니다.
-				const roomId = 1; // 가정: 현재 방의 ID
-				const bookId = 1; // 가정: 현재 책의 ID
+				// const roomId = 1; // 가정: 현재 방의 ID
+				// const bookId = 1; // 가정: 현재 책의 ID
 				const highlightId = d.id; // 클릭된 노드의 ID (하이라이트 ID)
 
 				onNodeClick(highlightId); // 노드 클릭 이벤트 핸들러 호출
 			}
 		});
 
+		// 사각형으로 랜더링
+		// node
+		// 	.append("rect")
+		// 	.attr("width", 40)
+		// 	// .attr("width", (d) => {
+		// 	// 	// nodeTexts에서 현재 노드의 ID를 사용해 텍스트를 검색
+		// 	// 	const text = nodeTexts[d.id] || "";
+		// 	// 	// 텍스트 길이에 따라 rect의 너비를 계산, 최소 너비는 40
+		// 	// 	return Math.max(40, text.length * 6); // 여기서 6은 대략적인 글자 너비입니다.
+		// 	// })
+		// 	.attr("height", 20)
+		// 	.attr("x", -20)
+		// 	.attr("y", -10)
+		// 	.attr("fill", (d) => (d.isOuterLink ? "#99FFA9" : "#C6E4FF")) // 내부 링크와 외부 링크 색상 변경
+		// 	.call(drag(simulation));
+
 		node
-			.append("rect")
-			.attr("width", 40)
-			// .attr("width", (d) => {
-			// 	// nodeTexts에서 현재 노드의 ID를 사용해 텍스트를 검색
-			// 	const text = nodeTexts[d.id] || "";
-			// 	// 텍스트 길이에 따라 rect의 너비를 계산, 최소 너비는 40
-			// 	return Math.max(40, text.length * 6); // 여기서 6은 대략적인 글자 너비입니다.
-			// })
-			.attr("height", 20)
-			.attr("x", -20)
-			.attr("y", -10)
-			.attr("fill", (d) => (d.isOuterLink ? "#99FFA9" : "#C6E4FF")) // 내부 링크와 외부 링크 색상 변경
+			.append("circle")
+			.attr("r", (d) => (d.id === highlightId ? 30 : 20))
+			.attr("fill", (d) => (d.isOuterLink ? "#99FFA9" : "#C6E4FF"))
+			.on("mouseenter", (event, d) => {
+				const [x, y] = d3.pointer(event);
+				const text = d.isOuterLink ? d.note || "No note" : nodeTexts[d.id] || "No text";
+
+				setTooltipInfo({
+					open: true,
+					text: text,
+					x: x + event.target.getBoundingClientRect().x,
+					y: y + event.target.getBoundingClientRect().y,
+				});
+			})
+			.on("mouseleave", () => {
+				setTooltipInfo({ ...tooltipInfo, open: false });
+			})
 			.call(drag(simulation));
 
-		node
-			.append("text")
-			.attr("dx", -10) // x 방향으로의 위치 조정
-			.attr("dy", ".35em") // y 방향으로의 위치 조정
-			.text((d) => {
-				// 외부 링크인 경우, 사용자가 작성한 메모를 표시
-				if (d.isOuterLink) {
-					return d.note || ""; // 메모가 없는 경우 빈 문자열로 표시
-				} else {
-					// 내부 링크인 경우, 기존 논리에 따라 텍스트를 결정 (예: 하이라이트 텍스트)
-					return nodeTexts[d.id] || "No text"; // 하이라이트 텍스트가 없는 경우 "No text" 표시
-				}
-			})
-			.style("fill", "black") // 텍스트 색상
-			.style("font-weight", (d) => (d.id == highlightId ? "bold" : "normal")) // 중심 노드 볼드 처리
-			.style("font-size", (d) => (d.id == highlightId ? "20px" : "15px")) // 중심 노드 글자 크기 조정
-			.each(function (d) {
-				console.log("Node data:", nodeTexts[d.id]); // 콘솔에 데이터 출력
-			});
+		// 노드 안에 text가 랜더링되는 방식
+		// node
+		// 	.append("text")
+		// 	.attr("dx", -10) // x 방향으로의 위치 조정
+		// 	.attr("dy", ".35em") // y 방향으로의 위치 조정
+		// 	.text((d) => {
+		// 		// 외부 링크인 경우, 사용자가 작성한 메모를 표시
+		// 		if (d.isOuterLink) {
+		// 			return d.note || ""; // 메모가 없는 경우 빈 문자열로 표시
+		// 		} else {
+		// 			// 내부 링크인 경우, 기존 논리에 따라 텍스트를 결정 (예: 하이라이트 텍스트)
+		// 			return nodeTexts[d.id] || "No text"; // 하이라이트 텍스트가 없는 경우 "No text" 표시
+		// 		}
+		// 	})
+		// 	.style("fill", "black") // 텍스트 색상
+		// 	.style("font-weight", (d) => (d.id == highlightId ? "bold" : "normal")) // 중심 노드 볼드 처리
+		// 	.style("font-size", (d) => (d.id == highlightId ? "20px" : "15px")) // 중심 노드 글자 크기 조정
+		// 	.each(function (d) {
+		// 		console.log("Node data:", nodeTexts[d.id]); // 콘솔에 데이터 출력
+		// 	});
 
-		// simulation.on("tick", () => {
-		// 	// 링크와 노드의 위치 업데이트
-		// 	link
-		// 		.attr("x1", (d) => d.source.x)
-		// 		.attr("y1", (d) => d.source.y)
-		// 		.attr("x2", (d) => d.target.x)
-		// 		.attr("y2", (d) => d.target.y);
-
-		// 	linkText
-		// 		.attr("x", (d) => (d.source.x + d.target.x) / 2)
-		// 		.attr("y", (d) => (d.source.y + d.target.y) / 2)
-		// 		.attr("dy", 5); // dy는 텍스트를 선 위로 조금 올리기 위해 사용됩니다.
-
-		// 	node.attr("transform", (d) => `translate(${d.x},${d.y})`);
-		// });
 		simulation.on("tick", () => {
 			// 링크와 노드의 위치 업데이트
 			link
@@ -240,7 +256,33 @@ const D3Graph = ({ highlightId, data, width, height, onNodeClick }) => {
 		}
 	}, [data, width, height, onNodeClick, containerId, nodeTexts, navigate]);
 
-	return <div id={containerId} style={{ width: "900px", height: "400px" }}></div>;
+	// return <div id={containerId} style={{ width: "900px", height: "400px" }}></div>;
+	return (
+		<>
+			<div id={containerId} style={{ width: "900px", height: "400px" }}></div>
+			{tooltipInfo.open && (
+				<Tooltip
+					open={tooltipInfo.open}
+					title={tooltipInfo.text}
+					PopperProps={{
+						anchorEl: {
+							clientHeight: 0,
+							clientWidth: 0,
+							getBoundingClientRect: () => ({
+								top: tooltipInfo.y,
+								left: tooltipInfo.x,
+								right: tooltipInfo.x,
+								bottom: tooltipInfo.y,
+								width: 0,
+								height: 0,
+							}),
+						},
+					}}
+					placement="top"
+				/>
+			)}
+		</>
+	);
 };
 
 export default D3Graph;

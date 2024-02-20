@@ -11,6 +11,9 @@ import {
 	currentHighlightIdState,
 	bookIdState,
 	currentPageState,
+	totalPageState,
+	pageScrollTopFamily,
+	roomIdState,
 	bookState,
 } from "recoil/atom";
 import socket from "socket";
@@ -40,6 +43,7 @@ export default function PdfScroller({ renderContent, children }) {
 	const [currentHighlightId, setCurrentHighlightId] = useRecoilState(currentHighlightIdState);
 	const [setBookId] = useRecoilState(bookIdState);
 	const [currentPage, setCurrentPage] = useRecoilState(currentPageState);
+	const [roomId, setRoomId] = useRecoilState(roomIdState);
 	const [book, setBook] = useRecoilState(bookState);
 
 	useEffect(() => {
@@ -138,6 +142,7 @@ export default function PdfScroller({ renderContent, children }) {
 					}}
 					highlightId={currentHighlightId}
 					bookId={bookId}
+					roomId={roomId}
 					onClose={() => {
 						closebuttonGroups();
 					}}
