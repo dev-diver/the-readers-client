@@ -2,8 +2,11 @@ import React from "react";
 import { Avatar, Badge, Card, CardContent, CardActions, Button, Typography, TextField, Box } from "@mui/material";
 import { keyframes, styled, shadows } from "@mui/system";
 import { deepOrange, green } from "@mui/material/colors";
+import { redirect, useNavigate, useParams, Link } from "react-router-dom";
+import { userState } from "recoil/atom";
+import { useRecoilValue } from "recoil";
+import { useToggleDrawer } from "recoil/handler";
 import "./styles.css";
-import { redirect, useNavigate, useParams, useSearchParams, Link } from "react-router-dom";
 
 // const puff = keyframes`
 // 0% {
@@ -56,12 +59,25 @@ const StyledBody = styled("div")(({ theme }) => ({
 	// 	},
 }));
 
-const host = "유진";
+function Invite() {
+	const user = useRecoilValue(userState);
+	const { roomId, host } = useParams();
+	const decodeHost = decodeURIComponent(host);
+	const toggleDrawer = useToggleDrawer();
+	const navigate = useNavigate();
 
-function Intro() {
-	const [searchParams] = useSearchParams();
-	const roomId = searchParams.get("roomId");
-	const bookId = searchParams.get("bookId");
+	const clickHandler = () => {
+		if (!user) {
+			alert("회원가입이 필요합니다.");
+			toggleDrawer("signup")();
+			return;
+		} else {
+			navigate(`/room/${roomId}`);
+		}
+	};
+
+	// const url = `${baseURL}/invite/room/${roomId}/host/${decodeHost}`;
+	// http://localhost:3001/invite/room/1/host/콩서누
 
 	return (
 		<StyledBody className="profile-body">
@@ -72,27 +88,25 @@ function Intro() {
 						component={Link}
 						to={`/room/${roomId}`}
 						alt="group chat image"
-						src="thumbnail.png"
+						src="/thumbnail.png"
 						sx={{ width: 56, height: 56, border: "1px solid #ddd", boxShadow: 3 }}
 						variant="rounded"
 					></Avatar>
 
 					{/* <!-- 초대한 사람 --> */}
 					<Typography sx={{ mb: 0, fontSize: 20 }} color="text.secondary" gutterBottom>
-						&quot;{host}&quot;님이 초대함:
+						&quot;{decodeHost}&quot;님이 초대함:
 					</Typography>
 
 					{/* <!-- 방 이름 --> */}
-					<Typography sx={{ mb: 2 }} variant="h4" component="h2">
-						정글
-					</Typography>
+					{/* <Typography sx={{ mb: 2 }} variant="h4" component="h2">
+						{roomId}
+					</Typography> */}
 
-					<Typography variant="p" component="h6">
-						<Badge sx={{ mx: 1 }} color="success" variant="dot"></Badge>
-						2명 온라인
+					{/* <Typography variant="p" component="h6">
 						<Badge sx={{ mx: 1, ml: 2 }} color="secondary" variant="dot"></Badge>
-						8명 멤버
-					</Typography>
+						{roomUsersNum}명 참여중
+					</Typography> */}
 				</header>
 
 				{/* <!-- bit of a bio; who are you? --> */}
@@ -107,11 +121,10 @@ function Intro() {
 						/>
 					</Typography> */}
 					<Button
-						component={Link}
-						to={`/room/${roomId}/book/${bookId}`}
 						sx={{ width: "85%", mt: 3, fontSize: 20, backgroundColor: "#313440" }}
 						variant="contained"
 						size="medium"
+						onClick={clickHandler}
 					>
 						이동하기
 					</Button>
@@ -124,4 +137,4 @@ function Intro() {
 	);
 }
 
-export default Intro;
+export default Invite;
