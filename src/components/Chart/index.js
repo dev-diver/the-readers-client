@@ -157,13 +157,9 @@ function Chart() {
 			const { filteredData, userKey } = userData;
 
 			setData((prevData) => {
-				// 예외 처리
-				if (prevData?.length === 0) {
-					return prevData;
-				}
-				prevData.forEach((item) => {
+				return prevData.forEach((item) => {
 					// filteredData에서 현재 순회 중인 page와 일치하는 항목을 찾습니다.
-					const filteredItem = filteredData.find((data) => data.page === item.page);
+					const filteredItem = filteredData.find((data) => data.page == item.page);
 
 					// 일치하는 항목이 있는 경우, 해당 userKey의 값을 업데이트합니다.
 					if (filteredItem) {
