@@ -39,10 +39,10 @@ function Chart() {
 	// 	console.log("roomUsers", roomUsers);
 	// 	console.log("roomUser", roomUser);
 	// }, []);
-	// useEffect(() => {
-	// 	console.log("TEST");
-	// 	console.log("data", data);
-	// }, [data]);
+	useEffect(() => {
+		console.log("TEST");
+		console.log("data", data);
+	}, [data]);
 
 	/*** Server 수정중 (save, load) ***/
 	// 유저가 들어올 때 server에 load하기 (find 또는 create)
@@ -64,7 +64,7 @@ function Chart() {
 						produce(currentData, (draft) => {
 							// pages 배열을 반복하여 각 페이지에 대한 정보 업데이트
 							pages.forEach((page) => {
-								const index = draft.findIndex((item) => item.page === page.pageNumber);
+								const index = draft.findIndex((item) => item.page == page.pageNumber);
 								if (index !== -1) {
 									// 해당 페이지 정보가 이미 있으면 readTime 업데이트
 									draft[index][roomUser.user.id] = page.readTime;
