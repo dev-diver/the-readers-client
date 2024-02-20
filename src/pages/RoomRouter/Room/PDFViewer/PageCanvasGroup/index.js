@@ -54,7 +54,7 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 
 	const setRef = useCallback(
 		(el) => {
-			setCursorCanvasRef({ ref: el });
+			setCursorCanvasRef({ current: el });
 		},
 		[pageNum, bookChanged, setCursorCanvasRef]
 	);

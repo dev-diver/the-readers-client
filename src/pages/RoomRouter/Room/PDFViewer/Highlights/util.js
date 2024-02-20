@@ -8,8 +8,9 @@ import { logger } from "logger";
 import api from "api";
 
 function getElemPageNum(elem) {
-	// console.log("elemPageNum", container);
-	return getElemPageContainer(elem).getAttribute("data-page-no");
+	const pageNumHex = getElemPageContainer(elem).getAttribute("data-page-no");
+	const pageNumInt = parseInt(pageNumHex, 16);
+	return pageNumInt;
 }
 
 /* Get Containers */
@@ -27,9 +28,9 @@ function getElemPageContainer(elem) {
 	return null;
 }
 
-export function numToPageContainer(pageNum) {
-	// console.log("numToPageContainer", pageNum);
-	return document.querySelector(`[data-page-no="${pageNum}"]`);
+export function numToPageContainer(pageNumInt) {
+	const pageNumHex = pageNumInt.toString(16);
+	return document.querySelector(`[data-page-no="${pageNumHex}"]`);
 }
 
 /*  node <-> pathNum  convert */

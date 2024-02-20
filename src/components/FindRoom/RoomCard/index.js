@@ -1,11 +1,7 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import Container from "@mui/material/Container";
+import { Link, useNavigate } from "react-router-dom";
 import { Grid, Box, Paper, TextField, Button, Typography, CardActionArea, CardMedia, CardContent } from "@mui/material";
-import { BookmarkXIcon, LogIn } from "lucide-react";
-import { baseURL } from "config/config";
 
-import Masonry from "@mui/lab/Masonry";
 import { styled } from "@mui/material/styles";
 import { useRecoilState } from "recoil";
 import { roomUsersState } from "recoil/atom";
@@ -29,36 +25,39 @@ export default function RoomCard({ room }) {
 	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
 	const { id, title, usermax } = room;
 	const userCount = roomUsers[id]?.length || 0;
+	const navigate = useNavigate();
 
 	// 클릭 이벤트 핸들러
 	const handleClick = () => {
-		window.location.href = `/room/${id}`;
+		navigate(`/room/${id}`);
 	};
 
 	return (
-		<Card sx={{ p: 2, maxWidth: 300, m: 2, boxShadow: 3 }}>
-			<Box sx={{ cursor: "pointer", width: "100%" }} onClick={handleClick}>
-				<CardMedia component="img" height="140" image={randomImage?.img || "defaultImage.jpg"} />
-			</Box>
-			<CardContent sx={{ cursor: "pointer", backgroundColor: "white" }} onClick={handleClick}>
-				<Typography
-					gutterBottom
-					variant="h5"
-					component="div"
-					sx={{ width: "100%", padding: 1, borderBottom: "1px solid #999", block: "inline-block" }}
-				>
-					{title}
-				</Typography>
-			</CardContent>
-			<CardContent sx={{ backgroundColor: "white" }}>
-				<Typography variant="body2" color="text.secondary">
-					현재 인원/최대 인원: {userCount}/{usermax}
-				</Typography>
-				<Button variant="contained" size="small" color="primary" onClick={handleClick} sx={{ marginTop: "16px" }}>
-					입장하기
-				</Button>
-			</CardContent>
-		</Card>
+		<Link to={`/room/${id}`}>
+			<Card sx={{ p: 2, maxWidth: 300, m: 2, boxShadow: 3 }}>
+				<Box sx={{ cursor: "pointer", width: "100%" }}>
+					<CardMedia component="img" height="140" image={randomImage?.img || "defaultImage.jpg"} />
+				</Box>
+				<CardContent sx={{ cursor: "pointer", backgroundColor: "white" }}>
+					<Typography
+						gutterBottom
+						variant="h5"
+						component="div"
+						sx={{ width: "100%", padding: 1, borderBottom: "1px solid #999", block: "inline-block" }}
+					>
+						{title}
+					</Typography>
+				</CardContent>
+				<CardContent sx={{ backgroundColor: "white" }}>
+					<Typography variant="body2" color="text.secondary">
+						현재 인원/최대 인원: {userCount}/{usermax}
+					</Typography>
+					<Button variant="contained" size="small" color="primary" sx={{ marginTop: "16px" }}>
+						입장하기
+					</Button>
+				</CardContent>
+			</Card>
+		</Link>
 	);
 }
 
