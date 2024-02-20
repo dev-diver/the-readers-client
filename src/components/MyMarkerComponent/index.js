@@ -2,12 +2,11 @@ import React, { useState, useEffect } from "react";
 import api from "api";
 import { Tooltip, Box, Button, Typography, Modal } from "@mui/material";
 import "./style.css";
-import OnclickOptions from "components/OnclickOptions";
 import D3Graph from "components/D3Graph";
-import { set } from "react-hook-form";
 import Outerlinks from "components/Outerlinks";
+import { getRelativeTopLeft } from "pages/RoomRouter/Room/PDFViewer/PdfScroller/util";
 
-function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, children }) {
+function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, scrollerRef, recoilProps, children }) {
 	const [highlights, setHighlights] = useState([]);
 	const [onClickOptions, setOnClickOptions] = useState(false);
 	const [memoData, setMemoData] = useState("");
@@ -18,6 +17,16 @@ function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, children }) {
 	const [outerlinks, setOuterlinks] = useState([]);
 	// MyMarkerComponent에서 outerlinks 상태를 boolean으로 관리하기 위한 새로운 상태 추가
 	const [isOuterlinksOpen, setIsOuterlinksOpen] = useState(false);
+	const [activePage, setActivePage] = useState(null); // 현재 활성화된 페이지 번호
+
+	const popButtonGroup = (e) => {
+		console.log("popButtonGroup", scrollerRef);
+		if (!scrollerRef) return; // scrollerRef가 유효한지 확인
+		const { top, left } = getRelativeTopLeft(e.target, scrollerRef); // 상대 좌표를 계산
+		console.log(e.target);
+		console.log("top", top, "left", left);
+		recoilProps.setButtonGroupsPos({ visible: true, x: left, y: top }); // 계산된 위치를 사용하여 상태 업데이트
+	};
 
 	useEffect(() => {
 		if (D3GraphOpen) {
@@ -56,13 +65,17 @@ function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, children }) {
 		return { nodes, links: linksTransformed };
 	};
 
-	const handleComponentClick = async () => {
+	const handleComponentClick = async (e) => {
 		try {
 			const response = await api.get(`/highlights/book/${bookId}`);
-			console.log("북아이디", bookId);
-			console.log("하이라이트아이디", highlightId);
+			// console.log("북아이디", bookId);
+			// console.log("하이라이트아이디", highlightId);
+			// console.log("유저아이디", userId);
+			// console.log("setCurrentHighlightId", setCurrentHighlightId, highlightId);
+			recoilProps.setCurrentHighlightId(highlightId);
 			setHighlights(response.data.data); // 상태 업데이트
-			setOnClickOptions(true);
+			// setOnClickOptions(true);
+			popButtonGroup(e);
 		} catch (error) {
 			console.error("Failed to fetch highlights", error);
 		}
@@ -127,9 +140,13 @@ function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, children }) {
 
 	return (
 		<>
-			<span onClick={() => handleComponentClick()}>
+			<span
+				onMouseEnter={handleComponentEnter}
+				onMouseLeave={handleComponentLeave}
+				onClick={(e) => handleComponentClick(e)}
+			>
 				{children}
-				{IsMemoOpen && (
+				{isTooltipOpen && (
 					<>
 						<Tooltip
 							title={memoData || "메모가 없습니다."} // Tooltip에 표시할 텍스트
@@ -138,79 +155,10 @@ function MyMarkerComponent({ onClose, IsMemoOpen, highlightInfo, children }) {
 							disableHoverListener // 호버 시 Tooltip이 자동으로 표시되지 않도록 함
 							disableTouchListener // 터치 시 Tooltip이 표시되지 않도록 함
 							className="button-over-mark"
-						>
-							<Button
-								variant="contained"
-								size="large"
-								className="memobutton"
-								onMouseEnter={handleComponentEnter} // 마우스 오버 시 메모 데이터 로드
-								onMouseLeave={handleComponentLeave} // 마우스 아웃 시 Tooltip 숨김
-								style={{
-									fontSize: "1.5rem",
-									padding: "12px 24px",
-									borderRadius: "8px",
-								}}
-							>
-								🔴{/* 메모 확인 버튼 */}
-							</Button>
-						</Tooltip>
-						<Button
-							variant="contained"
-							size="large"
-							href="#contained-buttons"
-							// onClick={() => viewLink()}
-							onClick={(e) => viewLink(e)} // 이벤트 객체를 viewLink 함수에 전달
-							className="button-over-mark"
-							style={{
-								fontSize: "1.5rem",
-								padding: "12px 24px",
-								borderRadius: "8px",
-							}}
-						>
-							🟠{/* 내부 링크 확인 버튼 */}
-						</Button>
-						<Button
-							className="memobutton"
-							variant="contained"
-							size="large"
-							href="#contained-buttons"
-							style={{
-								fontSize: "1.5rem",
-								padding: "12px 24px",
-								borderRadius: "8px",
-							}}
-							onClick={(e) => viewOuterlink(e)}
-						>
-							🟡{/* 외부 링크 확인 버튼 : 아직 구현 못함. */}
-						</Button>
+						></Tooltip>
 					</>
 				)}
 			</span>
-			{onClickOptions && (
-				<OnclickOptions
-					isOpen={onClickOptions}
-					onClose={() => setOnClickOptions(false)}
-					highlightId={highlightId}
-					handleCreateHighlight={handleCreateHighlight}
-					bookId={bookId}
-				/>
-			)}
-			{D3GraphOpen && (
-				<Modal open={D3GraphOpen} onClose={() => setD3GraphOpen(false)}>
-					<Box sx={modalStyle}>
-						<D3Graph
-							highlightId={highlightId}
-							data={linkData} // 그래프를 그리는 데 필요한 데이터 객체
-							width={900} // 그래프의 너비를 지정
-							height={400} // 그래프의 높이를 지정
-							onNodeClick={(nodeId) => console.log(`Node ${nodeId} was clicked`)} // 노드 클릭 시 실행될 함수
-						/>
-					</Box>
-				</Modal>
-			)}
-			{isOuterlinksOpen && (
-				<Outerlinks isOpen={isOuterlinksOpen} onClose={() => setIsOuterlinksOpen(false)} highlightId={highlightId} />
-			)}
 		</>
 	);
 }

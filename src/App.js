@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Main from "pages/Main";
-import RoomRouter from "RoomRouter";
+import RoomRouter from "pages/RoomRouter";
 import Intro from "pages/Intro";
 import Header from "components/Header";
 import { Box } from "@mui/material";
@@ -10,7 +10,6 @@ import IconButton from "@mui/material/IconButton";
 import { useTheme, ThemeProvider, createTheme } from "@mui/material/styles";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
-// global.css 파일을 import 합니다.
 import "./global.css";
 import { useRecoilState } from "recoil";
 import { isAppBarPinnedState } from "recoil/atom";

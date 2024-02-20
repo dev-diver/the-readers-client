@@ -39,10 +39,10 @@ function Chart() {
 	// 	console.log("roomUsers", roomUsers);
 	// 	console.log("roomUser", roomUser);
 	// }, []);
-	useEffect(() => {
-		console.log("TEST");
-		console.log("data", data);
-	}, [data]);
+	// useEffect(() => {
+	// 	console.log("TEST");
+	// 	console.log("data", data);
+	// }, [data]);
 
 	/*** Server 수정중 (save, load) ***/
 	// 유저가 들어올 때 server에 load하기 (find 또는 create)
@@ -281,7 +281,7 @@ function Chart() {
 			// 현재 페이지에 해당하는 사용자들을 필터링
 			const usersOnPage = currentUsersPage.filter((user) => Number(user.currentPage) === Number(payload.value));
 			// 본인의 프로필을 배열의 첫 번째 요소로, 다른 사용자들은 그 뒤로 정렬
-			const sortedUsersOnPage = usersOnPage.sort((a, b) => (b.id === roomUser.user.id ? -1 : 1));
+			const sortedUsersOnPage = usersOnPage.sort((a, b) => (b.id === roomUser?.user.id ? -1 : 1));
 			// currentUsers를 순회하면서, 각 사용자의 페이지를 확인
 			sortedUsersOnPage.forEach((user) => {
 				if (Number(user.currentPage) === Number(payload.value)) {
