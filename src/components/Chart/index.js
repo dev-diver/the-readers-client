@@ -6,6 +6,7 @@ import { roomUserState, roomUsersState, currentPageState, totalPageState } from 
 import socket from "socket";
 import { Button } from "@mui/material";
 import { useImmer } from "use-immer";
+import { produce } from "immer";
 
 import api from "api";
 import { useNavigate } from "react-router-dom";
@@ -31,44 +32,62 @@ function Chart() {
 	// 차트 데이터 관련 상태
 	const [data, setData] = useImmer([]);
 	const [count, setCount] = useState(0);
+	const [chartId, setChartId] = useState(0);
 
 	// 디버깅용 출력
 	// useEffect(() => {
 	// 	console.log("roomUsers", roomUsers);
 	// 	console.log("roomUser", roomUser);
 	// }, []);
-	// useEffect(() => {
-	// 	console.log("TEST");
-	// 	console.log("data", data);
-	// }, [data]);
+	useEffect(() => {
+		console.log("TEST");
+		console.log("data", data);
+	}, [data]);
 
 	/*** Server 수정중 (save, load) ***/
-	// 유저가 나갈 때 server에 save
-	const applyServerChart = (UserId, BookId, page, time) => {
-		api
-			.get(`/chart/${BookId}/${UserId}`) //  /chart/book/:bookId/user/:userId 의 형식이 좋을 것 같아요.
-			.then((response) => {
-				console.log("**CHART** response", response.data.data);
-			})
-			.catch((error) => {
-				console.log("**CHART** error", error);
-			});
-	};
-
+	// 유저가 들어올 때 server에 load하기 (find 또는 create)
+	// 유저가 나갈 때 server에 save하기 (update)
 	useEffect(() => {
-		const handleApplyServerChart = (data) => {
-			const users = data.roomUsers;
-			// console.log("**CHART** room-users-changed", users);
-			applyServerChart(1, 1, 1, 1);
+		const findOrCreateChart = () => {
+			if (roomUser?.user?.id === undefined) return;
+			api
+				.get(`/chart/book/${bookId}/user/${roomUser?.user?.id}`)
+				.then((response) => {
+					console.warn("***서버에서 온 response", response);
+					// chartId를 받아옴
+					setChartId(response.data.chartId);
+					// pages를 받아와서 data에 page와 해당 user의 readTime을 immer로 업데이트
+					const pages = response.data.pages;
+
+					// immer를 사용하여 data 상태 업데이트
+					setData((currentData) =>
+						produce(currentData, (draft) => {
+							// pages 배열을 반복하여 각 페이지에 대한 정보 업데이트
+							pages.forEach((page) => {
+								const index = draft.findIndex((item) => item.page === page.pageNumber);
+								if (index !== -1) {
+									// 해당 페이지 정보가 이미 있으면 readTime 업데이트
+									draft[index][roomUser.user.id] = page.readTime;
+								} else {
+									// 새 페이지 정보 추가
+									draft.push({ page: page.pageNumber, [roomUser.user.id]: page.readTime });
+								}
+							});
+						})
+					);
+				})
+				.catch((error) => {
+					console.log("error", error);
+				});
 		};
-		socket.on("room-users-changed", handleApplyServerChart);
+		console.log("server****");
+		socket.on("room-users-changed", findOrCreateChart);
 
 		return () => {
-			socket.off("room-users-changed", handleApplyServerChart);
+			socket.off("room-users-changed", findOrCreateChart);
 		};
-	}, []);
+	}, [roomUser, bookId]);
 	/*********************************/
-
 	useEffect(() => {
 		/************ Client 로직 수정 중 
 		// 처음 페이지 로딩 시, 총 페이지와 함께 방에 있는 사용자들의 시간 정보를 초기화
