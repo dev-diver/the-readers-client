@@ -31,7 +31,18 @@ const D3Graph = ({ highlightId, data, width, height, onNodeClick }) => {
 	}, [data.nodes]);
 
 	useEffect(() => {
-		if (!data) return;
+		// if (!data) return;
+		if (!data || data.nodes.length === 0) return;
+
+		// 중심 노드 ID, 예를 들어 highlightId 변수를 사용
+		const centralNodeId = highlightId;
+
+		// 중심 노드의 위치를 화면 중앙으로 고정
+		const centralNode = data.nodes.find((node) => node.id == centralNodeId);
+		if (centralNode) {
+			centralNode.fx = width / 2;
+			centralNode.fy = height / 2;
+		}
 
 		// console.log("Link data with notes:", data.links[0].note);
 
@@ -90,7 +101,7 @@ const D3Graph = ({ highlightId, data, width, height, onNodeClick }) => {
 			.attr("text-anchor", "middle")
 			.attr("font-size", "15px")
 			.attr("font-weight", "lighter")
-			.style("fill", "black")
+			.style("fill", "blue")
 			.text((d) => d.note || "")
 			.each(function (d) {
 				// 여기에서 d는 바인딩된 데이터입니다.
@@ -136,19 +147,22 @@ const D3Graph = ({ highlightId, data, width, height, onNodeClick }) => {
 		node
 			.append("rect")
 			.attr("width", 40)
+			// .attr("width", (d) => {
+			// 	// nodeTexts에서 현재 노드의 ID를 사용해 텍스트를 검색
+			// 	const text = nodeTexts[d.id] || "";
+			// 	// 텍스트 길이에 따라 rect의 너비를 계산, 최소 너비는 40
+			// 	return Math.max(40, text.length * 6); // 여기서 6은 대략적인 글자 너비입니다.
+			// })
 			.attr("height", 20)
 			.attr("x", -20)
 			.attr("y", -10)
-			.attr("fill", color)
+			.attr("fill", (d) => (d.isOuterLink ? "#99FFA9" : "#C6E4FF")) // 내부 링크와 외부 링크 색상 변경
 			.call(drag(simulation));
 
 		node
 			.append("text")
 			.attr("dx", -10) // x 방향으로의 위치 조정
 			.attr("dy", ".35em") // y 방향으로의 위치 조정
-			// .text(function (d) {
-			// 	return nodeTexts[d.id] || "No text"; // 텍스트가 없을 경우 "No text" 출력
-			// }) // nodeTexts 객체에서 텍스트 검색
 			.text((d) => {
 				// 외부 링크인 경우, 사용자가 작성한 메모를 표시
 				if (d.isOuterLink) {
@@ -159,10 +173,27 @@ const D3Graph = ({ highlightId, data, width, height, onNodeClick }) => {
 				}
 			})
 			.style("fill", "black") // 텍스트 색상
+			.style("font-weight", (d) => (d.id == highlightId ? "bold" : "normal")) // 중심 노드 볼드 처리
+			.style("font-size", (d) => (d.id == highlightId ? "20px" : "15px")) // 중심 노드 글자 크기 조정
 			.each(function (d) {
 				console.log("Node data:", nodeTexts[d.id]); // 콘솔에 데이터 출력
 			});
 
+		// simulation.on("tick", () => {
+		// 	// 링크와 노드의 위치 업데이트
+		// 	link
+		// 		.attr("x1", (d) => d.source.x)
+		// 		.attr("y1", (d) => d.source.y)
+		// 		.attr("x2", (d) => d.target.x)
+		// 		.attr("y2", (d) => d.target.y);
+
+		// 	linkText
+		// 		.attr("x", (d) => (d.source.x + d.target.x) / 2)
+		// 		.attr("y", (d) => (d.source.y + d.target.y) / 2)
+		// 		.attr("dy", 5); // dy는 텍스트를 선 위로 조금 올리기 위해 사용됩니다.
+
+		// 	node.attr("transform", (d) => `translate(${d.x},${d.y})`);
+		// });
 		simulation.on("tick", () => {
 			// 링크와 노드의 위치 업데이트
 			link
@@ -174,9 +205,13 @@ const D3Graph = ({ highlightId, data, width, height, onNodeClick }) => {
 			linkText
 				.attr("x", (d) => (d.source.x + d.target.x) / 2)
 				.attr("y", (d) => (d.source.y + d.target.y) / 2)
-				.attr("dy", 5); // dy는 텍스트를 선 위로 조금 올리기 위해 사용됩니다.
+				.attr("dy", 5);
 
-			node.attr("transform", (d) => `translate(${d.x},${d.y})`);
+			node.attr("transform", (d) => {
+				d.x = Math.max(40, Math.min(width - 10, d.x)); // 화면 가로 경계 내로 제한
+				d.y = Math.max(20, Math.min(height - 10, d.y)); // 화면 세로 경계 내로 제한
+				return `translate(${d.x},${d.y})`;
+			});
 		});
 
 		function drag(simulation) {
