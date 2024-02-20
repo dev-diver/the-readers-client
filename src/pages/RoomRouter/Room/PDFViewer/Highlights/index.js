@@ -16,6 +16,7 @@ import {
 	totalPageState,
 	highlightLoadStateFamily,
 } from "recoil/atom";
+import { useToggleDrawer } from "recoil/handler";
 import socket from "socket.js";
 import "./styles.css";
 
@@ -29,6 +30,9 @@ function Highlighter({ bookId, renderContent }) {
 	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
 	const [prevRoomUsers, setPrevRoomUsers] = useState([]);
 	const [color, setColor] = useState("yellow");
+	const toggleDrawer = useToggleDrawer();
+
+	// 진태 추가 코드
 	const [optionsModalOpen, setOptionsModalOpen] = useState(false);
 	const [highlightId, setHighlightId] = useState(null);
 	const [highlightInfos, setHighlightInfos] = useState(null);
@@ -73,6 +77,7 @@ function Highlighter({ bookId, renderContent }) {
 	const selectionToHighlight = () => {
 		if (!user) {
 			alert("하이라이팅은 로그인이 필요합니다.");
+			toggleDrawer("signin")();
 			return;
 		}
 		const selectedRange = window.getSelection();
