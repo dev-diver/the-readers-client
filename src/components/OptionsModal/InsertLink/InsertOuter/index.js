@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import api from "api";
-import { Box, Button, TextField, Typography, Modal, FormControl } from "@mui/material";
+import { Box, Button, TextField, Typography, Modal, FormControl, Fade } from "@mui/material";
 
 function InsertOuter({ isOpen, onClose, userId, highlightId, onCloseEntire }) {
 	const [OuterLink, setOuterLink] = useState("");
@@ -18,6 +18,7 @@ function InsertOuter({ isOpen, onClose, userId, highlightId, onCloseEntire }) {
 			onClose();
 			onCloseEntire();
 			setOuterLink("");
+			setNote("");
 		} catch (error) {
 			console.error("외부 링크 삽입 실패", error);
 		}
@@ -58,17 +59,19 @@ function InsertOuter({ isOpen, onClose, userId, highlightId, onCloseEntire }) {
 						value={OuterLink}
 						onChange={(e) => setOuterLink(e.target.value)}
 					/>
-					<TextField
-						autoFocus
-						margin="dense"
-						id="memo"
-						label="링크 메모"
-						type="text"
-						fullWidth
-						variant="outlined"
-						value={note}
-						onChange={(e) => setNote(e.target.value)}
-					/>
+					<Fade in={!!OuterLink} timeout={500}>
+						{/*페이드인 효과 부여 및 외부링크 입력 시에만 노트 입력창 노출*/}
+						<TextField
+							margin="dense"
+							id="link-note"
+							label="링크 메모"
+							type="text"
+							fullWidth
+							variant="outlined"
+							value={note}
+							onChange={(e) => setNote(e.target.value)}
+						/>
+					</Fade>
 				</FormControl>
 				<Box mt={2} display="flex" justifyContent="space-between">
 					<Button variant="outlined" onClick={onClose}>
