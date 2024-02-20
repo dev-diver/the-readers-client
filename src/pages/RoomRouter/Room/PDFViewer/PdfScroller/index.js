@@ -126,7 +126,7 @@ export default function PdfScroller({ renderContent, children }) {
 				height: "100vh",
 				margin: "0 auto",
 				overflowY: "auto",
-				overflowX: "hidden",
+				overflowX: "auto",
 			}}
 		>
 			{children}
