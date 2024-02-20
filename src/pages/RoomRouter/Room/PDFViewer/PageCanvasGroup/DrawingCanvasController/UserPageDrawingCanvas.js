@@ -10,7 +10,6 @@ import socket from "socket";
 import api from "api";
 
 const generator = rough.generator();
-const tool = "pencil";
 const color = "black";
 
 function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
@@ -29,10 +28,25 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 
 	const updateElement = useCallback(
 		(newElement) => {
-			setElements((oldElements) => [...oldElements, newElement]);
+			setElements((prevElements) => [...prevElements, newElement]);
 		},
 		[setElements]
 	);
+
+	const deleteElement = ({ offsetX, offsetY }) => {
+		setElements((prevElements) => {
+			//prevElements 중에 offsetX, offsetY가 일치하는 element를 제외한 배열을 반환
+			return prevElements.filter((ele) => {
+				if (ele.element === "pencil") {
+					const path = ele.path;
+					const isErase = path.some(([x, y]) => {
+						return Math.abs(x - offsetX) < 10 && Math.abs(y - offsetY) < 10;
+					});
+					return !isErase;
+				}
+			});
+		});
+	};
 
 	const location = {
 		bookId: bookId,
@@ -106,17 +120,19 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 
 	const drawMouseDown = (e) => {
 		const { offsetX, offsetY } = e.nativeEvent;
-		if (tool === "pencil") {
+		if (penMode === "pencil") {
 			const newElement = {
 				offsetX,
 				offsetY,
 				path: [[offsetX, offsetY]],
 				stroke: color,
-				element: tool,
+				element: penMode,
 			};
 			updateElement(newElement);
+		} else if (penMode === "eraser") {
+			deleteElement({ offsetX, offsetY });
 		} else {
-			const newElement = { offsetX, offsetY, stroke: color, element: tool };
+			const newElement = { offsetX, offsetY, stroke: color, element: penMode };
 			updateElement(newElement);
 		}
 		setIsDrawing(true);
@@ -128,7 +144,7 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 		}
 		const { offsetX, offsetY } = e.nativeEvent;
 
-		if (tool === "rect") {
+		if (penMode === "rect") {
 			setElements((prevElements) =>
 				prevElements.map((ele, index) =>
 					index === elements.length - 1
@@ -143,7 +159,7 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 						: ele
 				)
 			);
-		} else if (tool === "line") {
+		} else if (penMode === "line") {
 			setElements((prevElements) =>
 				prevElements.map((ele, index) =>
 					index === elements.length - 1
@@ -158,7 +174,7 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 						: ele
 				)
 			);
-		} else if (tool === "pencil") {
+		} else if (penMode === "pencil") {
 			setElements((prevElements) =>
 				prevElements.map((ele, index) =>
 					index === elements.length - 1
@@ -172,12 +188,13 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 						: ele
 				)
 			);
+		} else if (penMode === "eraser") {
+			deleteElement({ offsetX, offsetY });
 		}
 	};
 
 	const drawMouseUp = () => {
 		setIsDrawing(false);
-		// const canvasRef = getCanvasRef(drawingCanvasRefs, pageNum, user.id);
 		if (!canvasRef || !user) return;
 		debounceDrawSave(elements, location, user?.id);
 	};
@@ -191,7 +208,7 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 			height={canvasFrame.scrollHeight}
 			style={{
 				border: "1px solid black",
-				pointerEvents: penMode == "draw" && roomUser.id == user?.id ? "auto" : "none",
+				pointerEvents: (penMode == "pencil" || penMode == "eraser") && roomUser.id == user?.id ? "auto" : "none",
 				position: "absolute",
 				left: 0,
 				top: 0,

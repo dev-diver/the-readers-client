@@ -9,7 +9,6 @@ import {
 	viewerScaleState,
 	buttonGroupsPosState,
 	currentHighlightIdState,
-	bookIdState,
 	currentPageState,
 	bookState,
 } from "recoil/atom";

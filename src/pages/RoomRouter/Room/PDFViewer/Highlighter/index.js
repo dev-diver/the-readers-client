@@ -66,11 +66,11 @@ function Highlighter({ renderContent }) {
 		return () => {
 			scrollerRef?.removeEventListener("mouseup", selectionToHighlight);
 		};
-	}, [scrollerRef, user, penMode, bookId]);
+	}, [scrollerRef, user, penMode, book]);
 
 	useEffect(() => {
 		setHighlightList([]);
-	}, [bookId]);
+	}, [book]);
 
 	const selectionToHighlight = () => {
 		if (!user) {
@@ -83,7 +83,7 @@ function Highlighter({ renderContent }) {
 		if (penMode == "highlight" && selectedRange.rangeCount == 1 && !selectedRange.isCollapsed) {
 			const range = selectedRange.getRangeAt(0);
 			// console.log(range);
-			const additionalInfo = { bookId: bookId, text: selectedRange.toString() };
+			const additionalInfo = { bookId: book.id, text: selectedRange.toString() };
 			const highlightInfo = rangeToInfo(range, additionalInfo);
 			// console.log("highlightInfo", highlightInfo);
 			setOptionsModalOpen(true);
@@ -97,7 +97,7 @@ function Highlighter({ renderContent }) {
 		if (renderContent) {
 			if (user) {
 				console.log("my applyServerHighlight");
-				loadHighlightList(user.id, bookId); //true
+				loadHighlightList(user.id, book.id); //true
 				// loadAllPageHighlight(user.id, bookId, color);
 			} else {
 				console.log("로그아웃, 하이라이트 지움");
@@ -137,7 +137,7 @@ function Highlighter({ renderContent }) {
 	useEffect(() => {
 		const drawHighlightHandler = (data) => {
 			console.log("drawHighlightInfo", data);
-			getPageLoadState(bookId, parseInt(data.pageNum)).then((pageLoadState) => {
+			getPageLoadState(book.id, parseInt(data.pageNum)).then((pageLoadState) => {
 				console.log("pageLoadState", pageLoadState);
 				if (pageLoadState == "loaded") {
 					const newRange = InfoToRange(data);
