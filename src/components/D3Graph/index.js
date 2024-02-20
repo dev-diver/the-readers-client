@@ -144,20 +144,27 @@ const D3Graph = ({ highlightId, data, width, height, onNodeClick }) => {
 			}
 		});
 
+		// 사각형으로 랜더링
+		// node
+		// 	.append("rect")
+		// 	.attr("width", 40)
+		// 	// .attr("width", (d) => {
+		// 	// 	// nodeTexts에서 현재 노드의 ID를 사용해 텍스트를 검색
+		// 	// 	const text = nodeTexts[d.id] || "";
+		// 	// 	// 텍스트 길이에 따라 rect의 너비를 계산, 최소 너비는 40
+		// 	// 	return Math.max(40, text.length * 6); // 여기서 6은 대략적인 글자 너비입니다.
+		// 	// })
+		// 	.attr("height", 20)
+		// 	.attr("x", -20)
+		// 	.attr("y", -10)
+		// 	.attr("fill", (d) => (d.isOuterLink ? "#99FFA9" : "#C6E4FF")) // 내부 링크와 외부 링크 색상 변경
+		// 	.call(drag(simulation));
+
 		node
-			.append("rect")
-			.attr("width", 40)
-			// .attr("width", (d) => {
-			// 	// nodeTexts에서 현재 노드의 ID를 사용해 텍스트를 검색
-			// 	const text = nodeTexts[d.id] || "";
-			// 	// 텍스트 길이에 따라 rect의 너비를 계산, 최소 너비는 40
-			// 	return Math.max(40, text.length * 6); // 여기서 6은 대략적인 글자 너비입니다.
-			// })
-			.attr("height", 20)
-			.attr("x", -20)
-			.attr("y", -10)
-			.attr("fill", (d) => (d.isOuterLink ? "#99FFA9" : "#C6E4FF")) // 내부 링크와 외부 링크 색상 변경
-			.call(drag(simulation));
+			.append("circle")
+			// .attr("r", 20) // 원의 반지름 설정, 필요에 따라 조정 가능
+			.attr("r", (d) => (d.id == highlightId ? 30 : 20))
+			.attr("fill", (d) => (d.isOuterLink ? "#99FFA9" : "#C6E4FF"));
 
 		node
 			.append("text")
@@ -179,21 +186,6 @@ const D3Graph = ({ highlightId, data, width, height, onNodeClick }) => {
 				console.log("Node data:", nodeTexts[d.id]); // 콘솔에 데이터 출력
 			});
 
-		// simulation.on("tick", () => {
-		// 	// 링크와 노드의 위치 업데이트
-		// 	link
-		// 		.attr("x1", (d) => d.source.x)
-		// 		.attr("y1", (d) => d.source.y)
-		// 		.attr("x2", (d) => d.target.x)
-		// 		.attr("y2", (d) => d.target.y);
-
-		// 	linkText
-		// 		.attr("x", (d) => (d.source.x + d.target.x) / 2)
-		// 		.attr("y", (d) => (d.source.y + d.target.y) / 2)
-		// 		.attr("dy", 5); // dy는 텍스트를 선 위로 조금 올리기 위해 사용됩니다.
-
-		// 	node.attr("transform", (d) => `translate(${d.x},${d.y})`);
-		// });
 		simulation.on("tick", () => {
 			// 링크와 노드의 위치 업데이트
 			link

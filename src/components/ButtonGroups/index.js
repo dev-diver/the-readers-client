@@ -229,6 +229,8 @@ function ButtonGroups({
 							height={400} // 그래프의 높이를 지정
 							// onNodeClick={(nodeId) => console.log(`Node ${nodeId} was clicked`)} // 노드 클릭 시 실행될 함수
 							onNodeClick={handleNodeClick} // 노드 클릭 시 실행될 함수
+							bookId={bookId}
+							// 여기 roomId 받아오기
 						/>
 						<Button
 							onClick={closeModal}
