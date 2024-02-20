@@ -1,9 +1,15 @@
 import React, { useRef, useEffect, useState } from "react";
 import HighlightListItem from "./HighlightListItem";
 import { Box, Collapse, ThemeProvider, Typography, useMediaQuery, useTheme } from "@mui/material";
+import ShareIcon from "@mui/icons-material/Share";
+import { Popover, Button } from "@mui/material";
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from "lucide-react";
-import { useRecoilState } from "recoil";
-import { isAppBarPinnedState } from "recoil/atom";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { isAppBarPinnedState, roomUsersState, userState, roomNameState } from "recoil/atom";
+import { useParams, useSearchParams } from "react-router-dom";
+import { baseURL } from "config/config";
+import { user, roomName } from "recoil/atom";
+import { useToggleDrawer } from "recoil/handler";
 
 export default function HighlightList({ highlights, deleteHandler }) {
 	const listContainer = useRef(null);
@@ -14,6 +20,14 @@ export default function HighlightList({ highlights, deleteHandler }) {
 	const [drawerOpen, setDrawerOpen] = useState(false);
 	const [ChevronIcon, setChevronIcon] = useState(isMobile ? ChevronLeft : ChevronDown);
 	const [isAppBarPinned, setIsAppBarPinned] = useRecoilState(isAppBarPinnedState);
+	const [anchorEl, setAnchorEl] = useState(null);
+	const user = useRecoilValue(userState);
+	const { roomId } = useParams();
+	const [url, setUrl] = useState("");
+	const roomUsers = useRecoilValue(roomUsersState);
+	const toggleDrawer = useToggleDrawer();
+	const open = Boolean(anchorEl);
+	const id = open ? "simple-popover" : undefined;
 
 	useEffect(() => {
 		if (isMobile) {
@@ -31,7 +45,7 @@ export default function HighlightList({ highlights, deleteHandler }) {
 	}, [isMobile, drawerOpen]);
 
 	// Drawer 토글 함수
-	const toggleDrawer = () => {
+	const toggleHighlightDrawer = () => {
 		if (isMobile) {
 			setDrawerOpen(!drawerOpen);
 			setChevronIcon(drawerOpen ? ChevronRight : ChevronLeft);
@@ -75,6 +89,35 @@ export default function HighlightList({ highlights, deleteHandler }) {
 			setDrawerOpen(false);
 		}
 	};
+	const handleClick = (event) => {
+		setAnchorEl(event.currentTarget);
+	};
+
+	const handleClose = () => {
+		setAnchorEl(null);
+	};
+
+	const copyUrlToClipboard = () => {
+		navigator.clipboard
+			.writeText(url)
+			.then(() => {
+				console.log("URL copied to clipboard");
+			})
+			.catch((error) => {
+				console.error("Failed to copy URL to clipboard:", error);
+			});
+	};
+
+	const CreateUrl = () => {
+		if (!user) {
+			alert("로그인이 필요합니다.");
+			toggleDrawer("signin")();
+			return;
+		}
+		const decodeHost = user.nick;
+		const newUrl = `${window.location.host}/invite/room/${roomId}/host/${decodeHost}`;
+		setUrl(newUrl);
+	};
 
 	return (
 		<ThemeProvider theme={theme}>
@@ -103,8 +146,39 @@ export default function HighlightList({ highlights, deleteHandler }) {
 					하이라이트
 				</Typography>
 
-				{isMobile && <ChevronIcon sx={{ top: "10px", right: "10px", cursor: "pointer" }} onClick={toggleDrawer} />}
+				{isMobile && (
+					<ChevronIcon sx={{ top: "10px", right: "10px", cursor: "pointer" }} onClick={toggleHighlightDrawer} />
+				)}
 				<Collapse in={showItems || drawerOpen}> {items} </Collapse>
+				<div>
+					<Button
+						aria-describedby={id}
+						variant="contained"
+						onClick={handleClick}
+						sx={{
+							position: "absolute",
+							bottom: "10px",
+							right: "10px",
+							marginTop: "10px",
+							cursor: "pointer",
+						}}
+					>
+						<ShareIcon onClick={CreateUrl} sx={{ marginTop: "10px", cursor: "pointer" }} />
+					</Button>
+					<Popover
+						id={id}
+						open={open}
+						anchorEl={anchorEl}
+						onClose={handleClose}
+						anchorOrigin={{
+							vertical: "bottom",
+							horizontal: "left",
+						}}
+					>
+						<Typography sx={{ p: 2 }}>{url}</Typography>
+						<Button onClick={copyUrlToClipboard}>복사하기</Button>
+					</Popover>
+				</div>
 			</Box>
 		</ThemeProvider>
 	);
