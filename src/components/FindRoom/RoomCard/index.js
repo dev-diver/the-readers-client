@@ -1,36 +1,17 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Grid, Box, Paper, TextField, Button, Typography, CardActionArea, CardMedia, CardContent } from "@mui/material";
+import { Box, Button, Typography, CardMedia, CardContent } from "@mui/material";
 
-import { styled } from "@mui/material/styles";
 import { useRecoilState } from "recoil";
 import { roomUsersState } from "recoil/atom";
 import { Card } from "react-bootstrap";
 
-const Label = styled(Paper)(({ theme }) => ({
-	backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
-	...theme.typography.body2,
-	padding: theme.spacing(0.5),
-	textAlign: "center",
-	color: theme.palette.text.secondary,
-	borderBottomLeftRadius: 0,
-	borderBottomRightRadius: 0,
-}));
-
 export default function RoomCard({ room }) {
 	const randomImage = itemData[Math.floor(Math.random() * itemData.length)];
-	const baseHeight = 100; // 기본 높이
-	const additionalHeightPerUser = 30; // 사용자당 추가 높이
-	const totalHeight = baseHeight + room.usermax * additionalHeightPerUser;
 	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
 	const { id, title, usermax } = room;
 	const userCount = roomUsers[id]?.length || 0;
 	const navigate = useNavigate();
-
-	// 클릭 이벤트 핸들러
-	const handleClick = () => {
-		navigate(`/room/${id}`);
-	};
 
 	return (
 		<Link to={`/room/${id}`}>

@@ -80,7 +80,7 @@ const RoomPage = () => {
 										borderRadius: "5px",
 									}}
 								>
-									방 제목: {room.title}{" "}
+									방 제목: {room?.title || ""}
 								</span>
 							</Typography>
 							<AddBook room={room} refresher={setRoomRefresh} />
@@ -93,7 +93,7 @@ const RoomPage = () => {
 				<Box flex={4} display="flex" width="100%" justifyContent="center" alignItems="center">
 					{room && (
 						<Masonry columns={4} spacing={6} width="100%">
-							{books.length != 0 ? (
+							{books?.length != 0 ? (
 								books.map((book, index) => (
 									<Item
 										key={index}

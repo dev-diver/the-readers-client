@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from "recharts";
 import { useRecoilState } from "recoil";
-import { roomUserState, roomUsersState, currentPageState, totalPageState } from "recoil/atom";
+import { bookState, roomUserState, roomUsersState, currentPageState } from "recoil/atom";
 import socket from "socket";
 import { Button } from "@mui/material";
 import { useImmer } from "use-immer";
@@ -25,7 +25,7 @@ function Chart() {
 	const [roomUser, setRoomUser] = useRecoilState(roomUserState);
 	// 페이지 관련 상태
 	const [currentPage, setCurrentPage] = useRecoilState(currentPageState);
-	const [totalPage, setTotalPage] = useRecoilState(totalPageState);
+	const [book, setBook] = useState(bookState);
 	const [prevPage, setPrevPage] = useState(0);
 	const [currentUsersPage, setCurrentUsersPage] = useImmer([]);
 	const navigate = useNavigate();
@@ -89,6 +89,9 @@ function Chart() {
 	}, [roomUser, bookId]);
 	/*********************************/
 	useEffect(() => {
+		if (!book) {
+			return;
+		}
 		/************ Client 로직 수정 중 
 		// 처음 페이지 로딩 시, 총 페이지와 함께 방에 있는 사용자들의 시간 정보를 초기화
 		const initializeChart = () => {
@@ -109,7 +112,7 @@ function Chart() {
 
 		// 페이지 데이터를 초기화하는 함수
 		const initializePageData = () => {
-			return new Array(totalPage).fill(null).map((_, index) => {
+			return new Array(book?.totalPage || 0).fill(null).map((_, index) => {
 				const pageObject = { page: `${index + 1}` }; // 기본 page 설정
 				roomUsers.forEach((user) => {
 					const userIdKey = user?.id; // 각 사용자 ID에 대한 키 생성
@@ -150,7 +153,7 @@ function Chart() {
 		const updatedOrInitializedData = data?.length === 0 ? initializePageData() : updatePageDataWithNewUsers(data);
 
 		setData(updatedOrInitializedData); // 업데이트된 또는 초기화된 데이터로 상태
-	}, [roomUsers, roomUser, roomId, bookId]); // roomUsers가 변경될 때마다 이 로직을 다시 실행
+	}, [roomUsers, roomUser, roomId, book]); // roomUsers가 변경될 때마다 이 로직을 다시 실행
 
 	useEffect(() => {
 		const handleUpdateChart = (userData) => {
@@ -276,7 +279,7 @@ function Chart() {
 
 			// console.log(currentUsersPage);
 			// 페이지 활성화 상태를 나타내는 배열 생성, 초기값은 모두 0 (비활성화)
-			let isActiveArray = new Array(totalPage).fill(0);
+			let isActiveArray = new Array(book?.totalPage || 0).fill(0);
 
 			// 현재 페이지에 해당하는 사용자들을 필터링
 			const usersOnPage = currentUsersPage.filter((user) => Number(user.currentPage) === Number(payload.value));

@@ -44,7 +44,7 @@ function RoomLobby() {
                 blur={0}
                 files="/room/christmas_photo_studio_07_4k.hdr"
             />
-            <Carousel numPlanes={13} radius={3} books={room.Books} bookClickHandler ={bookClickHandler}/>
+            <Carousel numPlanes={13} radius={3} books={room?.Books||[]} bookClickHandler ={bookClickHandler}/>
         </Canvas>
         <AddBook className="add-book" room={room} refresher={setRoomRefresh} />
         </>

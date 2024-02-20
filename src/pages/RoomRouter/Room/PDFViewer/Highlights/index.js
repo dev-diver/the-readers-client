@@ -13,7 +13,7 @@ import {
 	highlightState,
 	buttonGroupsPosState,
 	currentHighlightIdState,
-	totalPageState,
+	bookState,
 	highlightLoadStateFamily,
 } from "recoil/atom";
 import { useToggleDrawer } from "recoil/handler";
@@ -24,8 +24,8 @@ import HighlightList from "./HighlightList";
 
 import OptionsModal from "components/OptionsModal";
 import { useGetPageLoadState } from "../PdfScroller/util";
-function Highlighter({ bookId, renderContent }) {
-	const { roomId } = useParams();
+function Highlighter({ renderContent }) {
+	const { bookId, roomId } = useParams();
 	const [user, setUser] = useRecoilState(userState);
 	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
 	const [prevRoomUsers, setPrevRoomUsers] = useState([]);
@@ -36,8 +36,7 @@ function Highlighter({ bookId, renderContent }) {
 	const [optionsModalOpen, setOptionsModalOpen] = useState(false);
 	const [highlightId, setHighlightId] = useState(null);
 	const [highlightInfos, setHighlightInfos] = useState(null);
-	const [totalPages, setTotalPages] = useRecoilState(totalPageState);
-
+	const [book, setBook] = useRecoilState(bookState);
 	const [highlightList, setHighlightList] = useRecoilState(highlightState);
 	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
 	const [penMode, setPenMode] = useRecoilState(penModeState);
@@ -55,12 +54,12 @@ function Highlighter({ bookId, renderContent }) {
 	const updatehighlightLoadState = useRecoilCallback(
 		({ set }) =>
 			(userId, flag) => {
-				console.log("userId", userId, "totalPages", totalPages, "updatehighlightLoadState", flag);
-				for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+				console.log("userId", userId, "totalPages", book?.totalPage || 0, "updatehighlightLoadState", flag);
+				for (let pageNum = 1; pageNum <= book?.totalPage || 0; pageNum++) {
 					set(highlightLoadStateFamily({ bookId: bookId, pageNum: pageNum, userId: userId }), flag);
 				}
 			},
-		[totalPages, bookId]
+		[book]
 	);
 
 	useEffect(() => {

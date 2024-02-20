@@ -30,7 +30,7 @@ function Carousel({ numPlanes, radius , books, bookClickHandler} : CarouselProps
         <EffectComposer multisampling={8} autoClear={false}>
           <Outline blur edgeStrength={100} width={1000} />
         </EffectComposer>
-        {books.length!=0 && <group 
+        {books?.length!=0 && <group 
             ref={groupRef}
             position={[camera.position.x, camera.position.y, camera.position.z]}
         >

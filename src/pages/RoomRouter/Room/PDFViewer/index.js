@@ -12,7 +12,7 @@ import {
 	viewerScaleState,
 	htmlContentState,
 	viewerScaleApplyState,
-	totalPageState,
+	bookState,
 	pageLoadingStateFamily,
 	renderContentState,
 } from "recoil/atom";
@@ -31,7 +31,7 @@ import { useParams } from "react-router-dom";
 
 const VIEWER_WIDTH = 800; //650;
 
-function PDFViewer({ book }) {
+function PDFViewer() {
 	const { bookId } = useParams();
 	const [pageContainerHTML, setPageContainerHTML] = useRecoilState(htmlContentState);
 	const [renderContent, setRenderContent] = useRecoilState(renderContentState);
@@ -41,40 +41,31 @@ function PDFViewer({ book }) {
 	const [scaleApply, setScaleApply] = useRecoilState(viewerScaleApplyState);
 	const pdfContentsRef = useRef(null);
 	const [isHovering, setIsHovering] = useState(false);
-	const [totalPage, setTotalPage] = useRecoilState(totalPageState);
+	const [book, setBook] = useRecoilState(bookState);
 	const [cssLinkId, setCssLinkId] = useState("");
 
 	const updatePageLoadingState = useRecoilCallback(
 		({ set }) =>
-			(pageNum, loadingState) => {
+			(bookId, pageNum, loadingState) => {
 				set(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum }), loadingState);
 			},
 		[bookId]
 	);
 
-	// 하이라이트 클릭 이벤트 핸들러
-
-	// 하이라이트에 이벤트 리스너 추가
-
 	useEffect(() => {
-		for (let page = 1; page <= totalPage; page++) {
-			updatePageLoadingState(page, false);
-		}
-		const link = document.getElementById(cssLinkId);
-		console.log("want to remove css", cssLinkId, link);
-		if (link) {
-			console.log("css link removed");
-			link.remove();
-		}
-		if (setPageContainerHTML || renderContent) {
-			console.log("book reset");
-			setScale(1);
-			setScaleApply(false);
-			setTotalPage(0);
-			setPageContainerHTML("");
-			setRenderContent(false);
-			setOriginalWidth(0);
-		}
+		return () => {
+			for (let page = 1; page <= book?.totalPage || 0; page++) {
+				updatePageLoadingState(book.id, page, false);
+			}
+			if (setPageContainerHTML || renderContent) {
+				console.log("book reset");
+				setScale(1);
+				setScaleApply(false);
+				setPageContainerHTML("");
+				setRenderContent(false);
+				setOriginalWidth(0);
+			}
+		};
 	}, [book]);
 
 	useEffect(() => {
@@ -86,7 +77,6 @@ function PDFViewer({ book }) {
 		const linkId = `css-${book.urlName}`;
 		console.log("css url", linkId);
 		setCssLinkId(linkId);
-
 		const link = document.createElement("link");
 		link.href = CSSurl;
 		link.type = "text/css";
@@ -110,12 +100,22 @@ function PDFViewer({ book }) {
 	}, [book, pageContainerHTML]);
 
 	useEffect(() => {
+		return () => {
+			const link = document.getElementById(cssLinkId);
+			console.log("want to remove css", cssLinkId, link);
+			if (link) {
+				console.log("css link removed");
+				link.remove();
+			}
+		};
+	}, [cssLinkId]);
+
+	useEffect(() => {
 		if (pageContainerHTML && !renderContent && book?.urlName) {
 			console.log("htmlContent rerender");
 			const pageContainer = pdfContentsRef.current.querySelector("#page-container");
 			if (!pageContainer) return;
 			const pageDivs = pageContainer.querySelectorAll(".pf"); //페이지 div
-			setTotalPage(pageDivs.length);
 			mapContainer(pageDivs);
 		}
 	}, [book, pageContainerHTML]);
@@ -175,7 +175,7 @@ function PDFViewer({ book }) {
 					.then((svgData) => {
 						pageDivClone.innerHTML = svgData;
 						console.log(index + 1, "set lazyloading");
-						updatePageLoadingState(index + 1, "lazy-loading");
+						updatePageLoadingState(bookId, index + 1, "lazy-loading");
 					})
 					.catch((error) => console.error("SVG 못 가져옴", error));
 
