@@ -5,7 +5,15 @@ import PDFViewer from "./PDFViewer";
 import api from "api";
 import { Box } from "@mui/material";
 import { useRecoilState } from "recoil";
-import { userState, isLeadState, isTrailState, roomState, userIdState, isAppBarPinnedState } from "recoil/atom";
+import {
+	userState,
+	isLeadState,
+	isTrailState,
+	roomState,
+	userIdState,
+	isAppBarPinnedState,
+	roomIdState,
+} from "recoil/atom";
 import RoomUserList from "components/RoomUserList";
 
 function Room() {
@@ -18,11 +26,14 @@ function Room() {
 	const [userId, setUserId] = useRecoilState(userIdState);
 	const [isAppBarPinned, setIsAppBarPinned] = useRecoilState(isAppBarPinnedState);
 	const navigate = useNavigate();
+	const [, setRoomId] = useRecoilState(roomIdState);
 
 	// 성능 최적화
 	useEffect(() => {
 		setUserId(user?.id);
 	}, [user]);
+
+	setRoomId(roomId);
 
 	useEffect(() => {
 		api.get(`/rooms/${roomId}`).then((response) => {

@@ -32,6 +32,11 @@ export const roomUsersState = atom({
 	default: [],
 });
 
+export const roomIdState = atom({
+	key: "roomId",
+	default: null,
+});
+
 /* PDF viewer */
 
 export const viewerScaleState = atom({

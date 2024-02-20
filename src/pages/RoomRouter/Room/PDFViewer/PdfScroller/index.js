@@ -13,6 +13,7 @@ import {
 	currentPageState,
 	totalPageState,
 	pageScrollTopFamily,
+	roomIdState,
 } from "recoil/atom";
 import socket from "socket";
 import { scrollToPage, scrollToHighlight, smoothScrollTo, useDetermineCurrentPage } from "./util";
@@ -42,6 +43,7 @@ export default function PdfScroller({ renderContent, children }) {
 	const [setBookId] = useRecoilState(bookIdState);
 	const [currentPage, setCurrentPage] = useRecoilState(currentPageState);
 	const [totalPage, setTotalPage] = useRecoilState(totalPageState);
+	const [roomId, setRoomId] = useRecoilState(roomIdState);
 	useEffect(() => {
 		setUrlScrolled(false);
 	}, [location]);
@@ -139,6 +141,7 @@ export default function PdfScroller({ renderContent, children }) {
 					}}
 					highlightId={currentHighlightId}
 					bookId={bookId}
+					roomId={roomId}
 					onClose={() => {
 						closebuttonGroups();
 					}}
