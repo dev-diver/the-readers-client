@@ -19,7 +19,7 @@ function Chart() {
 	const [roomUser, setRoomUser] = useRecoilState(roomUserState);
 	// 페이지 관련 상태
 	const [currentPage, setCurrentPage] = useRecoilState(currentPageState);
-	const [book, setBook] = useState(bookState);
+	const [book, setBook] = useRecoilState(bookState);
 	const [prevPage, setPrevPage] = useState(0);
 	const [currentUsersPage, setCurrentUsersPage] = useImmer([]);
 	const [bookChanged, setBookChanged] = useState(false);
@@ -86,6 +86,7 @@ function Chart() {
 			api
 				.get(`/chart/book/${bookId}/user/${roomUser?.user?.id}`)
 				.then((response) => {
+					console.log(response.data.pages);
 					// chartId를 받아옴
 					setChartId(response.data.chartId);
 					insertUserData(roomUser?.user, response.data.pages);
@@ -161,12 +162,11 @@ function Chart() {
 				if (pageDataIndex !== -1) {
 					prevData[pageDataIndex][roomUser?.user.id] += 1;
 				} else {
-					// prevData[pageDataIndex][roomUser.user.id] = 0
+					prevData[pageDataIndex][roomUser?.user.id] = 0;
 					console.error("페이지 초기화 안 됨");
 				}
 			});
 		}, 1000);
-		// console.log("data", data);
 
 		// 컴포넌트가 언마운트될 때 인터벌 정리
 		return () => {
@@ -191,7 +191,7 @@ function Chart() {
 
 	// Hare And Tortoise
 	useEffect(() => {
-		if (!roomUser?.user) return;
+		if (!roomUser || !book) return;
 		socket.emit("current-user-position", {
 			currentPage: currentPage,
 			user: roomUser.user,

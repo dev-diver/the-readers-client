@@ -52,7 +52,7 @@ function Highlighter({ renderContent }) {
 	const updatehighlightLoadState = useRecoilCallback(
 		({ set }) =>
 			(book, userId, flag) => {
-				console.log("userId", userId, "totalPages", book?.totalPage || 0, "updatehighlightLoadState", flag);
+				console.log("userId", userId, "totalPage", book?.totalPage || 0, "updatehighlightLoadState", flag);
 				for (let pageNum = 1; pageNum <= book?.totalPage || 0; pageNum++) {
 					set(highlightLoadStateFamily({ bookId: book.id, pageNum: pageNum, userId: userId }), flag);
 				}
