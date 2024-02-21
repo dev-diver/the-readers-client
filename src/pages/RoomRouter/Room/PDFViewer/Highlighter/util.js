@@ -1,11 +1,11 @@
 import { createRoot } from "react-dom/client";
-import React, { useEffect } from "react";
-import { RecoilRoot } from "recoil";
+import React from "react";
 import MyMarkerComponent from "components/MyMarkerComponent";
-import { current } from "immer";
-import ButtonGroups from "components/ButtonGroups";
-import { logger } from "logger";
 import api from "api";
+import socket from "socket.js";
+import { coloringUser } from "components/Chart/utils";
+import { highlightListState } from "recoil/atom";
+import { useRecoilCallback } from "recoil";
 
 function getElemPageNum(elem) {
 	const pageNumHex = getElemPageContainer(elem).getAttribute("data-page-no");
@@ -29,7 +29,8 @@ function getElemPageContainer(elem) {
 }
 
 export function numToPageContainer(pageNumInt) {
-	const pageNumHex = pageNumInt.toString(16);
+	const pageNumHex = parseInt(pageNumInt).toString(16);
+	console.log("find page Hex", pageNumInt, pageNumHex);
 	return document.querySelector(`[data-page-no="${pageNumHex}"]`);
 }
 
@@ -172,25 +173,26 @@ export function rangeToInfo(range, additionalInfo) {
 	return highlightInfo;
 }
 
-export const loadAndDrawPageHighlight = (userId, bookId, pageNum, mine, scrollerRef, recoilProps) => {
+export const loadAndDrawPageHighlight = (userId, bookId, pageNum, mine, scrollerProps, recoilProps) => {
 	api.get(`/highlights/user/${userId}/book/${bookId}/page/${pageNum}`).then((response) => {
 		console.log("highlight", response.data);
 		response.data.forEach((highlightInfo) => {
+			console.log("highlightInfo", highlightInfo);
 			const newRange = InfoToRange(highlightInfo);
 			const drawHighlightInfo = {
 				id: highlightInfo.id,
 				userId: userId,
-				color: highlightInfo.color,
+				color: coloringUser(highlightInfo.Users[0].id),
 				bookId: bookId,
 			};
-			drawHighlight(newRange, drawHighlightInfo, scrollerRef, recoilProps);
+			drawHighlight(newRange, drawHighlightInfo, scrollerProps, recoilProps);
 		});
 	});
 };
 
 /* Draw ,Erase */
 
-export function drawHighlight(range, highlightInfo, scrollerRef, recoilProps) {
+export function drawHighlight(range, highlightInfo, scrollerProps, recoilProps) {
 	// console.log(setButtonGroupsPos, "setButtonGroupPos");
 	// console.log(scrollerRef, "scrollerRef");
 	// console.log(setCurrentHighlightId, "scrollerRef");
@@ -205,7 +207,7 @@ export function drawHighlight(range, highlightInfo, scrollerRef, recoilProps) {
 		// console.log("(after) end-start", range.endOffset);
 		// console.log("const", endOffset - startOffset);
 		part.splitText(endOffset - startOffset);
-		createMarkTag(part, highlightInfo, range, true, 2, scrollerRef, recoilProps);
+		createMarkTag(part, highlightInfo, range, true, 2, scrollerProps, recoilProps);
 		return;
 	}
 
@@ -234,7 +236,7 @@ export function drawHighlight(range, highlightInfo, scrollerRef, recoilProps) {
 	let currentNode = walker.nextNode();
 	//처음
 	const part = currentNode.splitText(range.startOffset);
-	createMarkTag(part, highlightInfo, range, false, 1, scrollerRef, recoilProps);
+	createMarkTag(part, highlightInfo, range, false, 1, scrollerProps, recoilProps);
 
 	currentNode = walker.nextNode();
 	while (currentNode) {
@@ -243,7 +245,7 @@ export function drawHighlight(range, highlightInfo, scrollerRef, recoilProps) {
 		if (isEnd) {
 			currentNode.splitText(range.endOffset);
 		}
-		createMarkTag(currentNode, highlightInfo, range, isEnd, isEnd ? 1 : 0, scrollerRef, recoilProps);
+		createMarkTag(currentNode, highlightInfo, range, isEnd, isEnd ? 1 : 0, scrollerProps, recoilProps);
 		currentNode = nextNode;
 	}
 	// let currentNode = walker.nextNode();
@@ -253,7 +255,7 @@ export function drawHighlight(range, highlightInfo, scrollerRef, recoilProps) {
 	// }
 }
 
-const createMarkTag = (currentNode, highlightInfo, range, isEnd = false, split = 0, scrollerRef, recoilProps) => {
+const createMarkTag = (currentNode, highlightInfo, range, isEnd = false, split = 0, scrollerProps, recoilProps) => {
 	const marker = document.createElement("mark");
 	marker.style.backgroundColor = highlightInfo.color;
 	marker.classList.add("marker");
@@ -273,7 +275,7 @@ const createMarkTag = (currentNode, highlightInfo, range, isEnd = false, split =
 		<MyMarkerComponent
 			highlightInfo={highlightInfo}
 			IsMemoOpen={IsMemoOpen}
-			scrollerRef={scrollerRef}
+			scrollerProps={scrollerProps}
 			recoilProps={recoilProps}
 		>
 			{currentNode.textContent}
@@ -282,6 +284,29 @@ const createMarkTag = (currentNode, highlightInfo, range, isEnd = false, split =
 	currentNode.parentElement.replaceChild(marker, currentNode);
 
 	return marker;
+};
+
+export const useDeleteHighlightListItem = () => {
+	return useRecoilCallback(({ snapshot, set }) => async (scrollerRef, highlightInfo, roomId) => {
+		console.log("deleteHighlightListItem", highlightInfo);
+		const highlightList = await snapshot.getPromise(highlightListState);
+		set(
+			highlightListState,
+			highlightList.filter((h) => h.id !== highlightInfo.id)
+		);
+
+		api
+			.delete(`/highlights/${highlightInfo.id}`)
+			.then((response) => {
+				console.log(response);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+
+		eraseHighlight(scrollerRef, highlightInfo.id);
+		socket.emit("delete-highlight", { roomId: roomId, ...highlightInfo });
+	});
 };
 
 export function eraseHighlight(scrollerRef, highlightId) {

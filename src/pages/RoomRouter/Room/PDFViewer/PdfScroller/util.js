@@ -108,8 +108,8 @@ export const useGetPageScrollTop = () => {
 export const useGetPageLoadState = () => {
 	const getPageLoadState = useRecoilCallback(
 		({ snapshot }) =>
-			async (bookId, pageNum, userId) => {
-				const Key = { bookId: bookId, pageNum: pageNum, userId: userId };
+			async (bookId, pageNum) => {
+				const Key = { bookId: bookId, pageNum: pageNum };
 				const loadState = await snapshot.getPromise(pageLoadingStateFamily(Key));
 				return loadState;
 			},

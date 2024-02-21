@@ -39,15 +39,17 @@ function PDFViewer() {
 	const [originalWidth, setOriginalWidth] = useState(0);
 	const [scale, setScale] = useRecoilState(viewerScaleState);
 	const [scaleApply, setScaleApply] = useRecoilState(viewerScaleApplyState);
-	const pdfContentsRef = useRef(null);
 	const [isHovering, setIsHovering] = useState(false);
 	const [book, setBook] = useRecoilState(bookState);
 	const [cssLinkId, setCssLinkId] = useState("");
 
+	const pdfContentsRef = useRef(null);
+	const dimensions = useResizeObserver(pdfContentsRef);
+
 	const updatePageLoadingState = useRecoilCallback(
 		({ set }) =>
 			(bookId, pageNum, loadingState) => {
-				console.log("book", bookId, "page", pageNum, "set", loadingState);
+				// console.warn("book", bookId, "page", pageNum, "set", loadingState);
 				set(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum }), loadingState);
 			},
 		[]
@@ -112,25 +114,27 @@ function PDFViewer() {
 	}, [cssLinkId]);
 
 	useEffect(() => {
-		if (pageContainerHTML && !renderContent && book?.urlName) {
+		if (pageContainerHTML && !renderContent && book?.urlName && pdfContentsRef?.current) {
 			console.log("htmlContent rerender");
 			const pageContainer = pdfContentsRef.current.querySelector("#page-container");
 			if (!pageContainer) return;
 			const pageDivs = pageContainer.querySelectorAll(".pf"); //페이지 div
 			mapContainer(pageDivs);
 		}
-	}, [book, pageContainerHTML]);
+	}, [book, pageContainerHTML, renderContent, pdfContentsRef]);
 
 	useEffect(() => {
-		console.log("width renderContent", renderContent);
-		if (renderContent && pdfContentsRef) {
-			setTimeout(() => {
-				const wrapper = pdfContentsRef.current.querySelector(".page-wrapper");
-				const originalWidth = wrapper.getBoundingClientRect().width;
-				setOriginalWidth(originalWidth);
-			}, 1000);
+		if (renderContent && pdfContentsRef?.current && dimensions?.height > 30) {
+			// console.warn("width renderContent", renderContent, dimensions);
+			const wrapper = pdfContentsRef.current.querySelector(".page-wrapper");
+			if (!wrapper) {
+				console.info("wrapper not found");
+				return;
+			}
+			const originalWidth = wrapper.getBoundingClientRect().width;
+			setOriginalWidth(originalWidth);
 		}
-	}, [renderContent]);
+	}, [renderContent, pdfContentsRef, dimensions]);
 
 	useEffect(() => {
 		if (originalWidth) {
@@ -246,10 +250,10 @@ function PDFViewer() {
 			{canvasComponents.map(({ component, container }) => {
 				return component && createPortal(component, container);
 			})}
-			<DraggableElement startX={window.innerWidth * (8 / 9)} startY={60} style={{ zIndex: 999 }}>
+			{/* <DraggableElement startX={window.innerWidth * (8 / 9)} startY={60} style={{ zIndex: 999 }}>
 				<VideoChat />
-			</DraggableElement>
-			<DraggableElement startX={window.innerWidth / 2} startY={60}>
+			</DraggableElement> */}
+			<DraggableElement startX={window.innerWidth / 2 - 150} startY={20}>
 				<PenController />
 			</DraggableElement>
 			<CursorCanvasController totalPage={canvasComponents.length} />
@@ -257,5 +261,30 @@ function PDFViewer() {
 		</div>
 	);
 }
+
+const useResizeObserver = (ref) => {
+	const [dimensions, setDimensions] = useState(null);
+
+	useEffect(() => {
+		const observeTarget = ref.current;
+		const resizeObserver = new ResizeObserver((entries) => {
+			entries.forEach((entry) => {
+				setDimensions(entry.contentRect);
+			});
+		});
+
+		if (observeTarget) {
+			resizeObserver.observe(observeTarget);
+		}
+
+		return () => {
+			if (observeTarget) {
+				resizeObserver.unobserve(observeTarget);
+			}
+		};
+	}, [ref]);
+
+	return dimensions;
+};
 
 export default PDFViewer;

@@ -6,31 +6,35 @@ import InsertLink from "components/OptionsModal/InsertLink";
 import D3Graph from "components/D3Graph";
 import api from "api";
 import { useNavigate } from "react-router-dom";
-import { on } from "events";
-import { eraseHighlight } from "pages/RoomRouter/Room/PDFViewer/Highlighter/util";
+import { useDeleteHighlightListItem } from "pages/RoomRouter/Room/PDFViewer/Highlighter/util";
+import { useParams } from "react-router-dom";
+import { useRecoilState } from "recoil";
+import { scrollerRefState, selectedHighlightInfoState, buttonGroupsPosState } from "recoil/atom";
 
-function ButtonGroups({
-	style,
-	isOpen,
-	onClose,
-	userId,
-	bookId,
-	highlightId,
-	selectedHighlightInfo,
-	appendHighlightListItem,
-	sendHighlightToServer,
-	handleCreateHighlight,
-	scrollerRef,
-	roomId,
-}) {
+function ButtonGroups() {
 	// AddMemo 컴포넌트의 랜더링 상태를 제어
+	const { bookId, roomId } = useParams();
+	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
 	const [showAddMemo, setShowAddMemo] = useState(false);
 	const [showInsertLink, setShowInsertLink] = useState(false);
 	const [showD3Graph, setShowD3Graph] = useState(false); // D3Graph 가시성 제어 상태
 	const [linkData, setLinkData] = useState({ nodes: [], links: [] }); // API로부터 받은 링크 데이터를 저장
-
+	const [hl, setHl] = useRecoilState(selectedHighlightInfoState);
 	const navigate = useNavigate();
 	const [pendingNodeId, setPendingNodeId] = useState(null); // 페이지 이동을 위해 대기 중인 nodeId를 저장
+	const deleteHandler = useDeleteHighlightListItem();
+	const [buttonGroupsPos, setButtonGroupsPos] = useRecoilState(buttonGroupsPosState);
+	const [style, setStyle] = useState(null);
+
+	useEffect(() => {
+		setStyle({
+			position: "absolute",
+			top: buttonGroupsPos.y - 20 + "px",
+			left: buttonGroupsPos.x + "px",
+			display: buttonGroupsPos.visible ? "block" : "none",
+		});
+	}, [buttonGroupsPos]);
+
 	useEffect(() => {
 		if (!showD3Graph && pendingNodeId !== null) {
 			navigate(`/room/1/book/1?highlightId=${pendingNodeId}`);
@@ -38,6 +42,9 @@ function ButtonGroups({
 		}
 	}, [showD3Graph, pendingNodeId, navigate]);
 
+	const onClose = () => {
+		setButtonGroupsPos({ visible: false, x: 0, y: 0 });
+	};
 	// 메모 삽입 버튼 클릭 이벤트 핸들러
 	const handleAddMemoClick = () => {
 		console.log("메모 삽입 버튼 클릭");
@@ -59,6 +66,7 @@ function ButtonGroups({
 	};
 
 	const closeModal = () => {
+		setShowD3Graph(false);
 		setShowAddMemo(false);
 		onClose();
 	};
@@ -67,7 +75,7 @@ function ButtonGroups({
 	const handleShowD3Graph = async () => {
 		try {
 			// API에서 링크 데이터를 가져옴
-			const response = await api.get(`link/${highlightId}`);
+			const response = await api.get(`link/${hl.id}`);
 			if (response.data && response.data.data) {
 				// 가져온 데이터를 D3Graph에 맞게 변환하고 설정
 				setLinkData(transformData(response.data.data)); // transformData 함수가 있다고 가정
@@ -83,7 +91,7 @@ function ButtonGroups({
 	const fetchOuterlinksData = async () => {
 		try {
 			// API를 호출하여 외부 링크 데이터를 가져옵니다.
-			const response = await api.get(`/outerlinks/${highlightId}`);
+			const response = await api.get(`/outerlinks/${hl.id}`);
 			// API 응답에서 데이터 부분을 반환합니다.
 			return response.data.data;
 		} catch (error) {
@@ -111,7 +119,7 @@ function ButtonGroups({
 				const updatedLinks = [
 					...prevData.links,
 					...newNodes.map((node) => ({
-						source: highlightId.toString(), // 현재 하이라이트를 소스로 설정
+						source: hl.id.toString(), // 현재 하이라이트를 소스로 설정
 						target: node.id, // 새로운 외부 링크 노드를 타겟으로 설정
 						note: "외부 링크", // 선 위의 텍스트를 "외부 링크"로 설정
 					})),
@@ -127,7 +135,7 @@ function ButtonGroups({
 	}
 
 	const transformData = (links) => {
-		const nodes = [{ id: highlightId.toString(), label: "Highlight Node" }]; // ID를 문자열로 변환
+		const nodes = [{ id: hl.id.toString(), label: "Highlight Node" }]; // ID를 문자열로 변환
 		links.forEach((link) => {
 			// toHighlightId를 노드 배열에 추가
 			const targetId = link.toHighlightId.toString(); // ID를 문자열로 변환
@@ -137,7 +145,7 @@ function ButtonGroups({
 		});
 
 		const linksTransformed = links.map((link) => ({
-			source: highlightId.toString(),
+			source: hl.id.toString(),
 			target: link.toHighlightId.toString(),
 			note: link.note.toString() || "No note",
 		}));
@@ -164,25 +172,6 @@ function ButtonGroups({
 		navigate(`/room/${roomId}/book/${bookId}?highlightId=${nodeId}`);
 	};
 
-	// 하이라이트 삭제를 처리하는 함수
-	const handleDeleteHighlight = async () => {
-		console.log("하이라이트 삭제 버튼 클릭", highlightId);
-		try {
-			// DELETE 요청을 보내는 api.delete가 설정되어 있다고 가정
-			const response = await api.delete(`/highlights/${highlightId}`);
-			if (response.status === 200 || response.status === 204) {
-				alert("하이라이트가 성공적으로 삭제되었습니다.");
-				eraseHighlight(scrollerRef, highlightId); // 화면에서 하이라이트 지우기
-				onClose(); // ButtonGroups 컴포넌트 닫기
-			} else {
-				alert("하이라이트 삭제에 실패했습니다.");
-			}
-		} catch (error) {
-			console.error("하이라이트 삭제 중 에러 발생:", error);
-			alert("하이라이트를 삭제하는 동안 오류가 발생했습니다.");
-		}
-	};
-
 	return (
 		<div className="button-groups" style={style}>
 			<ButtonGroup
@@ -195,19 +184,14 @@ function ButtonGroups({
 				<Button onClick={handleAddMemoClick}>메모 삽입</Button>
 				<Button onClick={handleInsertLinkClick}>링크 삽입</Button>
 				<Button onClick={handleShowD3Graph}>링크</Button> {/* 버튼 클릭 시 d3로 내/외부 링크 랜더링 */}
-				<Button onClick={handleDeleteHighlight}>삭제</Button> {/* 버튼 클릭 시 하이라이트 삭제 */}
+				<Button onClick={() => deleteHandler(scrollerRef, hl, roomId)}>삭제</Button>{" "}
+				{/* 버튼 클릭 시 하이라이트 삭제 */}
 			</ButtonGroup>
 			{showAddMemo && (
 				<AddMemo
 					isOpen={showAddMemo}
 					onClose={handleCloseAddMemo}
 					onCloseEntire={onClose} // 부모 컴포넌트에서 제공하는 onClose 함수를 호출하여 ButtonGroups 컴포넌트를 닫습니다.
-					userId={userId}
-					highlightId={highlightId}
-					sendHighlightToServer={sendHighlightToServer}
-					selectedHighlightInfo={selectedHighlightInfo}
-					appendHighlightListItem={appendHighlightListItem}
-					handleCreateHighlight={handleCreateHighlight}
 				/>
 			)}{" "}
 			{showInsertLink && (
@@ -215,16 +199,13 @@ function ButtonGroups({
 					isOpen={showInsertLink}
 					onClose={handleCloseInsertLink} // InsertLink 컴포넌트를 닫는 로직
 					onCloseEntire={onClose}
-					userId={userId}
-					bookId={bookId}
-					highlightId={highlightId}
 				/>
 			)}
 			{showD3Graph && (
 				<Modal open={showD3Graph} onClose={() => setShowD3Graph(false)}>
-					<Box sx={modalStyle} onClose={closeModal}>
+					<Box sx={modalStyle}>
 						<D3Graph
-							highlightId={highlightId}
+							highlightId={hl.id}
 							data={linkData} // 그래프를 그리는 데 필요한 데이터 객체
 							width={900} // 그래프의 너비를 지정
 							height={400} // 그래프의 높이를 지정

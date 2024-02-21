@@ -1,11 +1,17 @@
 import React from "react";
 import { Link, useParams } from "react-router-dom";
 import { Button, Grid, Tooltip, Typography } from "@mui/material";
+import { useDeleteHighlightListItem } from "pages/RoomRouter/Room/PDFViewer/Highlighter/util";
+import { scrollerRefState } from "recoil/atom";
+import { useRecoilState } from "recoil";
 
 const DISPLAY_LENGTH = 12;
 
-export default function HighlightListItem({ hlInfo, deleteHandler }) {
+export default function HighlightListItem({ hlInfo }) {
 	const { roomId } = useParams();
+	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
+
+	const deleteHandler = useDeleteHighlightListItem();
 
 	const displayText =
 		hlInfo.text.length > DISPLAY_LENGTH ? hlInfo.text.substring(0, DISPLAY_LENGTH) + "..." : hlInfo.text;
@@ -28,7 +34,7 @@ export default function HighlightListItem({ hlInfo, deleteHandler }) {
 				</Link>
 			</Grid>
 			<Grid item>
-				<Button variant="contained" size="small" onClick={deleteHandler}>
+				<Button variant="contained" size="small" onClick={() => deleteHandler(scrollerRef, hlInfo, roomId)}>
 					삭제
 				</Button>
 			</Grid>

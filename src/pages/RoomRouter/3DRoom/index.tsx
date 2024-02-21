@@ -12,15 +12,42 @@ import { Room, Book } from 'interface/interface';
 interface RoomResponse {
     data: Room
 }
+interface LobbyCanvasProps {
+    books: Book[];
+    bookClickHandler: (book: Book) => void;
+    isFake: boolean;
+}
+
+export const LobbyCanvas: React.FC<LobbyCanvasProps> = ({books, bookClickHandler, isFake}) => {
+
+    return (
+        <Canvas 
+        style={{ width: '100%', height: isFake?'50vh':'100vh', backgroundColor: 'black' }}>
+            {/* <OrbitControls/> */}
+
+            <directionalLight 
+                position ={[4,1,10]}
+                intensity={0.5}    
+            />
+            <Environment
+                background
+                blur={0}
+                files="/room/christmas_photo_studio_07_4k.hdr"
+            />
+            <Carousel isFake={isFake} numPlanes={13} radius={3} books={books} bookClickHandler ={bookClickHandler}/>
+        </Canvas>
+    );
+
+}
 
 function RoomLobby() {
 
     const { roomId } = useParams()
     const navigate = useNavigate();
-    
+
     const [room, setRoom] = useState<Room>({Books: [] as Book[]});
     const [roomRefresh, setRoomRefresh] = useState(false);
-
+    
     useEffect(() => {
         api.get<RoomResponse>(`/rooms/${roomId}`).then((res) => {
             console.log(res.data)
@@ -33,21 +60,10 @@ function RoomLobby() {
     };
 
     return (
-        <>
-        <Canvas 
-        style={{ width: '100%', height: '100vh', backgroundColor: 'black' }}>
-            <OrbitControls/>
-
-            <directionalLight position ={[1,1,1]}/>
-            <Environment
-                background
-                blur={0}
-                files="/room/christmas_photo_studio_07_4k.hdr"
-            />
-            <Carousel numPlanes={13} radius={3} books={room?.Books||[]} bookClickHandler ={bookClickHandler}/>
-        </Canvas>
+        <div>
+        <LobbyCanvas books={room?.Books || []} bookClickHandler={bookClickHandler} isFake={false} />
         <AddBook className="add-book" room={room} refresher={setRoomRefresh} />
-        </>
+        </div>
     )
 }
 
