@@ -23,7 +23,7 @@ export const LobbyCanvas: React.FC<LobbyCanvasProps> = ({books, bookClickHandler
     return (
         <Canvas 
         style={{ width: '100%', height: isFake?'50vh':'100vh', backgroundColor: 'black' }}>
-            <OrbitControls/>
+            {/* <OrbitControls/> */}
 
             <directionalLight 
                 position ={[4,1,10]}

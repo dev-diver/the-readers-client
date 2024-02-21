@@ -39,10 +39,12 @@ function PDFViewer() {
 	const [originalWidth, setOriginalWidth] = useState(0);
 	const [scale, setScale] = useRecoilState(viewerScaleState);
 	const [scaleApply, setScaleApply] = useRecoilState(viewerScaleApplyState);
-	const pdfContentsRef = useRef(null);
 	const [isHovering, setIsHovering] = useState(false);
 	const [book, setBook] = useRecoilState(bookState);
 	const [cssLinkId, setCssLinkId] = useState("");
+
+	const pdfContentsRef = useRef(null);
+	const dimensions = useResizeObserver(pdfContentsRef);
 
 	const updatePageLoadingState = useRecoilCallback(
 		({ set }) =>
@@ -122,15 +124,13 @@ function PDFViewer() {
 	}, [book, pageContainerHTML, renderContent, pdfContentsRef]);
 
 	useEffect(() => {
-		console.log("width renderContent", renderContent);
-		if (renderContent && pdfContentsRef?.current) {
-			setTimeout(() => {
-				const wrapper = pdfContentsRef.current.querySelector(".page-wrapper");
-				const originalWidth = wrapper.getBoundingClientRect().width;
-				setOriginalWidth(originalWidth);
-			}, 1000);
+		if (renderContent && pdfContentsRef?.current && dimensions.height > 30) {
+			console.warn("width renderContent", renderContent, dimensions);
+			const wrapper = pdfContentsRef.current.querySelector(".page-wrapper");
+			const originalWidth = wrapper.getBoundingClientRect().width;
+			setOriginalWidth(originalWidth);
 		}
-	}, [renderContent, pdfContentsRef]);
+	}, [renderContent, pdfContentsRef, dimensions]);
 
 	useEffect(() => {
 		if (originalWidth) {
@@ -249,7 +249,7 @@ function PDFViewer() {
 			{/* <DraggableElement startX={window.innerWidth * (8 / 9)} startY={60} style={{ zIndex: 999 }}>
 				<VideoChat />
 			</DraggableElement> */}
-			<DraggableElement startX={window.innerWidth / 2} startY={60}>
+			<DraggableElement startX={window.innerWidth / 2 - 150} startY={20}>
 				<PenController />
 			</DraggableElement>
 			<CursorCanvasController totalPage={canvasComponents.length} />
@@ -257,5 +257,30 @@ function PDFViewer() {
 		</div>
 	);
 }
+
+const useResizeObserver = (ref) => {
+	const [dimensions, setDimensions] = useState(null);
+
+	useEffect(() => {
+		const observeTarget = ref.current;
+		const resizeObserver = new ResizeObserver((entries) => {
+			entries.forEach((entry) => {
+				setDimensions(entry.contentRect);
+			});
+		});
+
+		if (observeTarget) {
+			resizeObserver.observe(observeTarget);
+		}
+
+		return () => {
+			if (observeTarget) {
+				resizeObserver.unobserve(observeTarget);
+			}
+		};
+	}, [ref]);
+
+	return dimensions;
+};
 
 export default PDFViewer;
