@@ -6,6 +6,7 @@ import socket from "socket";
 import { Button } from "@mui/material";
 import { smoothScrollTo } from "../PdfScroller/util";
 import CampaignIcon from "@mui/icons-material/Campaign";
+const buttonSx = { padding: 0, width: "50px", height: "50px" };
 
 export default function AttentionButton() {
 	const { roomId, bookId } = useParams();
@@ -55,9 +56,9 @@ export default function AttentionButton() {
 			aria-label="attention"
 			color={isLead ? "error" : isTrail ? "primary" : "inherit"}
 			onClick={() => sendAttention()}
-			sx={{ width: "50px", height: "50px", overflow: "hidden" }}
+			sx={buttonSx}
 		>
-			<CampaignIcon sx={{ width: "30px", height: "30px" }} />
+			<CampaignIcon />
 		</Button>
 	);
 }

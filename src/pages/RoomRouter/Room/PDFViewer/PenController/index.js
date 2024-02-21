@@ -1,13 +1,14 @@
 import React, { useEffect, useRef } from "react";
-import Box from "@mui/joy/Box";
+import { Box, Button } from "@mui/material";
 import { useRecoilState } from "recoil";
-import { userState, penModeState, widthState, drawerFormState } from "recoil/atom";
-import { Pointer, Highlighter, PencilLine, MousePointerClick, Eraser } from "lucide-react";
+import { viewerScaleState, userState, penModeState, widthState, drawerFormState } from "recoil/atom";
+import { Pointer, Highlighter, PencilLine, MousePointerClick, Eraser, ZoomIn, ZoomOut } from "lucide-react";
 import AttentionButton from "./AttentionButton";
 import { offerLogin } from "components/Header/SideDrawer/utils";
 
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+const buttonSx = { padding: 0, width: "50px", height: "50px" };
 
 export default function PenController() {
 	const [mode, setMode] = useRecoilState(penModeState);
@@ -62,20 +63,46 @@ export default function PenController() {
 			}}
 		>
 			<ToggleButtonGroup orientation="horizontal" value={mode} exclusive onChange={handleChange} aria-label="Mode">
-				<ToggleButton value="highlight" aria-label="highlight" sx={{ padding: 0, width: "50px", height: "50px" }}>
+				<ToggleButton value="highlight" aria-label="highlight" sx={buttonSx}>
 					<Highlighter />
 				</ToggleButton>
-				<ToggleButton value="pencil" aria-label="pencil" sx={{ padding: 0, width: "50px", height: "50px" }}>
+				<ToggleButton value="pencil" aria-label="pencil" sx={buttonSx}>
 					<PencilLine />
 				</ToggleButton>
-				<ToggleButton value="pointer" aria-label="pointer" sx={{ padding: 0, width: "50px", height: "50px" }}>
+				<ToggleButton value="pointer" aria-label="pointer" sx={buttonSx}>
 					<Pointer />
 				</ToggleButton>
-				<ToggleButton value="eraser" aria-label="eraser" sx={{ padding: 0, width: "50px", height: "50px" }}>
+				<ToggleButton value="eraser" aria-label="eraser" sx={buttonSx}>
 					<Eraser />
 				</ToggleButton>
+				<ZoomOutButton />
+				<ZoomInButton />
 				<AttentionButton />
 			</ToggleButtonGroup>
 		</Box>
 	);
 }
+
+const ZoomInButton = () => {
+	const [scale, setScale] = useRecoilState(viewerScaleState);
+	const handleZoomIn = () => {
+		setScale((prev) => prev * 1.1);
+	};
+	return (
+		<Button color="inherit" value="zoom-in" aria-label="zoom-in" sx={buttonSx} onClick={handleZoomIn}>
+			<ZoomIn />
+		</Button>
+	);
+};
+
+const ZoomOutButton = () => {
+	const [scale, setScale] = useRecoilState(viewerScaleState);
+	const handleZoomOut = () => {
+		setScale((prev) => prev / 1.1);
+	};
+	return (
+		<Button color="inherit" value="zoom-out" aria-label="zoom-out" sx={buttonSx} onClick={handleZoomOut}>
+			<ZoomOut />
+		</Button>
+	);
+};

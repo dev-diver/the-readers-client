@@ -5,15 +5,15 @@ import ShareIcon from "@mui/icons-material/Share";
 import { Popover, Button } from "@mui/material";
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from "lucide-react";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { isAppBarPinnedState, roomUsersState, userState, roomNameState } from "recoil/atom";
+import { isAppBarPinnedState, roomUsersState, userState, roomState } from "recoil/atom";
 import { useParams, useSearchParams } from "react-router-dom";
 import { baseURL } from "config/config";
-import { user, roomName } from "recoil/atom";
 import { useToggleDrawer } from "recoil/handler";
 
 export default function HighlightList({ highlights }) {
 	const listContainer = useRef(null);
 	const [items, setItems] = useState([]);
+	const [room, setRoom] = useRecoilState(roomState);
 	const [showItems, setShowItems] = useState(true);
 	const theme = useTheme();
 	const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
@@ -43,6 +43,10 @@ export default function HighlightList({ highlights }) {
 			setChevronIcon(ChevronDown);
 		}
 	}, [isMobile, drawerOpen]);
+
+	useEffect(() => {
+		CreateUrl();
+	}, []);
 
 	// Drawer 토글 함수
 	const toggleHighlightDrawer = () => {
@@ -107,13 +111,8 @@ export default function HighlightList({ highlights }) {
 	};
 
 	const CreateUrl = () => {
-		if (!user) {
-			alert("로그인이 필요합니다.");
-			toggleDrawer("signin")();
-			return;
-		}
-		const decodeHost = user.nick;
-		const newUrl = `${window.location.host}/invite/room/${roomId}/host/${decodeHost}`;
+		const decodeHost = user?.nick || "Guest";
+		const newUrl = `${window.location.host}/invite/room/${roomId}?host=${decodeHost}&roomName=${room.title}`;
 		setUrl(newUrl);
 	};
 

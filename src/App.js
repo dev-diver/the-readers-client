@@ -113,7 +113,7 @@ function App() {
 						<Routes>
 							<Route path="/" element={<Main />} />
 							<Route path="/room/:roomId/*" element={<RoomRouter />} />
-							<Route path="/invite/room/:roomId/host/:host" element={<Invite />} />
+							<Route path="/invite/room/:roomId" element={<Invite />} />
 						</Routes>
 					</Router>
 				</Box>
