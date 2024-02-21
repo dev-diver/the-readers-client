@@ -1,18 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { Box, Button, TextField, Typography, Modal } from "@mui/material";
+import { Box, Button, Modal } from "@mui/material";
 import api from "api";
-import InsertInner from "./InsertInner";
 import InsertOuter from "./InsertOuter";
 import MarkerViewer from "components/MarkerViewer";
-import { useRecoilState } from "recoil";
-import { userIdState } from "recoil/atom";
+import { useParams } from "react-router-dom";
 
-function InsertLink({ isOpen, onClose, highlightId, bookId, onCloseEntire }) {
+function InsertLink({ isOpen, onClose, onCloseEntire }) {
+	const { bookId } = useParams();
 	const [activeModal, setActiveModal] = useState(null);
 	const [showMarkerViewer, setMarkerViewer] = useState(false);
 	const [highlights, setHighlights] = useState([]); // highlights 상태 추가
-	const [userId, setUserId] = useRecoilState(userIdState);
 
 	useEffect(() => {
 		console.log("useParams bookId", bookId);
@@ -68,22 +65,12 @@ function InsertLink({ isOpen, onClose, highlightId, bookId, onCloseEntire }) {
 						isOpen={showMarkerViewer}
 						onClose={() => setMarkerViewer(false)}
 						onCloseEntire={onCloseEntire}
-						bookId={bookId}
-						userId={userId}
 						MyMarkers={highlights} // highlights 상태를 ViewMyMarker 컴포넌트에 전달
-						highlightId={highlightId}
-						fromHighlightId={highlightId}
 					/>
 				)}
 
 				{activeModal === "InsertOuter" && (
-					<InsertOuter
-						isOpen={true}
-						onClose={closeModal}
-						userId={userId}
-						highlightId={highlightId}
-						onCloseEntire={onCloseEntire}
-					/>
+					<InsertOuter isOpen={true} onClose={closeModal} onCloseEntire={onCloseEntire} />
 				)}
 			</Box>
 		</Modal>

@@ -16,7 +16,7 @@ import {
 	currentPageState,
 	renderContentState,
 	buttonGroupsPosState,
-	currentHighlightIdState,
+	selectedHighlightInfoState,
 	highlightLoadStateFamily,
 } from "recoil/atom";
 import api from "api";
@@ -41,15 +41,20 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 	const [currentPage, setCurrentPage] = useRecoilState(currentPageState);
 	const [renderContent, setRenderContent] = useRecoilState(renderContentState);
 
+	const scrollerProps = {
+		ref: scroller,
+		scale,
+	};
+
 	const setButtonGroupsPos = useSetRecoilState(buttonGroupsPosState);
-	const setCurrentHighlightId = useSetRecoilState(currentHighlightIdState);
+	const setSelectedHighlightInfo = useSetRecoilState(selectedHighlightInfoState);
 
 	const prevLoadingState = useRecoilValue(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum - 1 }));
 	const loadingState = useRecoilValue(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum }));
 	const nextLoadingState = useRecoilValue(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum + 1 }));
 	const recoilProps = {
 		setButtonGroupsPos,
-		setCurrentHighlightId,
+		setSelectedHighlightInfo,
 	};
 
 	const setRef = useCallback(
@@ -80,7 +85,7 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 					console.log("room users", roomUser.id, "book", bookId, "page", pageNum, "highlight loadState", loadState);
 					if (loadState) return;
 					let mine = userId == user.id;
-					loadAndDrawPageHighlight(userId, bookId, pageNum, mine, scroller, recoilProps);
+					loadAndDrawPageHighlight(userId, bookId, pageNum, mine, scrollerProps, recoilProps);
 					set(highlightLoadStateFamily({ bookId: bookId, userId: userId, pageNum: pageNum }), true);
 				});
 			},

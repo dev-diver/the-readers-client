@@ -11,7 +11,7 @@ import { baseURL } from "config/config";
 import { user, roomName } from "recoil/atom";
 import { useToggleDrawer } from "recoil/handler";
 
-export default function HighlightList({ highlights, deleteHandler }) {
+export default function HighlightList({ highlights }) {
 	const listContainer = useRef(null);
 	const [items, setItems] = useState([]);
 	const [showItems, setShowItems] = useState(true);
@@ -62,9 +62,7 @@ export default function HighlightList({ highlights, deleteHandler }) {
 	};
 
 	useEffect(() => {
-		const newHighlights =
-			highlights?.map((hl, i) => <HighlightListItem key={i} hlInfo={hl} deleteHandler={() => deleteHandler(hl)} />) ||
-			[];
+		const newHighlights = highlights?.map((hl, i) => <HighlightListItem key={i} hlInfo={hl} />) || [];
 		console.log("new highlights", newHighlights);
 		setItems(newHighlights);
 	}, [highlights]);

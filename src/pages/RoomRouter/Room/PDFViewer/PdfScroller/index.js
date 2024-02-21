@@ -5,18 +5,16 @@ import {
 	isTrailState,
 	isLeadState,
 	scrollerRefState,
-	highlightState,
+	highlightListState,
 	viewerScaleState,
-	buttonGroupsPosState,
-	currentHighlightIdState,
 	currentPageState,
 	bookState,
+	buttonGroupsPosState,
 } from "recoil/atom";
 import socket from "socket";
 import { scrollToPage, scrollToHighlight, smoothScrollTo, useDetermineCurrentPage } from "./util";
 import { Box } from "@mui/material";
 import { useLocation, useParams } from "react-router-dom";
-import ButtonGroups from "components/ButtonGroups";
 
 export default function PdfScroller({ renderContent, children }) {
 	const location = useLocation();
@@ -25,20 +23,19 @@ export default function PdfScroller({ renderContent, children }) {
 	const highlightId = queryParams.get("highlightId");
 	const determineCurrentPage = useDetermineCurrentPage();
 
-	const { roomId, bookId } = useParams();
+	const { bookId } = useParams();
 
 	const [user, setUser] = useRecoilState(userState);
 	const [isTrail, setAttention] = useRecoilState(isTrailState);
 	const [isLead, setLead] = useRecoilState(isLeadState);
 	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
-	const [highlightList, setHighlightList] = useRecoilState(highlightState);
+	const [highlightList, setHighlightList] = useRecoilState(highlightListState);
 	const [scale, setScale] = useRecoilState(viewerScaleState);
 	const [urlScrolled, setUrlScrolled] = useState(false);
 	// ButtonGroups 렌더링 위치 및 가시성 상태
-	const [buttonGroupsPos, setButtonGroupsPos] = useRecoilState(buttonGroupsPosState);
-	const [currentHighlightId, setCurrentHighlightId] = useRecoilState(currentHighlightIdState);
 	const [currentPage, setCurrentPage] = useRecoilState(currentPageState);
 	const [book, setBook] = useRecoilState(bookState);
+	const [buttonGroupsPos, setButtonGroupsPos] = useRecoilState(buttonGroupsPosState);
 
 	useEffect(() => {
 		setUrlScrolled(false);
@@ -64,6 +61,7 @@ export default function PdfScroller({ renderContent, children }) {
 		// console.log("is Trail", isTrail);
 		if (isTrail) {
 			socket.on("receive-attention-scroll", (data) => {
+				setButtonGroupsPos({ visible: false, top: 0, left: 0 });
 				console.log("receive-attention-scroll", data.scale, scale);
 				if (data.scale != scale) setScale(data.scale);
 				smoothScrollTo(scrollerRef, data.scrollTop);
@@ -74,34 +72,19 @@ export default function PdfScroller({ renderContent, children }) {
 		};
 	}, [scrollerRef, isTrail, scale]);
 
-	useEffect(() => {
-		// ButtonGroups 컴포넌트의 위치 정보가 업데이트될 때마다 콘솔에 출력
-		if (buttonGroupsPos.visible) {
-			console.log(`ButtonGroups Position: top=${buttonGroupsPos.y}, left=${buttonGroupsPos.x} `);
-		}
-	}, [buttonGroupsPos]); // buttonGroupsPos 상태가 변경될 때마다 이 효과를 실행
-
-	useEffect(() => {
-		if (buttonGroupsPos.visible) {
-			const buttonGroupsWidth = 200; // 가정: ButtonGroups의 너비
-			const screenWidth = window.innerWidth;
-			const adjustedX = Math.min(buttonGroupsPos.x, screenWidth - buttonGroupsWidth - 20); // 화면을 넘지 않는 x 위치 계산
-
-			if (buttonGroupsPos.x !== adjustedX) {
-				// 위치에 변화가 있는 경우에만 업데이트
-				setButtonGroupsPos((prev) => ({ ...prev, x: adjustedX }));
-			}
-		}
-	}, [buttonGroupsPos]); // setButtonGroupsPos는 의존성에서 제거
+	// setButtonGroupsPos는 의존성에서 제거
 
 	const handleScroll = (event) => {
+		setButtonGroupsPos({ visible: false, top: 0, left: 0 });
 		const scrollTop = event.currentTarget.scrollTop;
+		const scrollLeft = event.currentTarget.scrollLeft;
 		if (isLead) {
 			console.log("lead-scroll", scrollTop);
 			socket.emit("request-attention-scroll", {
 				userId: user?.id,
 				scale: scale,
 				scrollTop: scrollTop,
+				scrollLeft: scrollLeft,
 			});
 		}
 		determineCurrentPage(bookId, book?.totalPage || 0, scrollTop).then((currentPage) => {
@@ -125,10 +108,6 @@ export default function PdfScroller({ renderContent, children }) {
 		[setScale]
 	);
 
-	const closebuttonGroups = (e) => {
-		setButtonGroupsPos({ visible: false, x: 0, y: 0 });
-	};
-
 	const setRef = useCallback((el) => setScrollerRef(el), [setScrollerRef]);
 
 	return (
@@ -147,22 +126,6 @@ export default function PdfScroller({ renderContent, children }) {
 			}}
 		>
 			{children}
-			{buttonGroupsPos.visible && (
-				<ButtonGroups
-					style={{
-						position: "absolute",
-						top: buttonGroupsPos.y - 20 + "px",
-						left: buttonGroupsPos.x + "px",
-					}}
-					highlightId={currentHighlightId}
-					bookId={bookId}
-					roomId={roomId}
-					onClose={() => {
-						closebuttonGroups();
-					}}
-					scrollerRef={scrollerRef}
-				/>
-			)}
 		</Box>
 	);
 }

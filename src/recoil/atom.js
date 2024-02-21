@@ -71,8 +71,8 @@ export const scrollYState = atom({
 });
 
 /* highlight */
-export const highlightState = atom({
-	key: "highlight",
+export const highlightListState = atom({
+	key: "highlightList",
 	default: [],
 });
 
@@ -114,6 +114,11 @@ export const bookChangedState = atom({
 export const renderContentState = atom({
 	key: "renderContent",
 	default: false,
+});
+
+export const selectedHighlightInfoState = atom({
+	key: "selectedHighlightInfo",
+	default: null,
 });
 
 export const currentHighlightIdState = atom({

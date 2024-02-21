@@ -1,16 +1,18 @@
 import React, { useState } from "react";
 import api from "api";
 import { Box, Button, TextField, Typography, Modal, FormControl, Fade } from "@mui/material";
+import { selectedHighlightInfoState } from "recoil/atom";
 
-function InsertOuter({ isOpen, onClose, userId, highlightId, onCloseEntire }) {
+function InsertOuter({ isOpen, onClose, onCloseEntire }) {
 	const [OuterLink, setOuterLink] = useState("");
 	const [note, setNote] = useState("");
+	const [hl, setHl] = useState(selectedHighlightInfoState);
 
 	const handleSubmit = async (e) => {
 		e.preventDefault(); // 폼 제출 시 페이지 새로고침 방지
 		try {
 			const response = await api.post(`/outerlinks`, {
-				highlightId: highlightId,
+				highlightId: hl.id,
 				OuterLink: OuterLink,
 				note: note,
 			});

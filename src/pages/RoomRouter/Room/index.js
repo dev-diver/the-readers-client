@@ -15,6 +15,7 @@ import {
 	bookState,
 } from "recoil/atom";
 import RoomUserList from "components/RoomUserList";
+import ButtonGroups from "components/ButtonGroups";
 
 function Room() {
 	const { bookId, roomId } = useParams();
@@ -83,6 +84,7 @@ function Room() {
 				}}
 			>
 				<PDFViewer />
+				<ButtonGroups />
 			</Box>
 		</Box>
 	);

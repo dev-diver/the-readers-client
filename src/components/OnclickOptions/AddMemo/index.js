@@ -1,16 +1,20 @@
 import React, { useState } from "react";
 import api from "api";
 import { Box, Button, TextField, Typography, Modal, FormControl } from "@mui/material";
+import { useRecoilState } from "recoil";
+import { userState, selectedHighlightInfoState } from "recoil/atom";
 
-function AddMemo({ isOpen, onClose, highlightId, userId, onCloseEntire }) {
+function AddMemo({ isOpen, onClose, onCloseEntire }) {
+	const [user, setUser] = useRecoilState(userState);
+	const [hl, setHl] = useRecoilState(selectedHighlightInfoState);
 	const [memo, setMemo] = useState("");
 	// 메모 추가
 	const addMemo = async (e, memo) => {
 		e.preventDefault(); // 폼 제출의 기본 동작 방지
-		console.log(highlightId, memo);
+		console.log(hl.id, memo);
 		try {
-			const response = await api.put(`/highlights/user/${userId}/memo`, {
-				highlightId,
+			const response = await api.put(`/highlights/user/${user.id}/memo`, {
+				highlightId: hl.id,
 				memo,
 			});
 			console.log("메모 생성 성공:", response.data);

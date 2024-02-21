@@ -1,23 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Modal, Box, Button } from "@mui/material";
 import InsertLink from "components/OptionsModal/InsertLink";
 import AddMemo from "components/OnclickOptions/AddMemo";
-import { useRecoilState } from "recoil";
-import { userIdState } from "recoil/atom";
 
-function OnclickOptions({
-	isOpen,
-	onClose,
-	highlightId,
-	bookId,
-	selectedHighlightInfo,
-	appendHighlightListItem,
-	sendHighlightToServer,
-	handleCreateHighlight,
-	color,
-}) {
+function OnclickOptions({ isOpen, onClose }) {
 	const [activeModal, setActiveModal] = useState(null);
-	const [userId, setUserId] = useRecoilState(userIdState);
 
 	const openModal = (modalType) => {
 		setActiveModal(modalType);
@@ -57,31 +44,8 @@ function OnclickOptions({
 						링크 삽입
 					</Button>
 				</Box>
-
-				{activeModal === "Memo" && (
-					<AddMemo
-						isOpen={true}
-						onClose={closeModal}
-						onCloseEntire={onClose}
-						userId={userId}
-						highlightId={highlightId}
-						sendHighlightToServer={sendHighlightToServer}
-						selectedHighlightInfo={selectedHighlightInfo}
-						appendHighlightListItem={appendHighlightListItem}
-						handleCreateHighlight={handleCreateHighlight}
-					/>
-				)}
-
-				{activeModal === "Link" && (
-					<InsertLink
-						isOpen={true}
-						onClose={closeModal}
-						onCloseEntire={onClose}
-						userId={userId}
-						highlightId={highlightId}
-						bookId={bookId}
-					/>
-				)}
+				{activeModal === "Memo" && <AddMemo isOpen={true} onClose={closeModal} onCloseEntire={onClose} />}
+				{activeModal === "Link" && <InsertLink isOpen={true} onClose={closeModal} onCloseEntire={onClose} />}
 			</Box>
 		</Modal>
 	);
