@@ -42,7 +42,8 @@
 		left 1s,
 		margin-top 1s,
 		line-height 1s,
-		background-color 1s;
+		background-color 1s,
+		translateZ(100px);
 }
 
 /* Replacing SCSS variables with direct CSS values */
