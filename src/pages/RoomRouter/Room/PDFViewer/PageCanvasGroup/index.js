@@ -67,7 +67,7 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 	const updatePageLoadingState = useRecoilCallback(
 		({ set }) =>
 			(bookId, pageNum, loadingState) => {
-				console.warn("book", bookId, "page", pageNum, "set", loadingState);
+				// console.warn("book", bookId, "page", pageNum, "set", loadingState);
 				set(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum }), loadingState);
 			},
 		[]
@@ -99,7 +99,7 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 		const canvasScrollTop = getRelativeTop(canvasFrame, scroller);
 		const scaledScrollTop = canvasScrollTop * scale - 1;
 		setPageScrollTop(scaledScrollTop);
-		console.log(scale, "setScaledScrollTop", pageNum, loadingState, scaledScrollTop);
+		// console.log(scale, "setScaledScrollTop", pageNum, loadingState, scaledScrollTop);
 	}, [loadingState, scale, scroller, scaleApply]);
 
 	useEffect(() => {
@@ -118,8 +118,9 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 	}, [currentPage, renderContent, loadingState]);
 
 	useEffect(() => {
-		if (loadingState == "loading") {
-			loadPageContent(pageNum);
+		const bookUrlName = book?.urlName;
+		if (bookUrlName && loadingState == "loading") {
+			loadPageContent(bookUrlName, pageNum);
 		}
 	}, [loadingState]);
 
@@ -130,21 +131,32 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 		}
 	}, [bookId, loadingState, roomUsers]);
 
-	const loadPageContent = async (pageNum) => {
+	const loadPageContent = async (bookUrlName, pageNum) => {
 		const pageHexNum = pageNum.toString(16);
 		const pageDiv = document.getElementById(`pf${pageHexNum}`);
 		if (!pageDiv) {
 			return;
 		}
 		const fileName = pageDiv.getAttribute("data-page-url");
-		const url = `/storage/pdf/${book.urlName}/pages/${fileName}`;
+
+		console.log("bookUrlName", bookUrlName, "fileName", fileName);
+		if (!fileName || parseInt(bookUrlName.split("_")[1]) != parseInt(fileName.split("_")[1])) {
+			console.info("로드차이", bookUrlName, fileName, pageDiv);
+			return;
+		}
+		const url = `/storage/pdf/${bookUrlName}/pages/${fileName}`;
 		api(url)
 			.then((response) => {
 				const parser = new DOMParser();
 				const doc = parser.parseFromString(response.data, "text/html");
 				const pageDivLoad = doc.querySelector(".pf");
-				console.log("pageDiv", pageDiv, pageDiv.parentNode);
-				pageDiv.parentNode.replaceChild(pageDivLoad, pageDiv);
+				const pageDivParent = pageDiv.parentNode;
+				console.log("pageDiv", pageDiv, pageDivParent);
+				if (!pageDivParent) {
+					console.info("삭제 타이밍 차이");
+					return;
+				}
+				pageDivParent.replaceChild(pageDivLoad, pageDiv);
 				updatePageLoadingState(bookId, pageNum, "loaded");
 			})
 			.catch((err) => {

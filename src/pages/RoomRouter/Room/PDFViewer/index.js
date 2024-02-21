@@ -49,7 +49,7 @@ function PDFViewer() {
 	const updatePageLoadingState = useRecoilCallback(
 		({ set }) =>
 			(bookId, pageNum, loadingState) => {
-				console.warn("book", bookId, "page", pageNum, "set", loadingState);
+				// console.warn("book", bookId, "page", pageNum, "set", loadingState);
 				set(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum }), loadingState);
 			},
 		[]
@@ -124,9 +124,13 @@ function PDFViewer() {
 	}, [book, pageContainerHTML, renderContent, pdfContentsRef]);
 
 	useEffect(() => {
-		if (renderContent && pdfContentsRef?.current && dimensions.height > 30) {
-			console.warn("width renderContent", renderContent, dimensions);
+		if (renderContent && pdfContentsRef?.current && dimensions?.height > 30) {
+			// console.warn("width renderContent", renderContent, dimensions);
 			const wrapper = pdfContentsRef.current.querySelector(".page-wrapper");
+			if (!wrapper) {
+				console.info("wrapper not found");
+				return;
+			}
 			const originalWidth = wrapper.getBoundingClientRect().width;
 			setOriginalWidth(originalWidth);
 		}

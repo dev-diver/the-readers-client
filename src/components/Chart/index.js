@@ -4,12 +4,10 @@ import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area
 import { useRecoilState } from "recoil";
 import { bookState, roomUserState, roomUsersState, currentPageState } from "recoil/atom";
 import socket from "socket";
-import { Box, Button, Typography } from "@mui/material";
 import { useImmer } from "use-immer";
 import { produce } from "immer";
 
 import api from "api";
-import { useNavigate } from "react-router-dom";
 // 미리 정의된 색상 배열
 function Chart() {
 	// 유저 관련 상태
@@ -102,18 +100,18 @@ function Chart() {
 
 	// 유저가 페이지 이동 시 server에 save하기 (update)
 	useEffect(() => {
-		if (!roomUser?.user?.id) return;
+		const roomUserId = roomUser?.user?.id;
+		if (!roomUserId) return;
 		const index = data.findIndex((item) => item.page == prevPage);
 		if (index !== -1) {
-			if (!data[index][roomUser.user.id]) {
-				return;
-			}
-			const updatedTime = data[index][roomUser.user.id] + count;
-
+			const updatedTime = (data[index][roomUserId] || 0) + count;
 			setData((currentData) =>
 				produce(currentData, (draft) => {
-					if (data[index][roomUser.user.id]) {
-						draft[index][roomUser.user.id] = updatedTime;
+					if (!draft[index]) {
+						draft[index] = { page: prevPage };
+					}
+					if (draft[index][roomUserId]) {
+						draft[index][roomUserId] = updatedTime;
 					}
 				})
 			);
@@ -131,6 +129,11 @@ function Chart() {
 					console.log("error", error);
 				});
 		} else {
+			setData((currentData) =>
+				produce(currentData, (draft) => {
+					draft.push({ page: prevPage, [roomUserId]: count });
+				})
+			);
 			console.log("바꿀 페이지 없음");
 		}
 	}, [currentPage, chartId, roomUser]);
@@ -138,14 +141,17 @@ function Chart() {
 	useEffect(() => {
 		const handleUpdateChart = (data) => {
 			const { updatedTime, userKey, pageKey } = data;
-			setData((prevData) => {
-				let pageDataIndex = prevData.findIndex((item) => item.page == pageKey);
-				if (pageDataIndex !== -1) {
-					prevData[pageDataIndex][userKey] = updatedTime;
-				} else {
-					console.error("페이지 초기화 안 됨");
-				}
-			});
+			setData((prevData) =>
+				produce(prevData, (draft) => {
+					let pageDataIndex = draft.findIndex((item) => item.page == pageKey);
+					if (pageDataIndex !== -1) {
+						draft[pageDataIndex][userKey] = updatedTime;
+					} else {
+						let newPageData = { page: pageKey, [userKey]: updatedTime };
+						draft.push(newPageData);
+					}
+				})
+			);
 		};
 		socket.on("update-chart", handleUpdateChart);
 		return () => {
@@ -154,18 +160,21 @@ function Chart() {
 	}, [setData]);
 
 	useEffect(() => {
+		const roomUserId = roomUser?.user?.id;
 		if (!roomUser?.user) return;
 		// 1초마다 count 증가
 		const interval = setInterval(() => {
-			setData((prevData) => {
-				let pageDataIndex = prevData.findIndex((item) => item.page == currentPage);
-				if (pageDataIndex !== -1) {
-					prevData[pageDataIndex][roomUser?.user.id] += 1;
-				} else {
-					prevData[pageDataIndex][roomUser?.user.id] = 0;
-					console.error("페이지 초기화 안 됨");
-				}
-			});
+			setData((prevData) =>
+				produce(prevData, (draft) => {
+					let pageDataIndex = draft.findIndex((item) => item.page == currentPage);
+					if (pageDataIndex !== -1) {
+						draft[pageDataIndex][roomUserId] = (draft[pageDataIndex][roomUserId] || 0) + 1;
+					} else {
+						let newPageData = { page: currentPage, [roomUserId]: 1 };
+						draft.push(newPageData);
+					}
+				})
+			);
 		}, 1000);
 
 		// 컴포넌트가 언마운트될 때 인터벌 정리
@@ -179,12 +188,13 @@ function Chart() {
 	// data에서 prevScroll에 해당하는 값이 time 키와 같을 때 그 값을 1초에 1씩 증가시킴
 	// count가 prevScroll 값이 바뀔 때마다 0으로 초기화되는 기능 포함
 	useEffect(() => {
+		console.log(data);
 		// data가 {}일 때는 !data로 잡히지 않으므로 추가로 조건문을 걸어줌
 		if (!book || !roomUser || !data || Object.keys(data).length === 0) return;
 		const userKey = roomUser?.user?.id;
 		const pageKey = currentPage;
 		const bookKey = book.id;
-		const updatedTime = data.find((item) => item.page == pageKey)[userKey];
+		const updatedTime = data.find((item) => item.page == pageKey)?.[userKey] || 0;
 		socket.emit("send-chart", { updatedTime, userKey, pageKey, bookKey });
 		setCount(0);
 	}, [data, currentPage, roomUser, book]);
@@ -302,11 +312,7 @@ function Chart() {
 	return (
 		// width="25%" height={650} style={{ position: "sticky", top: "20px" }}
 		<div style={{ height: "100vh", display: "flex", flexDirection: "column", alignItems: "center" }}>
-			{!roomUser?.user?.id ? (
-				<Typography variant="h6" component="h6">
-					로그인이 필요합니다.
-				</Typography>
-			) : (
+			{roomUser?.user?.id && (
 				<ResponsiveContainer>
 					<AreaChart
 						layout="vertical"
@@ -326,7 +332,6 @@ function Chart() {
 							type="category"
 							interval={0}
 							tick={<CustomTick currentUsersPage={currentUsersPage} book={book} roomUsers={roomUsers} />}
-							// onClick={customClick}
 						/>
 						<CartesianGrid strokeDasharray="3 3" />
 						<Tooltip cursor={{ stroke: roomUser?.user.color || "black", strokeWidth: 2 }} />
