@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import socket from "socket.js";
 import PDFViewer from "./PDFViewer";
-import api from "api";
 import { Box } from "@mui/material";
 import { useRecoilState } from "recoil";
 import {
@@ -10,9 +9,9 @@ import {
 	isLeadState,
 	isTrailState,
 	roomState,
-	userIdState,
 	isAppBarPinnedState,
 	bookState,
+	buttonGroupsPosState,
 } from "recoil/atom";
 import RoomUserList from "components/RoomUserList";
 import ButtonGroups from "components/ButtonGroups";
@@ -24,14 +23,10 @@ function Room() {
 	const [user, setUser] = useRecoilState(userState);
 	const [room, setRoom] = useRecoilState(roomState);
 	const [book, setBook] = useRecoilState(bookState);
-	const [userId, setUserId] = useRecoilState(userIdState);
 	const [isAppBarPinned, setIsAppBarPinned] = useRecoilState(isAppBarPinnedState);
-	const navigate = useNavigate();
+	const [buttonGroupsPos, setButtonGroupsPos] = useRecoilState(buttonGroupsPosState);
 
-	// 성능 최적화
-	useEffect(() => {
-		setUserId(user?.id);
-	}, [user]);
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		if (!room) {
@@ -71,6 +66,7 @@ function Room() {
 	return (
 		<Box sx={{ display: "flex" }}>
 			<Box
+				onClick={() => setButtonGroupsPos({ visible: false, x: 0, y: 0 })}
 				className="room-container"
 				sx={{
 					maxWidth: "100vw",

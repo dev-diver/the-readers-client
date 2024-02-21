@@ -6,6 +6,7 @@ import "./style.css";
 function MyMarkerComponent({ highlightInfo, scrollerProps, recoilProps, children }) {
 	const [highlights, setHighlights] = useState([]);
 	const [memoData, setMemoData] = useState("");
+	// const [memoRequested, setMemoRequested] = useState(false);
 	const [isTooltipOpen, setIsTooltipOpen] = useState(false); // Tooltip을 제어하기 위한 상태
 	const { id: highlightId, userId, bookId } = highlightInfo;
 	const [D3GraphOpen, setD3GraphOpen] = useState(false);
@@ -72,11 +73,13 @@ function MyMarkerComponent({ highlightInfo, scrollerProps, recoilProps, children
 
 	const handleComponentEnter = async () => {
 		try {
-			if (!memoData) {
-				const response = await api.get(`/highlights/${highlightId}`);
-				setMemoData(response.data.data.memo);
-				console.log(response.data.data.memo); // 메모 데이터를 상태에 저장
-			}
+			const response = await api.get(`/highlights/${highlightId}`);
+			setMemoData(response.data.data.memo);
+			// if (!memoRequested) {
+
+			// 	console.log(response.data.data.memo);
+			// 	setMemoRequested(true); // 메모 데이터를 상태에 저장
+			// }
 			setIsTooltipOpen(true); // Tooltip을 표시
 		} catch (error) {
 			console.error("Failed to fetch highlights", error);

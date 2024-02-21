@@ -11,7 +11,7 @@ import { useParams } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import { scrollerRefState, selectedHighlightInfoState, buttonGroupsPosState } from "recoil/atom";
 
-function ButtonGroups({ onClose }) {
+function ButtonGroups() {
 	// AddMemo 컴포넌트의 랜더링 상태를 제어
 	const { bookId, roomId } = useParams();
 	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
@@ -42,6 +42,9 @@ function ButtonGroups({ onClose }) {
 		}
 	}, [showD3Graph, pendingNodeId, navigate]);
 
+	const onClose = () => {
+		setButtonGroupsPos({ visible: false, x: 0, y: 0 });
+	};
 	// 메모 삽입 버튼 클릭 이벤트 핸들러
 	const handleAddMemoClick = () => {
 		console.log("메모 삽입 버튼 클릭");
