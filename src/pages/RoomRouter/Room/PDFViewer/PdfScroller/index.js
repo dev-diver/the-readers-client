@@ -80,6 +80,26 @@ export default function PdfScroller({ renderContent, children }) {
 		};
 	}, [scrollerRef, isTrail, scale]);
 
+	useEffect(() => {
+		// ButtonGroups 컴포넌트의 위치 정보가 업데이트될 때마다 콘솔에 출력
+		if (buttonGroupsPos.visible) {
+			console.log(`ButtonGroups Position: top=${buttonGroupsPos.y}, left=${buttonGroupsPos.x} `);
+		}
+	}, [buttonGroupsPos]); // buttonGroupsPos 상태가 변경될 때마다 이 효과를 실행
+
+	useEffect(() => {
+		if (buttonGroupsPos.visible) {
+			const buttonGroupsWidth = 200; // 가정: ButtonGroups의 너비
+			const screenWidth = window.innerWidth;
+			const adjustedX = Math.min(buttonGroupsPos.x, screenWidth - buttonGroupsWidth - 20); // 화면을 넘지 않는 x 위치 계산
+
+			if (buttonGroupsPos.x !== adjustedX) {
+				// 위치에 변화가 있는 경우에만 업데이트
+				setButtonGroupsPos((prev) => ({ ...prev, x: adjustedX }));
+			}
+		}
+	}, [buttonGroupsPos]); // setButtonGroupsPos는 의존성에서 제거
+
 	const handleScroll = (event) => {
 		const scrollTop = event.currentTarget.scrollTop;
 		if (isLead) {
