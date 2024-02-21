@@ -3,13 +3,22 @@ import { Box, IconButton } from "@mui/material";
 import FindRoom from "components/FindRoom";
 import BookCarousel from "components/BookCarousel";
 import { baseURL } from "config/config";
+import { LobbyCanvas } from "pages/RoomRouter/3DRoom";
 // baseURL 정의 (예시 경로, 실제 프로젝트에 맞게 조정해야 합니다)
-
-const bookCovers = new Array(5).fill(null).map((_, i) => {
-	return { id: i, image: `${baseURL}/src/bookcovers/${i + 1}.jpg` };
+import "./canvas.css";
+const books = new Array(5).fill(null).map((_, i) => {
+	return {
+		id: i,
+		name: `Book ${i + 1}`,
+		urlName: `book${i + 1}`,
+	};
 });
 
 function Main() {
+	const bookClickHandler = (book) => {
+		return;
+	};
+
 	return (
 		<Box
 			sx={{
@@ -19,7 +28,7 @@ function Main() {
 				marginTop: 10,
 			}}
 		>
-			<BookCarousel initialItems={bookCovers} initialActive={0} />
+			<LobbyCanvas books={books} bookClickHandler={bookClickHandler} isFake={true} />
 			<FindRoom />
 		</Box>
 	);

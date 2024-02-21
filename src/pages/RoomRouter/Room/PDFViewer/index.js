@@ -112,18 +112,18 @@ function PDFViewer() {
 	}, [cssLinkId]);
 
 	useEffect(() => {
-		if (pageContainerHTML && !renderContent && book?.urlName) {
+		if (pageContainerHTML && !renderContent && book?.urlName && pdfContentsRef?.current) {
 			console.log("htmlContent rerender");
 			const pageContainer = pdfContentsRef.current.querySelector("#page-container");
 			if (!pageContainer) return;
 			const pageDivs = pageContainer.querySelectorAll(".pf"); //페이지 div
 			mapContainer(pageDivs);
 		}
-	}, [book, pageContainerHTML, renderContent]);
+	}, [book, pageContainerHTML, renderContent, pdfContentsRef]);
 
 	useEffect(() => {
 		console.log("width renderContent", renderContent);
-		if (renderContent && pdfContentsRef) {
+		if (renderContent && pdfContentsRef?.current) {
 			setTimeout(() => {
 				const wrapper = pdfContentsRef.current.querySelector(".page-wrapper");
 				const originalWidth = wrapper.getBoundingClientRect().width;

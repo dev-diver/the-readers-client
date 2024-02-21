@@ -112,7 +112,7 @@ export default function HighlightList({ highlights }) {
 
 	const CreateUrl = () => {
 		const decodeHost = user?.nick || "Guest";
-		const newUrl = `${window.location.host}/invite/room/${roomId}?host=${decodeHost}&roomName=${room.title}`;
+		const newUrl = `${window.location.host}/invite/room/${roomId}?host=${decodeHost}&roomName=${room?.title}`;
 		setUrl(newUrl);
 	};
 

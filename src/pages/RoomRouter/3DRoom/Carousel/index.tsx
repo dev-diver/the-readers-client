@@ -6,7 +6,7 @@ import Cover from './Cover';
 import { CarouselProps } from 'interface/interface';
 import { baseURL } from 'config/config'
 
-function Carousel({ numPlanes, radius , books, bookClickHandler} : CarouselProps) {
+function Carousel({ numPlanes, radius , books, isFake, bookClickHandler} : CarouselProps) {
     const groupRef = useRef<THREE.Group>(null);
     const { camera } = useThree();
 // 각 프레임마다 그룹을 회전
@@ -27,12 +27,14 @@ function Carousel({ numPlanes, radius , books, bookClickHandler} : CarouselProps
 
     return (
         <Selection>
+        {!isFake &&
         <EffectComposer multisampling={8} autoClear={false}>
           <Outline blur edgeStrength={100} width={1000} />
         </EffectComposer>
+        }
         {books?.length!=0 && <group 
             ref={groupRef}
-            position={[camera.position.x, camera.position.y, camera.position.z]}
+            position={[camera.position.x, camera.position.y, camera.position.z+1]}
         >
             {planes.map((position, idx) => (
                 <Cover
