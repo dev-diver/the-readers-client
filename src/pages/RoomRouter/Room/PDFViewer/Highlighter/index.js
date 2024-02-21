@@ -29,7 +29,6 @@ function Highlighter({ renderContent }) {
 	const [user, setUser] = useRecoilState(userState);
 	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
 	const [prevRoomUsers, setPrevRoomUsers] = useState([]);
-	const [color, setColor] = useState("yellow");
 	const toggleDrawer = useToggleDrawer();
 
 	// 진태 추가 코드
@@ -53,7 +52,7 @@ function Highlighter({ renderContent }) {
 	const updatehighlightLoadState = useRecoilCallback(
 		({ set }) =>
 			(book, userId, flag) => {
-				console.log("userId", userId, "totalPages", book?.totalPage || 0, "updatehighlightLoadState", flag);
+				console.warn("userId", userId, "totalPages", book?.totalPage || 0, "updatehighlightLoadState", flag);
 				for (let pageNum = 1; pageNum <= book?.totalPage || 0; pageNum++) {
 					set(highlightLoadStateFamily({ bookId: book.id, pageNum: pageNum, userId: userId }), flag);
 				}
@@ -66,11 +65,16 @@ function Highlighter({ renderContent }) {
 		return () => {
 			scrollerRef?.removeEventListener("mouseup", selectionToHighlight);
 		};
-	}, [scrollerRef, user, penMode, bookId]);
+	}, [scrollerRef, user, penMode, book]);
 
 	useEffect(() => {
+		if (!book) return;
+		console.warn("bookID", book.id, roomUsers);
 		setHighlightList([]);
-	}, [bookId]);
+		roomUsers.forEach((roomUser) => {
+			updatehighlightLoadState(book, roomUser.id, false);
+		});
+	}, [book]);
 
 	const selectionToHighlight = () => {
 		if (!user) {
@@ -83,7 +87,7 @@ function Highlighter({ renderContent }) {
 		if (penMode == "highlight" && selectedRange.rangeCount == 1 && !selectedRange.isCollapsed) {
 			const range = selectedRange.getRangeAt(0);
 			// console.log(range);
-			const additionalInfo = { bookId: bookId, text: selectedRange.toString() };
+			const additionalInfo = { bookId: book.id, text: selectedRange.toString() };
 			const highlightInfo = rangeToInfo(range, additionalInfo);
 			// console.log("highlightInfo", highlightInfo);
 			setOptionsModalOpen(true);
@@ -97,8 +101,7 @@ function Highlighter({ renderContent }) {
 		if (renderContent) {
 			if (user) {
 				console.log("my applyServerHighlight");
-				loadHighlightList(user.id, bookId); //true
-				// loadAllPageHighlight(user.id, bookId, color);
+				loadHighlightList(user.id, book.id); //true
 			} else {
 				console.log("로그아웃, 하이라이트 지움");
 				setHighlightList([]);
@@ -114,11 +117,11 @@ function Highlighter({ renderContent }) {
 	}, [renderContent, user]);
 
 	useEffect(() => {
-		const leftUsers = prevRoomUsers.filter((prevUser) => !roomUsers.some((user) => user.id === prevUser.id));
+		if (!user || !book) return;
+		const goneUsers = prevRoomUsers.filter((prevUser) => !roomUsers.some((user) => user.id === prevUser.id));
 		// const joinedUsers = roomUsers.filter((user) => !prevRoomUsers.some((prevUser) => prevUser.id === user.id));
 		setPrevRoomUsers(roomUsers);
-		if (!user) return;
-		leftUsers?.forEach((roomUser) => {
+		goneUsers?.forEach((roomUser) => {
 			scrollerRef.querySelectorAll(`mark[data-user-id="${roomUser.id}"]`).forEach((highlight) => {
 				const highlightId = highlight.getAttribute("data-highlight-id");
 				eraseHighlight(scrollerRef, highlightId);
@@ -135,15 +138,15 @@ function Highlighter({ renderContent }) {
 	}, [book, roomUsers]);
 
 	useEffect(() => {
+		if (!book || !scrollerRef) return;
 		const drawHighlightHandler = (data) => {
 			console.log("drawHighlightInfo", data);
-			getPageLoadState(bookId, parseInt(data.pageNum)).then((pageLoadState) => {
+			getPageLoadState(book?.id, parseInt(data.pageNum)).then((pageLoadState) => {
 				console.log("pageLoadState", pageLoadState);
 				if (pageLoadState == "loaded") {
 					const newRange = InfoToRange(data);
 					const drawHighlightInfo = {
 						...data,
-						color: "pink",
 					};
 					drawHighlight(newRange, drawHighlightInfo, scrollerRef, recoilProps);
 				}
@@ -153,9 +156,10 @@ function Highlighter({ renderContent }) {
 		return () => {
 			socket.off("draw-highlight", drawHighlightHandler);
 		};
-	}, [user, scrollerRef]);
+	}, [book, scrollerRef]);
 
 	useEffect(() => {
+		if (!scrollerRef) return;
 		socket.on("erase-highlight", (data) => {
 			console.log("erase-highlight", data);
 			eraseHighlight(scrollerRef, data.id);
@@ -163,7 +167,7 @@ function Highlighter({ renderContent }) {
 		return () => {
 			socket.off("erase-highlight");
 		};
-	}, [user, scrollerRef]);
+	}, [scrollerRef]);
 
 	/* Server */
 	const loadHighlightList = (userId, bookId) => {
@@ -176,26 +180,6 @@ function Highlighter({ renderContent }) {
 			.catch((err) => {
 				logger.log(err);
 			});
-	};
-
-	const sendHighlightToServer = async (highlightInfo) => {
-		console.log("user", user, highlightInfo);
-		if (!user) {
-			return null; // 세미콜론은 여기서 선택적이지만, 명확성을 위해 사용할 수 있습니다.
-		}
-		return api
-			.post(`/highlights/user/${user.id}`, highlightInfo)
-			.then((response) => {
-				logger.log(response);
-				// 유저가 칠한 하이라이트에 아이디가 생성되는 부분 (서버에서 받아옴)
-				const highlightId = response.data.data[0].HighlightId;
-				setHighlightId(highlightId);
-				return highlightId;
-			})
-			.catch((err) => {
-				logger.log(err);
-				return null; // 에러 처리 후, 명시적으로 null 반환
-			}); // Promise 체인이 끝나는 곳에 세미콜론 사용
 	};
 
 	/* Highlight List Item */
@@ -239,10 +223,8 @@ function Highlighter({ renderContent }) {
 					setHighlightId={setHighlightId}
 					bookId={bookId}
 					roomId={roomId}
-					color={color}
-					drawHighlight={drawHighlight}
+					color={user.color || "yellow"}
 					appendHighlightListItem={appendHighlightListItem}
-					sendHighlightToServer={sendHighlightToServer}
 					selectedHighlightInfo={highlightInfos} // selectedHighlightInfo를 OptionsModal에 전달
 				/>
 			)}

@@ -65,15 +65,15 @@ export default function PenController() {
 				<ToggleButton value="highlight" aria-label="highlight" sx={{ padding: 0, width: "50px", height: "50px" }}>
 					<Highlighter />
 				</ToggleButton>
-				<ToggleButton value="draw" aria-label="draw" sx={{ padding: 0, width: "50px", height: "50px" }}>
+				<ToggleButton value="pencil" aria-label="pencil" sx={{ padding: 0, width: "50px", height: "50px" }}>
 					<PencilLine />
 				</ToggleButton>
 				<ToggleButton value="pointer" aria-label="pointer" sx={{ padding: 0, width: "50px", height: "50px" }}>
 					<Pointer />
 				</ToggleButton>
-				{/* <ToggleButton value="click" aria-label="click" sx={{ padding: 0, width: "50px", height: "50px" }}>
+				<ToggleButton value="eraser" aria-label="eraser" sx={{ padding: 0, width: "50px", height: "50px" }}>
 					<Eraser />
-				</ToggleButton> */}
+				</ToggleButton>
 				<AttentionButton />
 			</ToggleButtonGroup>
 		</Box>

@@ -180,7 +180,7 @@ export const loadAndDrawPageHighlight = (userId, bookId, pageNum, mine, scroller
 			const drawHighlightInfo = {
 				id: highlightInfo.id,
 				userId: userId,
-				color: mine ? highlightInfo.color : "pink",
+				color: highlightInfo.color,
 				bookId: bookId,
 			};
 			drawHighlight(newRange, drawHighlightInfo, scrollerRef, recoilProps);
@@ -255,7 +255,7 @@ export function drawHighlight(range, highlightInfo, scrollerRef, recoilProps) {
 
 const createMarkTag = (currentNode, highlightInfo, range, isEnd = false, split = 0, scrollerRef, recoilProps) => {
 	const marker = document.createElement("mark");
-	marker.classList.add(highlightInfo.color);
+	marker.style.backgroundColor = highlightInfo.color;
 	marker.classList.add("marker");
 	marker.setAttribute("data-endOffset", range.endOffset);
 	marker.setAttribute("data-split", split);

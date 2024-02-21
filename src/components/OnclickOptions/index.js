@@ -14,7 +14,7 @@ function OnclickOptions({
 	appendHighlightListItem,
 	sendHighlightToServer,
 	handleCreateHighlight,
-	color = "yellow",
+	color,
 }) {
 	const [activeModal, setActiveModal] = useState(null);
 	const [userId, setUserId] = useRecoilState(userIdState);
