@@ -45,10 +45,10 @@ function Chart() {
 	};
 
 	useEffect(() => {
-		console.warn("book changed");
+		console.log("book changed");
 		setData([]);
 		setBookChanged((prev) => !prev);
-	}, [bookId]);
+	}, [book]);
 
 	useEffect(() => {
 		if (data.length === 0) {
@@ -124,7 +124,7 @@ function Chart() {
 					time: updatedTime,
 				})
 				.then((response) => {
-					console.warn("***서버에 save한 response", response);
+					console.log("***서버에 save한 response", response);
 				})
 				.catch((error) => {
 					console.log("error", error);

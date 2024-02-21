@@ -62,7 +62,7 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 	const updatePageLoadingState = useRecoilCallback(
 		({ set }) =>
 			(bookId, pageNum, loadingState) => {
-				console.log("book", bookId, "page", pageNum, "set", loadingState);
+				console.warn("book", bookId, "page", pageNum, "set", loadingState);
 				set(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum }), loadingState);
 			},
 		[]
@@ -70,20 +70,21 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 
 	const loadAllUserPageHighlight = useRecoilCallback(
 		({ snapshot, set }) =>
-			(roomUsers, pageNum) => {
+			(roomUsers, bookId, pageNum) => {
+				console.log("loadAllUserPageHighlight", roomUsers, bookId, pageNum);
 				roomUsers.forEach(async (roomUser) => {
 					const userId = roomUser.id;
 					const loadState = await snapshot.getPromise(
 						highlightLoadStateFamily({ bookId: bookId, userId: userId, pageNum: pageNum })
 					);
-					console.warn("loadState", loadState);
+					console.log("room users", roomUser.id, "book", bookId, "page", pageNum, "highlight loadState", loadState);
 					if (loadState) return;
 					let mine = userId == user.id;
 					loadAndDrawPageHighlight(userId, bookId, pageNum, mine, scroller, recoilProps);
 					set(highlightLoadStateFamily({ bookId: bookId, userId: userId, pageNum: pageNum }), true);
 				});
 			},
-		[bookId, scroller, recoilProps]
+		[scroller, recoilProps]
 	);
 
 	const setPageScrollTop = useSetRecoilState(pageScrollTopFamily({ bookId: bookId, pageNum: pageNum }));
@@ -120,9 +121,9 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 	useEffect(() => {
 		if (loadingState == "loaded" && user) {
 			console.log("loadAllUserPageHighlight", pageNum);
-			loadAllUserPageHighlight(roomUsers, pageNum);
+			loadAllUserPageHighlight(roomUsers, bookId, pageNum);
 		}
-	}, [loadingState, roomUsers]);
+	}, [bookId, loadingState, roomUsers]);
 
 	const loadPageContent = async (pageNum) => {
 		const pageHexNum = pageNum.toString(16);

@@ -52,7 +52,7 @@ function Highlighter({ renderContent }) {
 	const updatehighlightLoadState = useRecoilCallback(
 		({ set }) =>
 			(book, userId, flag) => {
-				console.warn("userId", userId, "totalPages", book?.totalPage || 0, "updatehighlightLoadState", flag);
+				console.log("userId", userId, "totalPages", book?.totalPage || 0, "updatehighlightLoadState", flag);
 				for (let pageNum = 1; pageNum <= book?.totalPage || 0; pageNum++) {
 					set(highlightLoadStateFamily({ bookId: book.id, pageNum: pageNum, userId: userId }), flag);
 				}
@@ -69,7 +69,7 @@ function Highlighter({ renderContent }) {
 
 	useEffect(() => {
 		if (!book) return;
-		console.warn("bookID", book.id, roomUsers);
+		console.log("book changed bookId :", book.id, roomUsers);
 		setHighlightList([]);
 		roomUsers.forEach((roomUser) => {
 			updatehighlightLoadState(book, roomUser.id, false);
@@ -137,21 +137,22 @@ function Highlighter({ renderContent }) {
 		};
 	}, [book, roomUsers]);
 
+	const drawHighlightHandler = (data) => {
+		console.log("drawHighlightInfo", data);
+		getPageLoadState(book?.id, data.pageNum).then((pageLoadState) => {
+			console.log("book", book?.id, "page", data.pageNum, "pageLoadState", pageLoadState);
+			if (pageLoadState == "loaded") {
+				const newRange = InfoToRange(data);
+				const drawHighlightInfo = {
+					...data,
+				};
+				drawHighlight(newRange, drawHighlightInfo, scrollerRef, recoilProps);
+			}
+		});
+	};
+
 	useEffect(() => {
 		if (!book || !scrollerRef) return;
-		const drawHighlightHandler = (data) => {
-			console.log("drawHighlightInfo", data);
-			getPageLoadState(book?.id, parseInt(data.pageNum)).then((pageLoadState) => {
-				console.log("pageLoadState", pageLoadState);
-				if (pageLoadState == "loaded") {
-					const newRange = InfoToRange(data);
-					const drawHighlightInfo = {
-						...data,
-					};
-					drawHighlight(newRange, drawHighlightInfo, scrollerRef, recoilProps);
-				}
-			});
-		};
 		socket.on("draw-highlight", drawHighlightHandler);
 		return () => {
 			socket.off("draw-highlight", drawHighlightHandler);

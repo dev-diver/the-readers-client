@@ -47,7 +47,7 @@ function PDFViewer() {
 	const updatePageLoadingState = useRecoilCallback(
 		({ set }) =>
 			(bookId, pageNum, loadingState) => {
-				console.log("book", bookId, "page", pageNum, "set", loadingState);
+				console.warn("book", bookId, "page", pageNum, "set", loadingState);
 				set(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum }), loadingState);
 			},
 		[]
@@ -119,7 +119,7 @@ function PDFViewer() {
 			const pageDivs = pageContainer.querySelectorAll(".pf"); //페이지 div
 			mapContainer(pageDivs);
 		}
-	}, [book, pageContainerHTML]);
+	}, [book, pageContainerHTML, renderContent]);
 
 	useEffect(() => {
 		console.log("width renderContent", renderContent);
@@ -130,7 +130,7 @@ function PDFViewer() {
 				setOriginalWidth(originalWidth);
 			}, 1000);
 		}
-	}, [renderContent]);
+	}, [renderContent, pdfContentsRef]);
 
 	useEffect(() => {
 		if (originalWidth) {

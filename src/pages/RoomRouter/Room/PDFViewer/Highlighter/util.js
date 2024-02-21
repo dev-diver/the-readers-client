@@ -1,11 +1,8 @@
 import { createRoot } from "react-dom/client";
-import React, { useEffect } from "react";
-import { RecoilRoot } from "recoil";
+import React from "react";
 import MyMarkerComponent from "components/MyMarkerComponent";
-import { current } from "immer";
-import ButtonGroups from "components/ButtonGroups";
-import { logger } from "logger";
 import api from "api";
+import { coloringUser } from "components/Chart/utils";
 
 function getElemPageNum(elem) {
 	const pageNumHex = getElemPageContainer(elem).getAttribute("data-page-no");
@@ -176,11 +173,12 @@ export const loadAndDrawPageHighlight = (userId, bookId, pageNum, mine, scroller
 	api.get(`/highlights/user/${userId}/book/${bookId}/page/${pageNum}`).then((response) => {
 		console.log("highlight", response.data);
 		response.data.forEach((highlightInfo) => {
+			console.log("highlightInfo", highlightInfo);
 			const newRange = InfoToRange(highlightInfo);
 			const drawHighlightInfo = {
 				id: highlightInfo.id,
 				userId: userId,
-				color: highlightInfo.color,
+				color: coloringUser(highlightInfo.Users[0].id),
 				bookId: bookId,
 			};
 			drawHighlight(newRange, drawHighlightInfo, scrollerRef, recoilProps);
