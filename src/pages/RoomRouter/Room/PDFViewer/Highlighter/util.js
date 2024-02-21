@@ -29,7 +29,8 @@ function getElemPageContainer(elem) {
 }
 
 export function numToPageContainer(pageNumInt) {
-	const pageNumHex = pageNumInt.toString(16);
+	const pageNumHex = parseInt(pageNumInt).toString(16);
+	console.log("find page Hex", pageNumInt, pageNumHex);
 	return document.querySelector(`[data-page-no="${pageNumHex}"]`);
 }
 
