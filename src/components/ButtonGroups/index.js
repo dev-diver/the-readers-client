@@ -66,6 +66,7 @@ function ButtonGroups() {
 	};
 
 	const closeModal = () => {
+		setShowD3Graph(false);
 		setShowAddMemo(false);
 		onClose();
 	};
@@ -202,7 +203,7 @@ function ButtonGroups() {
 			)}
 			{showD3Graph && (
 				<Modal open={showD3Graph} onClose={() => setShowD3Graph(false)}>
-					<Box sx={modalStyle} onClose={closeModal}>
+					<Box sx={modalStyle}>
 						<D3Graph
 							highlightId={hl.id}
 							data={linkData} // 그래프를 그리는 데 필요한 데이터 객체
