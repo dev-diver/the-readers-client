@@ -10,14 +10,7 @@ import { produce } from "immer";
 
 import api from "api";
 import { useNavigate } from "react-router-dom";
-
 // 미리 정의된 색상 배열
-function coloringUser(userId) {
-	const colors = ["#8884d8", "#82ca9d", "#E69F00", "#ff4b73", "#56B4E9"];
-
-	return colors[(Number(userId) - 1) % colors.length];
-}
-
 function Chart() {
 	// 유저 관련 상태
 	const { roomId, bookId } = useParams();
@@ -298,8 +291,8 @@ function Chart() {
 								height="32"
 								style={{
 									borderRadius: "50%",
-									border: `2px solid ${coloringUser(user.id)}`,
-									borderShadow: `0 0 0 3px ${coloringUser(user.id)}`,
+									border: `2px solid ${user.color}`,
+									borderShadow: `0 0 0 3px ${user.color}`,
 									filter: index === arr.length - 1 ? "none" : "grayscale(50%)", // 마지막 사용자(본인)는 필터 없음, 나머지는 그레이스케일
 								}}
 								alt={`User ${user.id}`}
@@ -361,7 +354,7 @@ function Chart() {
 							onClick={customClick}
 						/>
 						<CartesianGrid strokeDasharray="3 3" />
-						<Tooltip cursor={{ stroke: coloringUser(roomUser?.user.id), strokeWidth: 2 }} />
+						<Tooltip cursor={{ stroke: roomUser?.user.color || "black", strokeWidth: 2 }} />
 						{[
 							...roomUsers.filter((user) => user.id !== roomUser.user.id),
 							...roomUsers.filter((user) => user.id === roomUser.user.id),
@@ -370,9 +363,9 @@ function Chart() {
 								key={user.id}
 								type="monotone"
 								dataKey={user.id}
-								stroke={coloringUser(user.id)} // 사용자별 고유 색상으로 stroke 설정
+								stroke={user.color} // 사용자별 고유 색상으로 stroke 설정
 								fillOpacity={0.8}
-								fill={coloringUser(user.id)} // 사용자별 고유 색상으로 fill 설정
+								fill={user.color} // 사용자별 고유 색상으로 fill 설정
 							/>
 						)) || []}
 					</AreaChart>

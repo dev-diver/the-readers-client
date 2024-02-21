@@ -29,7 +29,6 @@ function Highlighter({ renderContent }) {
 	const [user, setUser] = useRecoilState(userState);
 	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
 	const [prevRoomUsers, setPrevRoomUsers] = useState([]);
-	const [color, setColor] = useState("yellow");
 	const toggleDrawer = useToggleDrawer();
 
 	// 진태 추가 코드
@@ -98,7 +97,6 @@ function Highlighter({ renderContent }) {
 			if (user) {
 				console.log("my applyServerHighlight");
 				loadHighlightList(user.id, book.id); //true
-				// loadAllPageHighlight(user.id, bookId, color);
 			} else {
 				console.log("로그아웃, 하이라이트 지움");
 				setHighlightList([]);
@@ -114,11 +112,11 @@ function Highlighter({ renderContent }) {
 	}, [renderContent, user]);
 
 	useEffect(() => {
-		const leftUsers = prevRoomUsers.filter((prevUser) => !roomUsers.some((user) => user.id === prevUser.id));
+		const goneUsers = prevRoomUsers.filter((prevUser) => !roomUsers.some((user) => user.id === prevUser.id));
 		// const joinedUsers = roomUsers.filter((user) => !prevRoomUsers.some((prevUser) => prevUser.id === user.id));
 		setPrevRoomUsers(roomUsers);
 		if (!user) return;
-		leftUsers?.forEach((roomUser) => {
+		goneUsers?.forEach((roomUser) => {
 			scrollerRef.querySelectorAll(`mark[data-user-id="${roomUser.id}"]`).forEach((highlight) => {
 				const highlightId = highlight.getAttribute("data-highlight-id");
 				eraseHighlight(scrollerRef, highlightId);
@@ -143,7 +141,7 @@ function Highlighter({ renderContent }) {
 					const newRange = InfoToRange(data);
 					const drawHighlightInfo = {
 						...data,
-						color: "pink",
+						// color: "pink",
 					};
 					drawHighlight(newRange, drawHighlightInfo, scrollerRef, recoilProps);
 				}
@@ -239,8 +237,7 @@ function Highlighter({ renderContent }) {
 					setHighlightId={setHighlightId}
 					bookId={bookId}
 					roomId={roomId}
-					color={color}
-					drawHighlight={drawHighlight}
+					color={user.color || "yellow"}
 					appendHighlightListItem={appendHighlightListItem}
 					sendHighlightToServer={sendHighlightToServer}
 					selectedHighlightInfo={highlightInfos} // selectedHighlightInfo를 OptionsModal에 전달

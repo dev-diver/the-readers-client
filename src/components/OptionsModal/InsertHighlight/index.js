@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Box, Button, TextField, Typography, Modal } from "@mui/material";
 import api from "api";
 
-function InsertHighlight({ isOpen, onClose, userId, drawHighlight, selectedHighlightInfo }) {
+function InsertHighlight({ isOpen, onClose, userId }) {
 	const [description, setDescription] = useState("");
 
 	const handleSubmit = async (e) => {

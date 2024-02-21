@@ -10,13 +10,11 @@ import socket from "socket";
 import api from "api";
 
 const generator = rough.generator();
-const color = "black";
 
 function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 	const { bookId, roomId } = useParams();
 	const [user, setUser] = useRecoilState(userState);
 	const [penMode, setPenMode] = useRecoilState(penModeState);
-
 	const [isDrawing, setIsDrawing] = useState(false);
 	const canvasRef = useRef(null);
 	const elements = useRecoilValue(canvasElementsFamily({ bookId: bookId, pageNum: pageNum, userId: roomUser.id }));
@@ -125,14 +123,14 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 				offsetX,
 				offsetY,
 				path: [[offsetX, offsetY]],
-				stroke: color,
+				stroke: user.color,
 				element: penMode,
 			};
 			updateElement(newElement);
 		} else if (penMode === "eraser") {
 			deleteElement({ offsetX, offsetY });
 		} else {
-			const newElement = { offsetX, offsetY, stroke: color, element: penMode };
+			const newElement = { offsetX, offsetY, stroke: user.color, element: penMode };
 			updateElement(newElement);
 		}
 		setIsDrawing(true);

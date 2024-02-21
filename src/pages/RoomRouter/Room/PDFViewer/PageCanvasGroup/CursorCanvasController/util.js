@@ -20,9 +20,7 @@ export const canvasMouse = (event, info) => {
 	}
 
 	socket.emit("move-pointer", {
-		user: info.user, // 로그인해야 userId.id가 존재.
-		bookId: info.bookId,
-		pageNum: info.pageNum,
+		...info,
 		x: offsetX,
 		y: offsetY,
 	});
@@ -31,9 +29,7 @@ export const canvasMouse = (event, info) => {
 export const canvasMouseOut = (info) => {
 	socket.emit("move-pointer", {
 		delete: true,
-		user: info.user,
-		bookId: info.bookId,
-		pageNum: info.pageNum,
+		...info,
 	});
 };
 
@@ -54,7 +50,7 @@ export const redrawCanvas = (canvas, pointers) => {
 	if (!canvas.current) return;
 	clearCanvas(canvas);
 	pointers.forEach((p) => {
-		drawOnCanvas(canvas, p.x, p.y, p.color);
+		drawOnCanvas(canvas, p.x, p.y, p.user.color);
 	});
 };
 

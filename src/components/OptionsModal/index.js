@@ -20,7 +20,7 @@ function OptionsModal({
 	setHighlightId,
 	selectedHighlightInfo,
 	appendHighlightListItem,
-	color = "yellow", // 하이라이트 색상 기본값 설정
+	color, // 하이라이트 색상 기본값 설정
 }) {
 	const [InsertMemoOpen, setInsertMemoOpen] = useState(false);
 	const [buttonGroupsPos, setButtonGroupsPos] = useRecoilState(buttonGroupsPosState);
