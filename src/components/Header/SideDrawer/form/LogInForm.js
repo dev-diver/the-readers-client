@@ -5,6 +5,7 @@ import { Button, Avatar, Typography, Box, TextField, FormControlLabel, Checkbox,
 
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useToggleDrawer } from "recoil/handler";
+import { coloringUser } from "components/Chart/utils";
 
 const LogInForm = ({ setUser }) => {
 	const [email, setEmail] = useState("");
@@ -19,7 +20,11 @@ const LogInForm = ({ setUser }) => {
 		api
 			.post(`${baseURL}/auth/login`, { email: email, password: password })
 			.then((response) => {
-				const user = response.data.data;
+				let user = response.data.data;
+				user = {
+					...user,
+					color: coloringUser(user.id),
+				};
 				if (isChecked) {
 					localStorage.setItem("user", JSON.stringify(user));
 				}

@@ -76,7 +76,7 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 					const loadState = await snapshot.getPromise(
 						highlightLoadStateFamily({ bookId: bookId, userId: userId, pageNum: pageNum })
 					);
-					console.log("loadState", loadState);
+					console.warn("loadState", loadState);
 					if (loadState) return;
 					let mine = userId == user.id;
 					loadAndDrawPageHighlight(userId, bookId, pageNum, mine, scroller, recoilProps);

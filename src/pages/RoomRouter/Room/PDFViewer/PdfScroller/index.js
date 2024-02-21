@@ -9,11 +9,7 @@ import {
 	viewerScaleState,
 	buttonGroupsPosState,
 	currentHighlightIdState,
-	bookIdState,
 	currentPageState,
-	totalPageState,
-	pageScrollTopFamily,
-	roomIdState,
 	bookState,
 } from "recoil/atom";
 import socket from "socket";
@@ -29,7 +25,7 @@ export default function PdfScroller({ renderContent, children }) {
 	const highlightId = queryParams.get("highlightId");
 	const determineCurrentPage = useDetermineCurrentPage();
 
-	const { bookId } = useParams();
+	const { roomId, bookId } = useParams();
 
 	const [user, setUser] = useRecoilState(userState);
 	const [isTrail, setAttention] = useRecoilState(isTrailState);
@@ -41,9 +37,7 @@ export default function PdfScroller({ renderContent, children }) {
 	// ButtonGroups 렌더링 위치 및 가시성 상태
 	const [buttonGroupsPos, setButtonGroupsPos] = useRecoilState(buttonGroupsPosState);
 	const [currentHighlightId, setCurrentHighlightId] = useRecoilState(currentHighlightIdState);
-	const [setBookId] = useRecoilState(bookIdState);
 	const [currentPage, setCurrentPage] = useRecoilState(currentPageState);
-	const [roomId, setRoomId] = useRecoilState(roomIdState);
 	const [book, setBook] = useRecoilState(bookState);
 
 	useEffect(() => {
