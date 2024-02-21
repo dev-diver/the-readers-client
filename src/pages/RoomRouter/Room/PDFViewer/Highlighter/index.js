@@ -52,7 +52,7 @@ function Highlighter({ renderContent }) {
 	const updatehighlightLoadState = useRecoilCallback(
 		({ set }) =>
 			(book, userId, flag) => {
-				console.log("userId", userId, "totalPages", book?.totalPage || 0, "updatehighlightLoadState", flag);
+				console.warn("userId", userId, "totalPages", book?.totalPage || 0, "updatehighlightLoadState", flag);
 				for (let pageNum = 1; pageNum <= book?.totalPage || 0; pageNum++) {
 					set(highlightLoadStateFamily({ bookId: book.id, pageNum: pageNum, userId: userId }), flag);
 				}
@@ -68,7 +68,12 @@ function Highlighter({ renderContent }) {
 	}, [scrollerRef, user, penMode, book]);
 
 	useEffect(() => {
+		if (!book) return;
+		console.warn("bookID", book.id, roomUsers);
 		setHighlightList([]);
+		roomUsers.forEach((roomUser) => {
+			updatehighlightLoadState(book, roomUser.id, false);
+		});
 	}, [book]);
 
 	const selectionToHighlight = () => {
@@ -112,10 +117,10 @@ function Highlighter({ renderContent }) {
 	}, [renderContent, user]);
 
 	useEffect(() => {
+		if (!user || !book) return;
 		const goneUsers = prevRoomUsers.filter((prevUser) => !roomUsers.some((user) => user.id === prevUser.id));
 		// const joinedUsers = roomUsers.filter((user) => !prevRoomUsers.some((prevUser) => prevUser.id === user.id));
 		setPrevRoomUsers(roomUsers);
-		if (!user) return;
 		goneUsers?.forEach((roomUser) => {
 			scrollerRef.querySelectorAll(`mark[data-user-id="${roomUser.id}"]`).forEach((highlight) => {
 				const highlightId = highlight.getAttribute("data-highlight-id");
@@ -133,15 +138,15 @@ function Highlighter({ renderContent }) {
 	}, [book, roomUsers]);
 
 	useEffect(() => {
+		if (!book || !scrollerRef) return;
 		const drawHighlightHandler = (data) => {
 			console.log("drawHighlightInfo", data);
-			getPageLoadState(book.id, parseInt(data.pageNum)).then((pageLoadState) => {
+			getPageLoadState(book?.id, parseInt(data.pageNum)).then((pageLoadState) => {
 				console.log("pageLoadState", pageLoadState);
 				if (pageLoadState == "loaded") {
 					const newRange = InfoToRange(data);
 					const drawHighlightInfo = {
 						...data,
-						// color: "pink",
 					};
 					drawHighlight(newRange, drawHighlightInfo, scrollerRef, recoilProps);
 				}
@@ -151,9 +156,10 @@ function Highlighter({ renderContent }) {
 		return () => {
 			socket.off("draw-highlight", drawHighlightHandler);
 		};
-	}, [user, scrollerRef]);
+	}, [book, scrollerRef]);
 
 	useEffect(() => {
+		if (!scrollerRef) return;
 		socket.on("erase-highlight", (data) => {
 			console.log("erase-highlight", data);
 			eraseHighlight(scrollerRef, data.id);
@@ -161,7 +167,7 @@ function Highlighter({ renderContent }) {
 		return () => {
 			socket.off("erase-highlight");
 		};
-	}, [user, scrollerRef]);
+	}, [scrollerRef]);
 
 	/* Server */
 	const loadHighlightList = (userId, bookId) => {
@@ -174,26 +180,6 @@ function Highlighter({ renderContent }) {
 			.catch((err) => {
 				logger.log(err);
 			});
-	};
-
-	const sendHighlightToServer = async (highlightInfo) => {
-		console.log("user", user, highlightInfo);
-		if (!user) {
-			return null; // 세미콜론은 여기서 선택적이지만, 명확성을 위해 사용할 수 있습니다.
-		}
-		return api
-			.post(`/highlights/user/${user.id}`, highlightInfo)
-			.then((response) => {
-				logger.log(response);
-				// 유저가 칠한 하이라이트에 아이디가 생성되는 부분 (서버에서 받아옴)
-				const highlightId = response.data.data[0].HighlightId;
-				setHighlightId(highlightId);
-				return highlightId;
-			})
-			.catch((err) => {
-				logger.log(err);
-				return null; // 에러 처리 후, 명시적으로 null 반환
-			}); // Promise 체인이 끝나는 곳에 세미콜론 사용
 	};
 
 	/* Highlight List Item */
@@ -239,7 +225,6 @@ function Highlighter({ renderContent }) {
 					roomId={roomId}
 					color={user.color || "yellow"}
 					appendHighlightListItem={appendHighlightListItem}
-					sendHighlightToServer={sendHighlightToServer}
 					selectedHighlightInfo={highlightInfos} // selectedHighlightInfo를 OptionsModal에 전달
 				/>
 			)}

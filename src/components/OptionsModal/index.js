@@ -37,8 +37,7 @@ function OptionsModal({
 		if (!user) {
 			return null; // 세미콜론은 여기서 선택적이지만, 명확성을 위해 사용할 수 있습니다.
 		}
-		// ER_DATA_TOO_LONG 에러 방지를 위해 텍스트 길이 제한
-		// WARN_DATA_TRUNCATED 에러 방지를 위해 텍스트 길이 제한
+
 		const MAX_TEXT_LENGTH = 255; // 서버에서 허용하는 최대 길이
 		if (highlightInfo.text && highlightInfo.text.length > MAX_TEXT_LENGTH) {
 			highlightInfo.text = highlightInfo.text.substring(0, MAX_TEXT_LENGTH);
