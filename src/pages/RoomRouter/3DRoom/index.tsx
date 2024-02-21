@@ -8,6 +8,8 @@ import AddBook from "components/Addbook";
 import './index.css'
 import api from 'api'
 import { Room, Book } from 'interface/interface';
+import { useRecoilState } from 'recoil';
+import { roomRefreshState } from 'recoil/atom';
 
 interface RoomResponse {
     data: Room
@@ -46,7 +48,7 @@ function RoomLobby() {
     const navigate = useNavigate();
 
     const [room, setRoom] = useState<Room>({Books: [] as Book[]});
-    const [roomRefresh, setRoomRefresh] = useState(false);
+    const [roomRefresh, setRoomRefresh] = useRecoilState(roomRefreshState);
     
     useEffect(() => {
         api.get<RoomResponse>(`/rooms/${roomId}`).then((res) => {

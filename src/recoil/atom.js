@@ -5,6 +5,11 @@ export const roomState = atom({
 	default: null,
 });
 
+export const roomRefreshState = atom({
+	key: "roomRefresher",
+	default: false,
+});
+
 export const bookState = atom({
 	key: "book",
 	default: null,
