@@ -109,6 +109,7 @@ function Chart() {
 
 	// 유저가 페이지 이동 시 server에 save하기 (update)
 	useEffect(() => {
+		if (!roomUser?.user?.id) return;
 		const index = data.findIndex((item) => item.page == prevPage);
 		if (index !== -1) {
 			if (!data[index][roomUser.user.id]) {
@@ -118,7 +119,9 @@ function Chart() {
 
 			setData((currentData) =>
 				produce(currentData, (draft) => {
-					draft[index][roomUser.user.id] = updatedTime;
+					if (data[index][roomUser.user.id]) {
+						draft[index][roomUser.user.id] = updatedTime;
+					}
 				})
 			);
 
