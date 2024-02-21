@@ -12,6 +12,7 @@ import {
 	roomState,
 	userIdState,
 	isAppBarPinnedState,
+	roomIdState,
 	bookState,
 } from "recoil/atom";
 import RoomUserList from "components/RoomUserList";
@@ -26,11 +27,14 @@ function Room() {
 	const [userId, setUserId] = useRecoilState(userIdState);
 	const [isAppBarPinned, setIsAppBarPinned] = useRecoilState(isAppBarPinnedState);
 	const navigate = useNavigate();
+	const [, setRoomId] = useRecoilState(roomIdState);
 
 	// 성능 최적화
 	useEffect(() => {
 		setUserId(user?.id);
 	}, [user]);
+
+	setRoomId(roomId);
 
 	useEffect(() => {
 		if (!room) {
