@@ -122,9 +122,9 @@ const D3Graph = ({ highlightId, data, width, height, onNodeClick }) => {
 					.id((d) => d.id)
 					.distance(200)
 			) // 링크 거리 조정
-			.force("charge", d3.forceManyBody().strength(-500)) // 반발력 조정
+			.force("charge", d3.forceManyBody().strength(-1)) // 반발력 조정
 			.force("center", d3.forceCenter(width / 2, height / 2))
-			.force("collide", d3.forceCollide(50).strength(1)) // 충돌 반경 설정
+			.force("collide", d3.forceCollide(150).strength(1)) // 충돌 반경 설정
 			.alpha(1) // 초기 열량 설정
 			.alphaDecay(0.02); // 열량 감소율 조정// 노드의 초기 위치를 랜덤화하는 방법
 		data.nodes.forEach((node) => {
@@ -224,8 +224,8 @@ const D3Graph = ({ highlightId, data, width, height, onNodeClick }) => {
 				.attr("dy", 5);
 
 			node.attr("transform", (d) => {
-				d.x = Math.max(40, Math.min(width - 10, d.x)); // 화면 가로 경계 내로 제한
-				d.y = Math.max(20, Math.min(height - 10, d.y)); // 화면 세로 경계 내로 제한
+				d.x = Math.max(40, Math.min(width - 30, d.x)); // 화면 가로 경계 내로 제한
+				d.y = Math.max(20, Math.min(height - 20, d.y)); // 화면 세로 경계 내로 제한
 				return `translate(${d.x},${d.y})`;
 			});
 		});
