@@ -78,14 +78,17 @@ export default function UploadBookToRoom({ roomId, refresher, setPop }) {
 				{imagePreview && (
 					<Box mt={2} textAlign="center">
 						<Typography>북 커버 미리 보기</Typography>
-						<img src={imagePreview} alt="Preview" style={{ maxWidth: "100%", height: "auto" }} />
+						<img src={imagePreview} alt="Preview" style={{ maxWidth: "50%", height: "auto" }} />
 					</Box>
 				)}
 				<Button type="button" component="label" variant="contained" startIcon={<ImageIcon />}>
 					이미지 추가
 					<input type="file" hidden onChange={handleImageChange} accept="image/*" />
 				</Button>
-				<Typography component="h3">책 추가</Typography>
+				<Box mt={2}>
+					<Typography component="h3">책 추가하기</Typography>
+				</Box>
+
 				<TextField fullWidth label="책 이름" type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
 				<TextField disabled fullWidth label="책 파일" value={file?.name || ""} />
 				<Button type="button" component="label" variant="contained" startIcon={<CloudUploadIcon />}>
