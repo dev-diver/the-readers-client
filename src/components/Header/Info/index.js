@@ -19,7 +19,6 @@ import { Logout } from "@mui/icons-material";
 export default function Info() {
 	const [anchorEl, setAnchorEl] = React.useState(null);
 	const [room, setRoom] = useRecoilState(roomState);
-	const [roomRefresh, setRoomRefresh] = useRecoilState(roomState);
 	const [trail, setTrail] = useRecoilState(isTrailState);
 	const [isHovered, setIsHovered] = React.useState(false);
 	const { roomId, bookId } = useParams();
@@ -27,10 +26,6 @@ export default function Info() {
 	const navigate = useNavigate();
 
 	const open = Boolean(anchorEl);
-
-	// const handleClose = () => {
-	// 	setAnchorEl(null);
-	// };
 
 	const handleOtherItemClick = (event) => {
 		event.stopPropagation(); // 이벤트 전파 방지. 메뉴 계속 켜져있게 하기 위함임.

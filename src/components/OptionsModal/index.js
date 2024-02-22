@@ -74,16 +74,17 @@ function OptionsModal({
 
 		console.log("하이라이트 아이디입니다.", highlightId);
 		const drawHighlightInfo = {
+			...modifiedHighlightInfo,
 			id: highlightId,
 			userId: user.id,
-			color: color,
+			color: user.color,
 			bookId: bookId,
 		};
 
 		// 소켓에 전송 및 화면에 그리기
-		socket.emit("insert-highlight", { ...modifiedHighlightInfo, id: highlightId }); // 소켓에 전송
+		socket.emit("insert-highlight", drawHighlightInfo); // 소켓에 전송
 		drawHighlight(newRange, drawHighlightInfo, scrollerProps, recoilProps); // 화면에 그림
-		appendHighlightListItem({ ...modifiedHighlightInfo, id: highlightId }); // 리스트에 추가
+		appendHighlightListItem(drawHighlightInfo); // 리스트에 추가
 
 		onClose(); // 모달 닫기
 	};

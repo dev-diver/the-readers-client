@@ -188,7 +188,7 @@ function Chart() {
 	// data에서 prevScroll에 해당하는 값이 time 키와 같을 때 그 값을 1초에 1씩 증가시킴
 	// count가 prevScroll 값이 바뀔 때마다 0으로 초기화되는 기능 포함
 	useEffect(() => {
-		console.log(data);
+		// console.log(data);
 		// data가 {}일 때는 !data로 잡히지 않으므로 추가로 조건문을 걸어줌
 		if (!book || !roomUser || !data || Object.keys(data).length === 0) return;
 		const userKey = roomUser?.user?.id;

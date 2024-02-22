@@ -3,7 +3,7 @@ import api from "api";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { rangeToInfo, InfoToRange, eraseHighlight, drawHighlight } from "./util";
-import { useRecoilState, useRecoilCallback } from "recoil";
+import { useRecoilState, useRecoilCallback, useRecoilValue } from "recoil";
 import {
 	roomUsersState,
 	penModeState,
@@ -14,6 +14,7 @@ import {
 	bookState,
 	highlightLoadStateFamily,
 	selectedHighlightInfoState,
+	pageLoadingStateFamily,
 } from "recoil/atom";
 import { useToggleDrawer } from "recoil/handler";
 import socket from "socket.js";
@@ -44,6 +45,7 @@ function Highlighter({ renderContent }) {
 		setSelectedHighlightInfo,
 	};
 
+	const loadingState = useRecoilValue(pageLoadingStateFamily({ bookId: bookId, pageNum: 1 }));
 	const getPageLoadState = useGetPageLoadState();
 
 	const updatehighlightLoadState = useRecoilCallback(
@@ -136,15 +138,18 @@ function Highlighter({ renderContent }) {
 
 	const drawHighlightHandler = (data) => {
 		console.log("drawHighlightInfo", data);
+		console.warn("book", book?.id, "page 1 loadState", loadingState);
 		getPageLoadState(book?.id, data.pageNum).then((pageLoadState) => {
 			console.log("book", book?.id, "page", data.pageNum, "pageLoadState", pageLoadState);
-			if (pageLoadState == "loaded") {
-				const newRange = InfoToRange(data);
-				const drawHighlightInfo = {
-					...data,
-				};
-				drawHighlight(newRange, drawHighlightInfo, scrollerRef, recoilProps);
-			}
+
+			const newRange = InfoToRange(data);
+			const drawHighlightInfo = {
+				...data,
+			};
+			drawHighlight(newRange, drawHighlightInfo, scrollerRef, recoilProps);
+			// if (pageLoadState == "loaded") {
+
+			// }
 		});
 	};
 
@@ -154,7 +159,7 @@ function Highlighter({ renderContent }) {
 		return () => {
 			socket.off("draw-highlight", drawHighlightHandler);
 		};
-	}, [book, scrollerRef]);
+	}, [book, scrollerRef, drawHighlightHandler, getPageLoadState]);
 
 	useEffect(() => {
 		if (!scrollerRef) return;

@@ -67,7 +67,8 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 	const updatePageLoadingState = useRecoilCallback(
 		({ set }) =>
 			(bookId, pageNum, loadingState) => {
-				// console.warn("book", bookId, "page", pageNum, "set", loadingState);
+				// console.warn("pageGroup book", bookId, "page", pageNum, "set", loadingState);
+				console.warn("pageGroup book", bookId, "page", pageNum, "set", loadingState);
 				set(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum }), loadingState);
 			},
 		[]
@@ -119,7 +120,9 @@ function PageCanvasGroup({ pageNum, canvasFrame, book }) {
 
 	useEffect(() => {
 		const bookUrlName = book?.urlName;
+		console.warn("loadings state", loadingState);
 		if (bookUrlName && loadingState == "loading") {
+			console.warn("loadings state loading!");
 			loadPageContent(bookUrlName, pageNum);
 		}
 	}, [loadingState]);

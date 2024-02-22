@@ -7,6 +7,26 @@ export const moveToScroll = (container, scrollTop) => {
 	container.scrollTop = scrollTop;
 };
 
+export const smoothScrollToLeft = (container, destinationX, duration = 300) => {
+	const start = container.scrollLeft;
+	const change = destinationX - start;
+	const startTime = performance.now();
+
+	const animateScroll = (currentTime) => {
+		const elapsedTime = currentTime - startTime;
+		let fraction = elapsedTime / duration;
+
+		fraction = Math.min(fraction, 1);
+
+		container.scrollLeft = start + change * fraction;
+
+		if (fraction < 1) {
+			requestAnimationFrame(animateScroll);
+		}
+	};
+	requestAnimationFrame(animateScroll);
+};
+
 export const smoothScrollTo = (container, destinationY, duration = 300) => {
 	const start = container.scrollTop;
 	const change = destinationY - start;
@@ -111,6 +131,7 @@ export const useGetPageLoadState = () => {
 			async (bookId, pageNum) => {
 				const Key = { bookId: bookId, pageNum: pageNum };
 				const loadState = await snapshot.getPromise(pageLoadingStateFamily(Key));
+				console.log("current book", bookId, "page", pageNum, "loadState", loadState);
 				return loadState;
 			},
 		[]

@@ -34,6 +34,8 @@ function InsertLink({ isOpen, onClose, onCloseEntire }) {
 
 	const closeModal = () => {
 		setActiveModal(null);
+		onCloseEntire();
+		onClose();
 	};
 
 	const modalStyle = {
@@ -64,7 +66,7 @@ function InsertLink({ isOpen, onClose, onCloseEntire }) {
 					<MarkerViewer
 						isOpen={showMarkerViewer}
 						onClose={() => setMarkerViewer(false)}
-						onCloseEntire={onCloseEntire}
+						onCloseEntire={closeModal}
 						MyMarkers={highlights} // highlights 상태를 ViewMyMarker 컴포넌트에 전달
 					/>
 				)}
