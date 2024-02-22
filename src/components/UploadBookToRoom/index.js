@@ -38,7 +38,7 @@ export default function UploadBookToRoom({ roomId, refresher, setPop }) {
 		const formData = new FormData();
 		formData.append("file", file);
 		formData.append("title", title);
-		formData.append("image", image); // 변수명 이미지로 formData에 태웠습니다.
+		// formData.append("image", image); // 변수명 이미지로 formData에 태웠습니다.
 
 		const timestamp = Date.now();
 		formData.append("fileName", `_${timestamp}`);

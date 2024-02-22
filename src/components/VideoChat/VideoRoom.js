@@ -7,9 +7,8 @@ import { Box } from "@mui/material";
 import { userState, userMapState } from "recoil/atom";
 import { useRecoilValue, useRecoilState } from "recoil";
 
-const APP_ID = "8f8d0e2bad4645fbb9d17554b76a6206";
-const TOKEN =
-	"007eJxTYNhqH6x5UCaw0eLDxwtF+90Sd6u2tNjdjnFWvnZ2uZDWwXwFBnOzJIPEZGMgaWhgYmFsaZFimWRqmJhsYZ6SZG5olHbw2qXUhkBGhorCEyyMDBAI4rMw5CZm5jEwAABHgB/7";
+const APP_ID = "f8d2691813d64a529bb37a247fadba03";
+const TOKEN = null;
 const CHANNEL = "main";
 
 AgoraRTC.setLogLevel(4);

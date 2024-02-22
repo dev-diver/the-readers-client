@@ -27,7 +27,7 @@ export default function Controls(props) {
 		<Box sx={{ display: "flex", flexDirection: "row" }}>
 			<div style={{ flex: 1 }}>
 				<Button onClick={() => mute("audio")} sx={{ width: "100%" }}>
-					{trackState.audio ? <MicIcon /> : <MicOffIcon />}
+					{trackState.audio ? <MicOffIcon /> : <MicIcon />}
 				</Button>
 			</div>
 			<div style={{ flex: 1 }}>

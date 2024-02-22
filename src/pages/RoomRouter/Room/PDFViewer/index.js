@@ -254,9 +254,9 @@ function PDFViewer() {
 			{canvasComponents.map(({ component, container }) => {
 				return component && createPortal(component, container);
 			})}
-			{/* <DraggableElement startX={window.innerWidth * (8 / 9)} startY={60} style={{ zIndex: 999 }}>
+			<DraggableElement startX={window.innerWidth * (8 / 9)} startY={60} style={{ zIndex: 999 }}>
 				<VideoChat />
-			</DraggableElement> */}
+			</DraggableElement>
 			<DraggableElement startX={window.innerWidth / 2 - 150} startY={20}>
 				<PenController />
 			</DraggableElement>
