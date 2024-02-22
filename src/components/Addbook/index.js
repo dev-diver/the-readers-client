@@ -28,7 +28,21 @@ const AddBook = ({ room, refresher, className }) => {
 
 	return (
 		<div className={className || ""}>
-			<Grid container direction="column" spacing={2} cursor="auto">
+			<Grid
+				container
+				direction="column"
+				spacing={2}
+				cursor="auto"
+				sx={{
+					...(pop && {
+						// pop이 true일 때만 아래 스타일 적용
+						backgroundColor: "#f9f9f9", // 연한 흰색 배경색 설정
+						padding: 2, // 패딩 추가
+						borderRadius: 1, // 테두리 둥글게 처리
+						boxShadow: 1, // 그림자 효과 추가
+					}),
+				}}
+			>
 				<Grid item>
 					<Button variant="contained" onClick={togglePop}>
 						{pop ? "닫기" : "책 추가"}
