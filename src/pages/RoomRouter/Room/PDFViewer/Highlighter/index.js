@@ -5,16 +5,15 @@ import { useParams } from "react-router-dom";
 import { rangeToInfo, InfoToRange, eraseHighlight, drawHighlight } from "./util";
 import { useRecoilState, useRecoilCallback } from "recoil";
 import {
-	bookChangedState,
 	roomUsersState,
 	penModeState,
 	userState,
 	scrollerRefState,
-	highlightState,
+	highlightListState,
 	buttonGroupsPosState,
-	currentHighlightIdState,
 	bookState,
 	highlightLoadStateFamily,
+	selectedHighlightInfoState,
 } from "recoil/atom";
 import { useToggleDrawer } from "recoil/handler";
 import socket from "socket.js";
@@ -33,18 +32,16 @@ function Highlighter({ renderContent }) {
 
 	// 진태 추가 코드
 	const [optionsModalOpen, setOptionsModalOpen] = useState(false);
-	const [highlightId, setHighlightId] = useState(null);
-	const [highlightInfos, setHighlightInfos] = useState(null);
 	const [book, setBook] = useRecoilState(bookState);
-	const [highlightList, setHighlightList] = useRecoilState(highlightState);
+	const [highlightList, setHighlightList] = useRecoilState(highlightListState);
 	const [scrollerRef, setScrollerRef] = useRecoilState(scrollerRefState);
 	const [penMode, setPenMode] = useRecoilState(penModeState);
 	const [buttonGroupsPos, setButtonGroupsPos] = useRecoilState(buttonGroupsPosState);
-	const [currentHighlightId, setCurrentHighlightId] = useRecoilState(currentHighlightIdState);
+	const [selectedHighlightInfo, setSelectedHighlightInfo] = useRecoilState(selectedHighlightInfoState);
 
 	const recoilProps = {
 		setButtonGroupsPos,
-		setCurrentHighlightId,
+		setSelectedHighlightInfo,
 	};
 
 	const getPageLoadState = useGetPageLoadState();
@@ -52,7 +49,7 @@ function Highlighter({ renderContent }) {
 	const updatehighlightLoadState = useRecoilCallback(
 		({ set }) =>
 			(book, userId, flag) => {
-				console.warn("userId", userId, "totalPages", book?.totalPage || 0, "updatehighlightLoadState", flag);
+				console.log("userId", userId, "totalPage", book?.totalPage || 0, "updatehighlightLoadState", flag);
 				for (let pageNum = 1; pageNum <= book?.totalPage || 0; pageNum++) {
 					set(highlightLoadStateFamily({ bookId: book.id, pageNum: pageNum, userId: userId }), flag);
 				}
@@ -69,7 +66,7 @@ function Highlighter({ renderContent }) {
 
 	useEffect(() => {
 		if (!book) return;
-		console.warn("bookID", book.id, roomUsers);
+		console.log("book changed bookId :", book.id, roomUsers);
 		setHighlightList([]);
 		roomUsers.forEach((roomUser) => {
 			updatehighlightLoadState(book, roomUser.id, false);
@@ -90,8 +87,8 @@ function Highlighter({ renderContent }) {
 			const additionalInfo = { bookId: book.id, text: selectedRange.toString() };
 			const highlightInfo = rangeToInfo(range, additionalInfo);
 			// console.log("highlightInfo", highlightInfo);
+			setSelectedHighlightInfo(highlightInfo);
 			setOptionsModalOpen(true);
-			setHighlightInfos([highlightInfo]);
 		}
 
 		selectedRange.removeAllRanges();
@@ -137,21 +134,22 @@ function Highlighter({ renderContent }) {
 		};
 	}, [book, roomUsers]);
 
+	const drawHighlightHandler = (data) => {
+		console.log("drawHighlightInfo", data);
+		getPageLoadState(book?.id, data.pageNum).then((pageLoadState) => {
+			console.log("book", book?.id, "page", data.pageNum, "pageLoadState", pageLoadState);
+			if (pageLoadState == "loaded") {
+				const newRange = InfoToRange(data);
+				const drawHighlightInfo = {
+					...data,
+				};
+				drawHighlight(newRange, drawHighlightInfo, scrollerRef, recoilProps);
+			}
+		});
+	};
+
 	useEffect(() => {
 		if (!book || !scrollerRef) return;
-		const drawHighlightHandler = (data) => {
-			console.log("drawHighlightInfo", data);
-			getPageLoadState(book?.id, parseInt(data.pageNum)).then((pageLoadState) => {
-				console.log("pageLoadState", pageLoadState);
-				if (pageLoadState == "loaded") {
-					const newRange = InfoToRange(data);
-					const drawHighlightInfo = {
-						...data,
-					};
-					drawHighlight(newRange, drawHighlightInfo, scrollerRef, recoilProps);
-				}
-			});
-		};
 		socket.on("draw-highlight", drawHighlightHandler);
 		return () => {
 			socket.off("draw-highlight", drawHighlightHandler);
@@ -194,38 +192,17 @@ function Highlighter({ renderContent }) {
 		});
 	};
 
-	const deleteHighlightListItem = (highlightInfo) => {
-		setHighlightList(highlightList.filter((h) => h.id !== highlightInfo.id));
-
-		api
-			.delete(`/highlights/${highlightInfo.id}`)
-			.then((response) => {
-				logger.log(response);
-			})
-			.catch((err) => {
-				logger.log(err);
-			});
-
-		eraseHighlight(scrollerRef, highlightInfo.id);
-		socket.emit("delete-highlight", { roomId: roomId, ...highlightInfo });
-	};
-
 	return (
 		<>
-			<HighlightList highlights={highlightList} deleteHandler={deleteHighlightListItem} />
+			<HighlightList highlights={highlightList} />
 			{/* 조건부 랜더링 : optionsModalOpen이 true되면 OptionsModal이 화면에 랜더링됨. */}
 			{optionsModalOpen && (
 				<OptionsModal
 					isOpen={optionsModalOpen}
 					onClose={() => setOptionsModalOpen(false)}
-					user={user}
-					highlightId={highlightId}
-					setHighlightId={setHighlightId}
-					bookId={bookId}
-					roomId={roomId}
 					color={user.color || "yellow"}
 					appendHighlightListItem={appendHighlightListItem}
-					selectedHighlightInfo={highlightInfos} // selectedHighlightInfo를 OptionsModal에 전달
+					recoilProps={recoilProps}
 				/>
 			)}
 		</>

@@ -53,7 +53,7 @@ function UserPageDrawingCanvas({ index, roomUser, pageNum, canvasFrame }) {
 	};
 
 	useEffect(() => {
-		// console.log("draw-canvas", pageNum, loadingState);
+		console.log("draw-canvas", pageNum, loadingState);
 		if (!canvasRef?.current || loadingState != "loaded") {
 			return;
 		}

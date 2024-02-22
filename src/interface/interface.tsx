@@ -14,5 +14,6 @@ export interface CarouselProps {
   numPlanes: number; // 선택적 속성
   radius: number; // 선택적 속성
   books: Book[]; // Book 객체의 배열
+  isFake: boolean; // 불리언 타입
   bookClickHandler: (book: Book) => void; // 함수 타입
 }

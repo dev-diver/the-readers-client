@@ -2,7 +2,7 @@ import React from "react";
 import { Avatar, Badge, Card, CardContent, CardActions, Button, Typography, TextField, Box } from "@mui/material";
 import { keyframes, styled, shadows } from "@mui/system";
 import { deepOrange, green } from "@mui/material/colors";
-import { redirect, useNavigate, useParams, Link } from "react-router-dom";
+import { useNavigate, useParams, Link, useLocation } from "react-router-dom";
 import { userState } from "recoil/atom";
 import { useRecoilValue } from "recoil";
 import { useToggleDrawer } from "recoil/handler";
@@ -59,10 +59,18 @@ const StyledBody = styled("div")(({ theme }) => ({
 	// 	},
 }));
 
+function useQuery() {
+	return new URLSearchParams(useLocation().search);
+}
+
 function Invite() {
 	const user = useRecoilValue(userState);
-	const { roomId, host } = useParams();
-	const decodeHost = decodeURIComponent(host);
+	const query = useQuery();
+	const { roomId } = useParams();
+
+	const host = decodeURIComponent(query.get("host"));
+	const roomName = decodeURIComponent(query.get("roomName"));
+
 	const toggleDrawer = useToggleDrawer();
 	const navigate = useNavigate();
 
@@ -76,7 +84,7 @@ function Invite() {
 		}
 	};
 
-	// const url = `${baseURL}/invite/room/${roomId}/host/${decodeHost}`;
+	// const url = `${baseURL}/invite/room/${roomId}?host=${decodeHost}&roomName=${room.title}`;
 	// http://localhost:3001/invite/room/1/host/콩서누
 
 	return (
@@ -95,13 +103,13 @@ function Invite() {
 
 					{/* <!-- 초대한 사람 --> */}
 					<Typography sx={{ mb: 0, fontSize: 20 }} color="text.secondary" gutterBottom>
-						&quot;{decodeHost}&quot;님이 초대함:
+						&quot;{host}&quot;님이 초대함:
 					</Typography>
 
 					{/* <!-- 방 이름 --> */}
-					{/* <Typography sx={{ mb: 2 }} variant="h4" component="h2">
-						{roomId}
-					</Typography> */}
+					<Typography sx={{ mb: 2 }} variant="h4" component="h2">
+						{roomName}
+					</Typography>
 
 					{/* <Typography variant="p" component="h6">
 						<Badge sx={{ mx: 1, ml: 2 }} color="secondary" variant="dot"></Badge>
