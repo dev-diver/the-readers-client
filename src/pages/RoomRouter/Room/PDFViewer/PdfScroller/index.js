@@ -12,7 +12,7 @@ import {
 	buttonGroupsPosState,
 } from "recoil/atom";
 import socket from "socket";
-import { scrollToPage, scrollToHighlight, smoothScrollTo, useDetermineCurrentPage } from "./util";
+import { scrollToPage, scrollToHighlight, smoothScrollTo, smoothScrollToLeft, useDetermineCurrentPage } from "./util";
 import { Box } from "@mui/material";
 import { useLocation, useParams } from "react-router-dom";
 
@@ -65,6 +65,7 @@ export default function PdfScroller({ renderContent, children }) {
 				console.log("receive-attention-scroll", data.scale, scale);
 				if (data.scale != scale) setScale(data.scale);
 				smoothScrollTo(scrollerRef, data.scrollTop);
+				smoothScrollToLeft(scrollerRef, data.scrollLeft);
 			});
 		}
 		return () => {

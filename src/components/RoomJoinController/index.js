@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import socket from "socket";
 import { useRecoilState } from "recoil";
-import { userState, roomUserState, roomUsersState, roomState } from "recoil/atom";
+import { roomRefreshState, userState, roomUserState, roomUsersState, roomState } from "recoil/atom";
 import api from "api";
 
 const createUuid = () => {
@@ -17,14 +17,14 @@ export default function RoomJoinController({ roomId }) {
 	const [roomUser, setRoomUser] = useRecoilState(roomUserState);
 	const [roomUsers, setRoomUsers] = useRecoilState(roomUsersState);
 	const [room, setRoom] = useRecoilState(roomState);
-
+	const [roomRefresh, setRoomRefresh] = useRecoilState(roomRefreshState);
 	// const uuid = createUuid();
 
 	useEffect(() => {
 		api.get(`/rooms/${roomId}`).then((response) => {
 			setRoom(response.data.data);
 		});
-	}, [roomId]);
+	}, [roomId, roomRefresh]);
 
 	useEffect(() => {
 		if (!user || !roomId) return;

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import api from "api";
 import { Tooltip } from "@mui/material";
 import "./style.css";
+import { throttle } from "lodash";
 
 function MyMarkerComponent({ highlightInfo, scrollerProps, recoilProps, children }) {
 	const [highlights, setHighlights] = useState([]);
@@ -55,7 +56,7 @@ function MyMarkerComponent({ highlightInfo, scrollerProps, recoilProps, children
 		return { nodes, links: linksTransformed };
 	};
 
-	const handleComponentClick = async (e) => {
+	const handleComponentClick = throttle(async (e) => {
 		try {
 			const response = await api.get(`/highlights/book/${bookId}`);
 			console.log("recoilProps", recoilProps);
@@ -65,7 +66,7 @@ function MyMarkerComponent({ highlightInfo, scrollerProps, recoilProps, children
 		} catch (error) {
 			console.error("Failed to fetch highlights", error);
 		}
-	};
+	}, 300);
 
 	const handleComponentLeave = () => {
 		setIsTooltipOpen(false); // 마우스가 떠나면 Tooltip을 숨김
