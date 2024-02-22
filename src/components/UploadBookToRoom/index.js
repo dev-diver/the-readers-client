@@ -25,8 +25,16 @@ export default function UploadBookToRoom({ roomId, refresher, setPop }) {
 	};
 
 	const uploadBook = (e) => {
-		setLoading(true);
 		e.preventDefault();
+
+		// 이미지, 책 이름, 책 파일이 제공되었는지 확인
+		if (!image || title.trim() === "" || !file) {
+			alert("이미지, 책 이름, 책 파일을 모두 업로드해주세요.");
+			return; // 필수 항목이 누락된 경우 함수 실행을 중단
+		}
+
+		setLoading(true);
+
 		const formData = new FormData();
 		formData.append("file", file);
 		formData.append("title", title);
