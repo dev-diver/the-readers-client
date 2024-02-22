@@ -111,6 +111,7 @@ export const useGetPageLoadState = () => {
 			async (bookId, pageNum) => {
 				const Key = { bookId: bookId, pageNum: pageNum };
 				const loadState = await snapshot.getPromise(pageLoadingStateFamily(Key));
+				console.log("current book", bookId, "page", pageNum, "loadState", loadState);
 				return loadState;
 			},
 		[]

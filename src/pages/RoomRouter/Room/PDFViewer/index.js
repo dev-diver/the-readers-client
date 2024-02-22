@@ -49,7 +49,8 @@ function PDFViewer() {
 	const updatePageLoadingState = useRecoilCallback(
 		({ set }) =>
 			(bookId, pageNum, loadingState) => {
-				// console.warn("book", bookId, "page", pageNum, "set", loadingState);
+				// console.warn("viwer book", bookId, "page", pageNum, "set", loadingState);
+				console.log("viwer book", bookId, "page", pageNum, "set", loadingState);
 				set(pageLoadingStateFamily({ bookId: bookId, pageNum: pageNum }), loadingState);
 			},
 		[]
@@ -58,6 +59,8 @@ function PDFViewer() {
 	useEffect(() => {
 		return () => {
 			for (let page = 1; page <= book?.totalPage || 0; page++) {
+				// console.warn("book reset", book);
+				console.log("make book", book, ", page,", page, "loading false");
 				updatePageLoadingState(book.id, page, false);
 			}
 			if (setPageContainerHTML || renderContent) {
@@ -126,6 +129,7 @@ function PDFViewer() {
 	useEffect(() => {
 		if (renderContent && pdfContentsRef?.current && dimensions?.height > 30) {
 			// console.warn("width renderContent", renderContent, dimensions);
+			console.log("width renderContent", renderContent, dimensions);
 			const wrapper = pdfContentsRef.current.querySelector(".page-wrapper");
 			if (!wrapper) {
 				console.info("wrapper not found");
