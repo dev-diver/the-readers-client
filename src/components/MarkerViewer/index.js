@@ -9,6 +9,7 @@ function MarkerViewer({ isOpen, onClose, onCloseEntire, MyMarkers }) {
 	const [selectionModel, setSelectionModel] = useState([]);
 	const [user, setUser] = useRecoilState(userState);
 	const [hl, setHl] = useRecoilState(selectedHighlightInfoState);
+	const [, setRows] = useState([]);
 
 	// const [notes, setNotes] = useState({});
 	// Refs를 저장하기 위한 객체 생성
@@ -91,6 +92,18 @@ function MarkerViewer({ isOpen, onClose, onCloseEntire, MyMarkers }) {
 			),
 		},
 	];
+
+	useEffect(() => {
+		const updatedRows = MyMarkers.map((marker) => ({
+			id: marker.id,
+			pageNum: marker.pageNum,
+			text: marker.text,
+			memo: marker.memo || "",
+			note: marker.note || "",
+		}));
+
+		setRows(updatedRows); // 이 부분은 예시 코드이므로, 실제 구현에는 rows 상태 관리가 필요합니다.
+	}, [MyMarkers]); // MyMarkers가 변경될 때마다 이 useEffect가 실행됩니다.
 
 	const rows = MyMarkers.map((marker) => ({
 		id: marker.id,
