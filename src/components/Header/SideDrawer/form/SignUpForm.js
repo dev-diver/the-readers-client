@@ -39,13 +39,13 @@ const SignUpForm = () => {
 				toggleDrawer("none")(e);
 				setErrorMessage("");
 				//로그인
-				let user = response.data.data;
-				localStorage.setItem("user", JSON.stringify(user));
-				user = {
-					...user,
-					color: coloringUser(user.id),
-				};
-				setUser(user);
+				// let user = response.data.data;
+				// localStorage.setItem("user", JSON.stringify(user));
+				// user = {
+				// 	...user,
+				// 	color: coloringUser(user.id),
+				// };
+				// setUser(user);
 			})
 			.catch((error) => {
 				setErrorMessage(error.response.data.message);
