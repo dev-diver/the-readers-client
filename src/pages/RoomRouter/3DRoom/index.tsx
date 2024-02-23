@@ -34,6 +34,7 @@ export const LobbyCanvas: React.FC<LobbyCanvasProps> = ({books, bookClickHandler
             <Environment
                 background
                 blur={0}
+                preset = "apartment"
                 files="/room/christmas_photo_studio_07_4k.hdr"
             />
             <Carousel isFake={isFake} numPlanes={13} radius={3} books={books} bookClickHandler ={bookClickHandler}/>

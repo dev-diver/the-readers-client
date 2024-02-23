@@ -17,7 +17,6 @@ function RoomRouter() {
 	return (
 		<>
 			<RoomJoinController roomId={roomId} />
-			{/* <VideoChat /> */}
 			{/* <DraggableElement startX={window.innerWidth - 300} startY={120}>
 				<SwitchController />
 			</DraggableElement> */}

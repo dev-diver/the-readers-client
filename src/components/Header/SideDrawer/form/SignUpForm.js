@@ -6,6 +6,7 @@ import { useToggleDrawer } from "recoil/handler";
 import ProfileSelector from "./ProfileSelector";
 import { useRecoilState } from "recoil";
 import { userState } from "recoil/atom";
+import { coloringUser } from "components/Chart/utils";
 
 const SignUpForm = () => {
 	const [user, setUser] = useRecoilState(userState);
@@ -38,8 +39,12 @@ const SignUpForm = () => {
 				toggleDrawer("none")(e);
 				setErrorMessage("");
 				//로그인
-				const user = response.data.data;
+				let user = response.data.data;
 				localStorage.setItem("user", JSON.stringify(user));
+				user = {
+					...user,
+					color: coloringUser(user.id),
+				};
 				setUser(user);
 			})
 			.catch((error) => {
