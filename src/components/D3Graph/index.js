@@ -224,7 +224,7 @@ const D3Graph = ({ highlightId, data, width, height, onNodeClick }) => {
 				.attr("dy", 5);
 
 			node.attr("transform", (d) => {
-				d.x = Math.max(40, Math.min(width - 30, d.x)); // 화면 가로 경계 내로 제한
+				d.x = Math.max(40, Math.min(width - 105, d.x)); // 화면 가로 경계 내로 제한
 				d.y = Math.max(20, Math.min(height - 20, d.y)); // 화면 세로 경계 내로 제한
 				return `translate(${d.x},${d.y})`;
 			});
