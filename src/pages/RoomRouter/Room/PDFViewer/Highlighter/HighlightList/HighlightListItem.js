@@ -19,7 +19,7 @@ export default function HighlightListItem({ hlInfo }) {
 		<Grid
 			container
 			justifyContent="space-between"
-			sx={{ margin: "5px", padding: "5px", borderRadius: "6px", border: "solid 1px #333" }}
+			sx={{ margin: "5px", padding: "5px", borderRadius: "6px", border: "solid 1px #333", backgroundColor: "#f5f7fa" }}
 		>
 			<Grid item>
 				<Link
