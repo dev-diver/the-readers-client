@@ -12,6 +12,7 @@ function MyMarkerComponent({ highlightInfo, scrollerProps, recoilProps, children
 	const { id: highlightId, userId, bookId } = highlightInfo;
 	const [D3GraphOpen, setD3GraphOpen] = useState(false);
 	const [linkData, setLinkData] = useState({ nodes: [], links: [] }); // API로부터 받은 링크 데이터를 저장
+	const [tooltipTimeout, setTooltipTimeout] = useState(null);
 
 	const popButtonGroup = (e) => {
 		if (!scrollerProps.ref) return; // scrollerRef가 유효한지 확인
@@ -70,18 +71,26 @@ function MyMarkerComponent({ highlightInfo, scrollerProps, recoilProps, children
 
 	const handleComponentLeave = () => {
 		setIsTooltipOpen(false); // 마우스가 떠나면 Tooltip을 숨김
+		if (tooltipTimeout) clearTimeout(tooltipTimeout); // 마우스가 떠나면 타이머 초기화
 	};
+
+	useEffect(() => {
+		return () => {
+			if (tooltipTimeout) clearTimeout(tooltipTimeout); // 컴포넌트 언마운트 시 타이머 초기화
+		};
+	}, [tooltipTimeout]);
 
 	const handleComponentEnter = async () => {
 		try {
 			const response = await api.get(`/highlights/${highlightId}`);
 			setMemoData(response.data.data.memo);
-			// if (!memoRequested) {
-
-			// 	console.log(response.data.data.memo);
-			// 	setMemoRequested(true); // 메모 데이터를 상태에 저장
-			// }
 			setIsTooltipOpen(true); // Tooltip을 표시
+
+			// 타이머 설정
+			const timeout = setTimeout(() => {
+				setIsTooltipOpen(false);
+			}, 4000); // 4초 후 툴팁 숨김
+			setTooltipTimeout(timeout);
 		} catch (error) {
 			console.error("Failed to fetch highlights", error);
 		}
