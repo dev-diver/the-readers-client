@@ -44,15 +44,41 @@ function Chart() {
 
 	useEffect(() => {
 		console.log("book changed");
-		setData([]);
 		setBookChanged((prev) => !prev);
-	}, [book]);
+		return () => {
+			setData([]);
+		};
+	}, [roomUser, book]);
 
+	//1,2 유저가 들어올 때 내꺼만 server에 load하기 (find 또는 create)
 	useEffect(() => {
+		const findOrCreateChart = () => {
+			console.info("findOrCreateChart", roomUser, book);
+			if (!roomUser?.user?.id || !book) return;
+			api
+				.get(`/chart/book/${bookId}/user/${roomUser?.user?.id}`)
+				.then((response) => {
+					console.log(response.data.pages);
+					// chartId를 받아옴
+					setChartId(response.data.chartId);
+					insertUserData(roomUser?.user, response.data.pages);
+				})
+				.catch((error) => {
+					console.log("error", error);
+				});
+		};
+		findOrCreateChart();
+	}, [roomUser, bookChanged]);
+
+	//5.room users 바뀜
+	useEffect(() => {
+		const bookId = book?.id;
 		if (data.length === 0) {
-			roomUsers.forEach((user) => {
-				api.get(`/chart/book/${bookId}/user/${user.id}`).then((response) => {
-					insertUserData(user, response.data.pages);
+			roomUsers.forEach((rUser) => {
+				if (rUser.id == roomUser?.user?.id) return;
+				api.get(`/chart/book/${bookId}/user/${rUser.id}`).then((response) => {
+					console.log("response", response.data.pages);
+					insertUserData(rUser, response.data.pages);
 				});
 			});
 		} else {
@@ -76,46 +102,13 @@ function Chart() {
 		}
 	}, [roomUsers, bookChanged]);
 
-	// 유저가 들어올 때 내꺼만 server에 load하기 (find 또는 create)
-	useEffect(() => {
-		const findOrCreateChart = () => {
-			console.info("findOrCreateChart", roomUser, book);
-			if (!roomUser?.user?.id || !book) return;
-			api
-				.get(`/chart/book/${bookId}/user/${roomUser?.user?.id}`)
-				.then((response) => {
-					console.log(response.data.pages);
-					// chartId를 받아옴
-					setChartId(response.data.chartId);
-					insertUserData(roomUser?.user, response.data.pages);
-				})
-				.catch((error) => {
-					console.log("error", error);
-				});
-		};
-		findOrCreateChart();
-	}, [book, roomUser]);
-
-	//book 바꼈을 때 기존꺼 지워줘야함
-
-	// 유저가 페이지 이동 시 server에 save하기 (update)
+	// 4-1. 토끼 거북. 페이지 바뀜 socket post
 	useEffect(() => {
 		const roomUserId = roomUser?.user?.id;
-		if (!roomUserId) return;
+		if (!book || !roomUserId || chartId == 0) return;
 		const index = data.findIndex((item) => item.page == prevPage);
 		if (index !== -1) {
-			const updatedTime = (data[index][roomUserId] || 0) + count;
-			setData((currentData) =>
-				produce(currentData, (draft) => {
-					if (!draft[index]) {
-						draft[index] = { page: prevPage };
-					}
-					if (draft[index][roomUserId]) {
-						draft[index][roomUserId] = updatedTime;
-					}
-				})
-			);
-
+			const updatedTime = data[index][roomUserId] || 0;
 			api
 				.put(`/chart/${chartId}`, {
 					chartId: chartId,
@@ -129,36 +122,18 @@ function Chart() {
 					console.log("error", error);
 				});
 		} else {
-			setData((currentData) =>
-				produce(currentData, (draft) => {
-					draft.push({ page: prevPage, [roomUserId]: count });
-				})
-			);
+			// * 해당 페이지가 없는 경우 무시하시오.
 			console.log("바꿀 페이지 없음");
 		}
-	}, [currentPage, chartId, roomUser]);
+		socket.emit("current-user-position", {
+			currentPage: currentPage,
+			user: roomUser.user,
+			bookKey: book.id,
+			roomKey: roomUser.roomId,
+		});
+	}, [currentPage, chartId, roomUser, book]);
 
-	useEffect(() => {
-		const handleUpdateChart = (data) => {
-			const { updatedTime, userKey, pageKey } = data;
-			setData((prevData) =>
-				produce(prevData, (draft) => {
-					let pageDataIndex = draft.findIndex((item) => item.page == pageKey);
-					if (pageDataIndex !== -1) {
-						draft[pageDataIndex][userKey] = updatedTime;
-					} else {
-						let newPageData = { page: pageKey, [userKey]: updatedTime };
-						draft.push(newPageData);
-					}
-				})
-			);
-		};
-		socket.on("update-chart", handleUpdateChart);
-		return () => {
-			socket.off("update-chart", handleUpdateChart);
-		};
-	}, [setData]);
-
+	//3-1. 차트 부분 업데이트 (초 카운트)
 	useEffect(() => {
 		const roomUserId = roomUser?.user?.id;
 		if (!roomUser?.user) return;
@@ -175,6 +150,11 @@ function Chart() {
 					}
 				})
 			);
+			const userKey = roomUserId;
+			const pageKey = currentPage;
+			const bookKey = book.id;
+			const updatedTime = data.find((item) => item.page == pageKey)?.[userKey] || 0;
+			socket.emit("send-chart", { updatedTime, userKey, pageKey, bookKey });
 		}, 1000);
 
 		// 컴포넌트가 언마운트될 때 인터벌 정리
@@ -182,34 +162,9 @@ function Chart() {
 			clearInterval(interval);
 			setPrevPage(currentPage);
 		};
-	}, [roomUser, currentPage]);
+	}, [roomUser, currentPage, book]);
 
-	// count는 스크롤 이벤트가 한 번 발생한 이후부터 시작. 그 전엔 카운트 안 셈.
-	// data에서 prevScroll에 해당하는 값이 time 키와 같을 때 그 값을 1초에 1씩 증가시킴
-	// count가 prevScroll 값이 바뀔 때마다 0으로 초기화되는 기능 포함
-	useEffect(() => {
-		// console.log(data);
-		// data가 {}일 때는 !data로 잡히지 않으므로 추가로 조건문을 걸어줌
-		if (!book || !roomUser || !data || Object.keys(data).length === 0) return;
-		const userKey = roomUser?.user?.id;
-		const pageKey = currentPage;
-		const bookKey = book.id;
-		const updatedTime = data.find((item) => item.page == pageKey)?.[userKey] || 0;
-		socket.emit("send-chart", { updatedTime, userKey, pageKey, bookKey });
-		setCount(0);
-	}, [data, currentPage, roomUser, book]);
-
-	// Hare And Tortoise
-	useEffect(() => {
-		if (!roomUser || !book) return;
-		socket.emit("current-user-position", {
-			currentPage: currentPage,
-			user: roomUser.user,
-			bookKey: book.id,
-			roomKey: roomUser.roomId,
-		});
-	}, [roomUsers, roomUser, currentPage, book]);
-
+	//4-2. 토끼 거북 other user position get
 	useEffect(() => {
 		socket.on("other-user-position", (data) => {
 			const { currentPage, user, bookKey, roomKey } = data;
@@ -237,6 +192,29 @@ function Chart() {
 			socket.off("other-user-position");
 		};
 	}, [roomId, book]);
+
+	//3-2. 차트 부분 업데이트 get
+	useEffect(() => {
+		const handleUpdateChart = (data) => {
+			const { updatedTime, userKey, pageKey, bookKey } = data;
+			if (bookKey != bookId) return;
+			setData((prevData) =>
+				produce(prevData, (draft) => {
+					let pageDataIndex = draft.findIndex((item) => item.page == pageKey);
+					if (pageDataIndex !== -1) {
+						draft[pageDataIndex][userKey] = updatedTime;
+					} else {
+						let newPageData = { page: pageKey, [userKey]: updatedTime };
+						draft.push(newPageData);
+					}
+				})
+			);
+		};
+		socket.on("update-chart", handleUpdateChart);
+		return () => {
+			socket.off("update-chart", handleUpdateChart);
+		};
+	}, [bookId, setData]);
 
 	const CustomTick = React.memo(
 		({ x, y, payload, book, currentUsersPage, roomUsers }) => {

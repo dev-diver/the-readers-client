@@ -147,7 +147,7 @@ export function InfoToRange(Info) {
 
 	const startOffset = Info.startOffset - getLastMarkerEndOffset(startContainer);
 	const endOffset = Info.endOffset - getLastMarkerEndOffset(endContainer);
-
+	console.log(Info.startOffset, getLastMarkerEndOffset(startContainer), startOffset);
 	range.setStart(startContainer, startOffset);
 	range.setEnd(endContainer, endOffset);
 
