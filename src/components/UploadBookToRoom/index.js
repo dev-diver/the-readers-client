@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import FormFile from "./Formfile";
 import api from "api";
+import axios from "axios";
 import { logger } from "logger";
 import { PDF_UPLOAD_URL } from "config/config";
 import { LoadingButton } from "@mui/lab";
@@ -36,15 +37,15 @@ export default function UploadBookToRoom({ roomId, refresher, setPop }) {
 		setLoading(true);
 
 		const formData = new FormData();
-		formData.append("file", file);
+		formData.append("pdfFile", file);
 		formData.append("title", title);
-		// formData.append("image", image); // 변수명 이미지로 formData에 태웠습니다.
+		formData.append("coverImage", image); // 변수명 이미지로 formData에 태웠습니다.
 
 		const timestamp = Date.now();
 		formData.append("fileName", `_${timestamp}`);
 		console.log("url", `${PDF_UPLOAD_URL}/api/pdf`);
-		api
-			.post(`${PDF_UPLOAD_URL}/api/pdf`, formData)
+		axios
+			.post(`http://${PDF_UPLOAD_URL}:3000/api/pdf`, formData)
 			.then((response) => {
 				logger.log(response.data);
 				api
